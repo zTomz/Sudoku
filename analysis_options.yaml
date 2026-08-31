@@ -1,0 +1,23 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
+  language:
+    strict-inference: true
+
+linter:
+  rules:
+    use_primary_constructors: true
+    use_declaring_parameters: true
+    unnecessary_type_name_in_constructor: true
+    unnecessary_primary_constructor_body: true
+    no_dynamic_casts: true
+    no_raw_types: true
+    unawaited_futures: true

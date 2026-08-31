@@ -1,0 +1,37 @@
+name: sudoku
+description: A quiet, offline Sudoku app built with Flutter and Rudi UI.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.0
+  flutter: '>=3.47.0'
+
+dependencies:
+  cue: ^0.3.1
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  rudi_ui:
+    git:
+      url: https://github.com/zTomz/rudi_ui.git
+      ref: eff9e33e4797e8bbee9c24395b00757ca1e48380
+  shared_preferences: ^2.5.5
+  solar_icons: ^0.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  generate: true
+  assets:
+    - assets/fonts/OFL.txt
+    - assets/licenses/solar-icons.txt
+  fonts:
+    - family: GoogleSans
+      fonts:
+        - asset: assets/fonts/GoogleSans.ttf

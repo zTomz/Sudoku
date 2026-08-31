@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Sudoku by Tom Vogel. Open source, offline, no ads and no account.">
+  <meta name="theme-color" content="#2673d9">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Sudoku">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="manifest" href="manifest.json">
+  <title>Sudoku</title>
+  <style>
+    body { margin: 0; background: #fafafa; color: #2673d9; }
+    #loading { position: fixed; inset: 0; display: grid; place-items: center;
+      padding: 32px; text-align: center; font: 500 28px system-ui, sans-serif; }
+    @media (prefers-color-scheme: dark) { body { background: #14171e; color: #79b5ff; } }
+  </style>
+</head>
+<body>
+  <div id="loading" role="status">Sudoku</div>
+  <noscript>Sudoku needs JavaScript / Sudoku benötigt JavaScript.</noscript>
+  <script src="offline_bootstrap.js" defer></script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

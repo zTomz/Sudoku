@@ -1,0 +1,155 @@
+{
+  "@@locale": "en",
+  "appTitle": "Sudoku",
+  "tagline": "A little space to think.",
+  "play": "Home",
+  "daily": "Daily",
+  "statistics": "Statistics",
+  "settings": "Settings",
+  "newGame": "New game",
+  "continueGame": "Continue game",
+  "difficulty": "Difficulty",
+  "easy": "Easy",
+  "medium": "Medium",
+  "hard": "Hard",
+  "difficultyNote": "Starter difficulty levels use clue counts. Strategy-based grading is planned.",
+  "dailyTitle": "Your daily puzzle",
+  "dailyDescription": "The same puzzle for everyone. A fresh start every day.",
+  "playDaily": "Play today's puzzle",
+  "dailyArchive": "Daily calendar",
+  "calendarDescription": "Missed a day? Past puzzles stay available.",
+  "freePlay": "Free play",
+  "back": "Back",
+  "close": "Close",
+  "loading": "Preparing your puzzle…",
+  "loadFailed": "Your saved games could not be loaded. They have not been overwritten.",
+  "retry": "Try again",
+  "saveFailed": "Saving failed. Keep the app open and try again.",
+  "generationFailed": "The puzzle could not be created. Please try again.",
+  "undo": "Undo",
+  "redo": "Redo",
+  "erase": "Erase",
+  "notes": "Notes",
+  "notesOn": "Notes on",
+  "pause": "Pause",
+  "paused": "Paused",
+  "resume": "Resume",
+  "pausedMessage": "Take your time. Your puzzle will be here.",
+  "finished": "Nicely done.",
+  "finishedMessage": "Another puzzle, solved at your own pace.",
+  "backHome": "Back to start",
+  "timer": "Timer",
+  "progress": "{filled} / 81 filled",
+  "@progress": {
+    "placeholders": {
+      "filled": {
+        "type": "int"
+      }
+    }
+  },
+  "appearance": "Appearance",
+  "system": "System",
+  "light": "Light",
+  "dark": "Dark",
+  "gameSettings": "Game",
+  "showTimer": "Show timer",
+  "showTimerDescription": "Hide the clock and play at your own pace.",
+  "cleanNotes": "Clean up notes",
+  "cleanNotesDescription": "Remove a placed number from notes in its row, column and block.",
+  "haptics": "Haptic feedback",
+  "hapticsDescription": "A subtle tap on supported devices.",
+  "numberFirst": "Number-first input",
+  "numberFirstDescription": "Choose a number, then tap cells to place it.",
+  "errorCheck": "Error checking",
+  "checkOff": "Off",
+  "checkConflicts": "Rule conflicts",
+  "checkSolution": "Compare with solution",
+  "errorDescription": "With checking off, no correctness feedback is shown.",
+  "about": "About Sudoku",
+  "aboutDescription": "An open-source Sudoku app by Tom Vogel. Built with Flutter and Rudi UI. All game data stays on this device.",
+  "version": "Version 0.1.0",
+  "storageDescription": "Browser data can be cleared by your browser. There is no cloud backup or device sync.",
+  "noStatistics": "Your first puzzle is waiting.",
+  "noStatisticsDescription": "Completed puzzles and your best times will appear here.",
+  "solved": "Solved",
+  "bestTime": "Best time",
+  "totalTime": "Time played",
+  "completed": "Completed",
+  "inProgress": "In progress",
+  "notStarted": "Not played",
+  "futureDay": "Not available yet",
+  "previousMonth": "Previous month",
+  "nextMonth": "Next month",
+  "today": "Today",
+  "cellLabel": "Row {row}, column {column}",
+  "@cellLabel": {
+    "placeholders": {
+      "row": {
+        "type": "int"
+      },
+      "column": {
+        "type": "int"
+      }
+    }
+  },
+  "givenValue": "Given: {value}",
+  "@givenValue": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "enteredValue": "Value: {value}",
+  "@enteredValue": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "emptyCell": "Empty",
+  "candidates": "Notes: {values}",
+  "@candidates": {
+    "placeholders": {
+      "values": {
+        "type": "String"
+      }
+    }
+  },
+  "conflict": "Conflict",
+  "selectedNumber": "Selected number: {number}",
+  "@selectedNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "keyboardHelp": "1–9: number · N: notes · Delete: erase · Arrow keys: move · Ctrl+Z: undo",
+  "replaceTitle": "Start a new puzzle?",
+  "replaceMessage": "Your unfinished free-play puzzle will be replaced. Daily puzzles are kept separately.",
+  "cancel": "Cancel",
+  "start": "Start",
+  "monthProgress": "{count} completed this month",
+  "@monthProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notesHelp": "Add small candidate numbers to an empty cell.",
+  "chooseDifficulty": "Choose a difficulty to begin.",
+  "licenses": "Open-source licenses",
+  "licenseNote": "Sudoku is licensed under MIT. Rudi UI is MIT-licensed. Google Sans is licensed under the SIL Open Font License. Solar Icons: 480 Design, CC BY 4.0 (solar-icons.vercel.app). Flutter package solar_icons: Sebastine Odeh, BSD-3-Clause.",
+  "boardMist": "Mist",
+  "selectDifficulty": "Choose difficulty",
+  "boardThemeDescription": "Choose the look of your puzzle.",
+  "boardClassic": "Classic",
+  "customization": "Customization",
+  "boardPaper": "Paper",
+  "boardTheme": "Board theme",
+  "boardMidnight": "Midnight",
+  "homeSubtitle": "Your daily moment to puzzle."
+}

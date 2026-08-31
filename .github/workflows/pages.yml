@@ -1,0 +1,50 @@
+name: Publish GitHub Pages
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.0'
+          channel: stable
+          cache: true
+      - run: flutter pub get --enforce-lockfile
+      - run: dart analyze --fatal-infos
+      - run: dart analyze --fatal-infos .github/prepare_web.dart
+      - run: flutter test
+      - name: Build with repository subpath
+        env:
+          REPOSITORY: ${{ github.event.repository.name }}
+        run: |
+          BASE="/$REPOSITORY/"
+          if [[ "$REPOSITORY" == *.github.io ]]; then BASE="/"; fi
+          flutter build web --release --no-web-resources-cdn --base-href "$BASE"
+          dart run .github/prepare_web.dart
+      - run: node --test test/web_cache_test.cjs
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
