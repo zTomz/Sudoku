@@ -12,7 +12,7 @@ GenerationJob generatePuzzle(GenerationRequest request) {
     final worker = Worker(
       Uri.parse(document.baseURI).resolve('sudoku_worker.js').toString().toJS,
     );
-    job.attach(worker.terminate);
+    job.attach(() => worker.terminate());
     worker.onmessage = ((MessageEvent event) {
       try {
         final json =
