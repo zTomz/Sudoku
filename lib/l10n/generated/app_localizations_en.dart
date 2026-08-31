@@ -47,7 +47,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get difficultyNote =>
-      'Starter difficulty levels use clue counts. Strategy-based grading is planned.';
+      'Puzzles are rated by logical solving techniques and can be solved without guessing.';
 
   @override
   String get dailyTitle => 'Your daily puzzle';
@@ -192,7 +192,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorDescription =>
-      'With checking off, no correctness feedback is shown.';
+      'Only incorrect entries are marked. Rule conflicts marks them only when a digit is repeated in a row, column or box. With checking off, no correctness feedback is shown.';
 
   @override
   String get about => 'About Sudoku';
@@ -269,7 +269,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get conflict => 'Conflict';
+  String get incorrectValue => 'Incorrect value';
 
   @override
   String selectedNumber(int number) {
@@ -337,4 +337,111 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeSubtitle => 'Your daily moment to puzzle.';
+
+  @override
+  String get hint => 'Hint';
+
+  @override
+  String get hintIntro =>
+      'Follow these deductions in order. Candidates are calculated from the board, independently of your notes. Nothing is entered automatically.';
+
+  @override
+  String get hintIncorrect =>
+      'First correct or erase your incorrect entries. Hints will not build on a wrong number.';
+
+  @override
+  String get hintUnavailable =>
+      'No next step was found with the supported techniques. No number will be guessed.';
+
+  @override
+  String hintStep(int number, String technique) {
+    return '$number. $technique';
+  }
+
+  @override
+  String hintCell(int row, int column) {
+    return 'row $row, column $column';
+  }
+
+  @override
+  String hintRating(int score, int steps, int bottlenecks) {
+    return 'Puzzle effort: $score · $steps logical steps · $bottlenecks bottlenecks. A heuristic within the technique tier, not a solve-time prediction.';
+  }
+
+  @override
+  String get techniqueNakedSingle => 'Only possible candidate';
+
+  @override
+  String get techniqueHiddenSingle => 'Only place in a unit';
+
+  @override
+  String get techniqueLocked => 'Locked candidates';
+
+  @override
+  String get techniqueNakedPair => 'Naked pair';
+
+  @override
+  String get techniqueHiddenPair => 'Hidden pair';
+
+  @override
+  String get techniqueNakedTriple => 'Naked triple';
+
+  @override
+  String get techniqueHiddenTriple => 'Hidden triple';
+
+  @override
+  String get techniqueXWing => 'X-Wing';
+
+  @override
+  String get techniqueXYWing => 'XY-Wing';
+
+  @override
+  String hintNakedSingle(String cell, String digits) {
+    return 'In $cell, the row, column and block exclude every digit except $digits. Enter $digits here.';
+  }
+
+  @override
+  String hintHiddenSingle(String cells, String digits, String cell) {
+    return 'Within the unit containing $cells, $digits can only go in $cell. Enter $digits here.';
+  }
+
+  @override
+  String hintLocked(String digits, String cells) {
+    return 'All remaining positions for $digits in a row, column or block lie in its intersection with another unit: $cells. This locks the digit into that intersection, excluding it from the rest of the other unit.';
+  }
+
+  @override
+  String hintNakedSubset(String cells, String digits) {
+    return 'The cells $cells share a unit and have only the candidates $digits. These digits occupy these cells in some order and can be removed from the other cells in the unit.';
+  }
+
+  @override
+  String hintHiddenSubset(String digits, String cells) {
+    return 'Within a shared unit, the digits $digits occur as candidates only in $cells. These cells are reserved for those digits; remove their other candidates.';
+  }
+
+  @override
+  String hintXWing(String digits, String cells) {
+    return 'For $digits, two rows (or columns) have exactly the same two possible columns (or rows): $cells. One digit must occupy each crossing unit, so it cannot occur elsewhere in those units.';
+  }
+
+  @override
+  String hintXYWing(String cells, String digits) {
+    return 'These three two-candidate cells form an XY-Wing: $cells. The first cell is the pivot and sees the other two. Either pivot value forces $digits in one of the wings. Cells seeing both wings cannot contain $digits.';
+  }
+
+  @override
+  String hintCandidate(String cell, String digits) {
+    return '$cell: $digits';
+  }
+
+  @override
+  String hintCandidates(String evidence) {
+    return 'Candidates at this step: $evidence';
+  }
+
+  @override
+  String hintRemoval(String digits, String cell) {
+    return 'Remove $digits from $cell.';
+  }
 }

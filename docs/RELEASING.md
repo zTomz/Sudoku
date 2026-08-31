@@ -4,6 +4,8 @@
 
 Sudoku uses Rudi UI 0.2.0 from the pinned public Git commit `eff9e33e4797e8bbee9c24395b00757ca1e48380`. Release and CI builds need no local Rudi checkout. Run `flutter pub get --enforce-lockfile`; do not enable a development override for release verification. See FIRST_COMMIT.md for the verification checklist.
 
+Run `dart run build_runner build` after provider changes and `flutter gen-l10n` after translation changes. CI regenerates both and rejects out-of-sync checked-in output.
+
 ## Android
 
 App name: **Sudoku**. Application ID and namespace: **com.tomvogel.sudoku**.
@@ -32,19 +34,24 @@ Reference: https://docs.flutter.dev/deployment/android
 
 ## Web / GitHub Pages
 
-Run these commands from the repository root. For root hosting, use `--base-href /` instead of `/sudoku/`.
+Run these commands from the repository root. For root hosting, use `--base-href /` instead of `/Sudoku/`. Repository paths are case-sensitive.
 
 ```shell
-flutter build web --release --no-web-resources-cdn --base-href /sudoku/
+flutter build web --release --no-web-resources-cdn --base-href /Sudoku/
 dart run .github/prepare_web.dart
 node --test test/web_cache_test.cjs
+node --test test/background_worker_test.cjs
 ```
 
-Publish **build/web**, not the source `web` directory. Local fonts and CanvasKit are bundled; bootstrap configuration keeps renderer and fallback-font requests on the same origin. The build preparation generates a content-versioned service worker and its registration. It supports repository subpaths.
+Publish **build/web**, not the source `web` directory. Local fonts and CanvasKit are bundled; bootstrap configuration keeps renderer and fallback-font requests on the same origin. Build preparation compiles the dedicated puzzle worker, then generates the content-versioned offline service worker and its registration. Both workers support repository subpaths. Do not omit preparation: puzzle generation requires `sudoku_worker.js` and does not fall back to blocking the UI thread. For Web debug runs, compile `lib/features/game/data/puzzle_worker.dart` to `web/sudoku_worker.js` with `dart compile js -O2` before starting Flutter.
 
 The first visit requires a connection and enough time to cache all resources. Subsequent launches can work offline after caching has succeeded. Browser eviction/private mode/storage policies can still remove the cache. HTTPS or localhost is required for service workers. New versions activate after all tabs using the previous version are closed; don't force-reload an in-progress game just to update.
 
-The manual `Publish GitHub Pages` workflow builds and deploys using the repository name as the base path. After you create/push a public GitHub repository, enable Pages with GitHub Actions as its source and run the workflow. Custom-domain/root-hosting changes require adjusting its base path. This workflow is deliberately not triggered by a push.
+The `Publish GitHub Pages` workflow runs automatically on pushes to `main`, or manually with `main` selected. Enable **Settings → Pages → Build and deployment → Source → GitHub Actions** once in the repository. No personal access token is required. Protect the `github-pages` environment to allow deployments from `main` only; manual runs on other branches are skipped by the workflow.
+
+Before deployment, the workflow enforces the dependency lockfile, verifies localization and formatting, runs Flutter analysis/tests and compares generated puzzles and complete logical traces between Dart VM and JavaScript. It then reads the configured Pages base path with `actions/configure-pages`, builds the app, prepares the offline cache and runs its tests before uploading `build/web`. This supports repository subpaths (including case), root sites and configured custom domains without hard-coded URLs. Only the deployment job receives Pages-write and OIDC permissions; concurrent deployments are serialized.
+
+Creating or changing this workflow does not publish local uncommitted changes. Commit and push to `main` to trigger it, then check the workflow's deployment URL. GitHub repository settings and a successful hosted run cannot be verified by local tests alone.
 
 Alternative: create a Cloudflare Pages project and upload the prepared `build/web` output. The supplied `_headers` file configures entrypoint/worker revalidation. No Cloudflare account or project was created.
 

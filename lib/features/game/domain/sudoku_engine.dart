@@ -1,69 +1,113 @@
+import 'logical_solver.dart';
 import 'puzzle.dart';
 
-/// Version 1 is frozen so the same daily ID remains identical on every platform.
+/// Deterministic, technique-graded generation for free and daily puzzles.
 final class SudokuEngine() {
-  static const version = 1;
+  static const dailyVersion = 2;
+  static const freeVersion = 3;
   static const allDigits = 0x3fe;
 
   Future<Puzzle> generate({
     required int seed,
     required Difficulty difficulty,
+    bool Function()? isCancelled,
+  }) => _generateGraded(seed, difficulty, null, isCancelled);
+
+  Future<Puzzle> _generateGraded(
+    int seed,
+    Difficulty difficulty,
     String? dailyDate,
-  }) async {
+    bool Function()? isCancelled,
+  ) async {
     final random = _StableRandom(seed);
-    final solution = dailyDate == null
-        ? await _randomSolution(random)
-        : _legacySolution(random);
-    final givens = [...solution];
-    final target = switch (difficulty) {
-      Difficulty.easy => 42,
-      Difficulty.medium => 34,
-      Difficulty.hard => 28,
+    final solver = LogicalSolver();
+    await Future<void>.delayed(Duration.zero);
+    final slice = Stopwatch()..start();
+    final maxClues = switch (difficulty) {
+      Difficulty.easy => 40,
+      Difficulty.medium => 36,
+      Difficulty.hard => 36,
     };
-    var clues = 81;
-    for (final cell in random.shuffle(List.generate(81, (i) => i))) {
-      final previous = givens[cell];
-      givens[cell] = 0;
-      if (countSolutions(givens) != 1) {
-        givens[cell] = previous;
-      } else {
-        clues--;
+    // A fixed work budget keeps identities deterministic, unlike a time limit.
+    // Never silently substitute an easier or ungraded puzzle on exhaustion.
+    for (var attempt = 0; attempt < 256; attempt++) {
+      if (isCancelled?.call() ?? false) {
+        throw StateError('Generation cancelled');
       }
-      if (clues <= target) break;
-      // Yield between bounded searches, including on the single-threaded web.
-      await Future<void>.delayed(Duration.zero);
+      final solution = await _randomSolution(random);
+      final givens = [...solution];
+      var clues = 81;
+      // Prefer rotational symmetry; refine individual clues if paired removal
+      // cannot reach the requested grade. Difficulty takes precedence over shape.
+      final groups = <List<int>>[
+        for (final c in random.shuffle(List.generate(41, (i) => i)))
+          [c, if (c != 40) 80 - c],
+        for (final c in random.shuffle(List.generate(81, (i) => i))) [c],
+      ];
+      for (final group in groups) {
+        final cells = group.where((c) => givens[c] != 0).toList();
+        if (cells.isEmpty) continue;
+        // Time only controls scheduling, never random choices or acceptance.
+        // Avoid one browser timer per clue, which would dominate generation.
+        if (slice.elapsedMilliseconds >= 4) {
+          await Future<void>.delayed(Duration.zero);
+          slice.reset();
+        }
+        if (isCancelled?.call() ?? false) {
+          throw StateError('Generation cancelled');
+        }
+        for (final cell in cells) {
+          givens[cell] = 0;
+        }
+        final rating = solver.solve(
+          givens,
+          maxDifficulty: difficulty,
+          assessDifficulty: false,
+        );
+        if (rating.status != LogicalStatus.solved ||
+            countSolutions(givens) != 1) {
+          for (final cell in cells) {
+            givens[cell] = solution[cell];
+          }
+          continue;
+        }
+        clues -= cells.length;
+        if (clues > maxClues || rating.difficulty != difficulty) continue;
+        // A hard step in one path alone does not prove easier techniques fail.
+        if (difficulty != Difficulty.easy &&
+            solver
+                    .solve(
+                      givens,
+                      maxDifficulty: Difficulty.values[difficulty.index - 1],
+                      assessDifficulty: false,
+                    )
+                    .status ==
+                LogicalStatus.solved) {
+          continue;
+        }
+        return Puzzle(
+          id: dailyDate == null
+              ? 'v$freeVersion-${difficulty.name}-$seed'
+              : 'daily-v$dailyVersion-$dailyDate',
+          difficulty: difficulty,
+          givens: givens,
+          solution: solution,
+          dailyDate: dailyDate,
+          rating: solver.solve(givens).rating,
+        );
+      }
     }
-    return Puzzle(
-      id: dailyDate == null
-          ? 'v2-${difficulty.name}-$seed'
-          : 'daily-v$version-$dailyDate',
-      difficulty: difficulty,
-      givens: givens,
-      solution: solution,
-      dailyDate: dailyDate,
+    throw StateError(
+      'Unable to construct a Sudoku of the requested difficulty',
     );
   }
 
-  static List<int> _legacySolution(_StableRandom random) {
-    final digits = random.shuffle(List.generate(9, (i) => i + 1));
-    List<int> axis() => [
-      for (final group in random.shuffle([0, 1, 2]))
-        for (final offset in random.shuffle([0, 1, 2])) group * 3 + offset,
-    ];
-    final rows = axis(), cols = axis();
-    final transpose = random.next(2) == 0;
-    return List.generate(81, (cell) {
-      final r = rows[transpose ? cell % 9 : cell ~/ 9];
-      final c = cols[transpose ? cell ~/ 9 : cell % 9];
-      return digits[(r * 3 + r ~/ 3 + c) % 9];
-    });
-  }
-
   // Randomized search constructs a solution from an empty grid instead of
-  // permuting a single template. Budgets bound work on the web UI isolate.
+  // permuting a single template. Budgets bound work inside the worker.
   static Future<List<int>> _randomSolution(_StableRandom random) async {
     for (var attempt = 0; attempt < 20; attempt++) {
       final board = List.filled(81, 0);
+      final order = random.shuffle(List.generate(81, (i) => i));
       final rows = List.filled(9, 0),
           cols = List.filled(9, 0),
           boxes = List.filled(9, 0);
@@ -71,7 +115,7 @@ final class SudokuEngine() {
       bool search() {
         if (++nodes > 12000) return false;
         var best = -1, mask = 0, fewest = 10;
-        for (var i = 0; i < 81; i++) {
+        for (final i in order) {
           if (board[i] != 0) continue;
           final available =
               allDigits &
@@ -114,11 +158,10 @@ final class SudokuEngine() {
     throw StateError('Unable to construct a Sudoku within the search budget');
   }
 
-  Future<Puzzle> daily(DateTime date) => generate(
-    seed: date.year * 10000 + date.month * 100 + date.day,
-    difficulty: Difficulty.medium,
-    dailyDate: dateKey(date),
-  );
+  Future<Puzzle> daily(DateTime date, {bool Function()? isCancelled}) {
+    final seed = date.year * 10000 + date.month * 100 + date.day;
+    return _generateGraded(seed, Difficulty.medium, dateKey(date), isCancelled);
+  }
 
   /// Returns 0, 1 or 2 (multiple/unknown). Budget exhaustion never proves uniqueness.
   int countSolutions(List<int> input, {int nodeBudget = 20000}) {

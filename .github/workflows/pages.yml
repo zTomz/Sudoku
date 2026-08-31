@@ -1,11 +1,11 @@
 name: Publish GitHub Pages
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -13,7 +13,12 @@ concurrency:
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pages: read
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -22,25 +27,44 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get --enforce-lockfile
-      - run: dart analyze --fatal-infos
+      - run: flutter gen-l10n
+      - run: dart run build_runner build
+      - run: git diff --exit-code -- lib/app
+      - run: git diff --exit-code -- lib/l10n/generated
+      - run: dart format --output=none --set-exit-if-changed lib test .github/prepare_web.dart
+      - run: flutter analyze --no-pub
       - run: dart analyze --fatal-infos .github/prepare_web.dart
-      - run: flutter test
-      - name: Build with repository subpath
-        env:
-          REPOSITORY: ${{ github.event.repository.name }}
+      - run: flutter test --no-pub
+      - name: Verify identical puzzles on Dart and JavaScript
         run: |
-          BASE="/$REPOSITORY/"
-          if [[ "$REPOSITORY" == *.github.io ]]; then BASE="/"; fi
-          flutter build web --release --no-web-resources-cdn --base-href "$BASE"
+          dart run test/generator_portability.dart > "$RUNNER_TEMP/sudoku-vm.json"
+          dart compile js -O2 test/generator_portability.dart -o "$RUNNER_TEMP/sudoku-engine.js"
+          node -e 'globalThis.self = globalThis; require(process.argv[1]);' "$RUNNER_TEMP/sudoku-engine.js" > "$RUNNER_TEMP/sudoku-js.json"
+          cmp "$RUNNER_TEMP/sudoku-vm.json" "$RUNNER_TEMP/sudoku-js.json"
+      - name: Read GitHub Pages configuration
+        id: pages
+        uses: actions/configure-pages@v5
+      - name: Build for the configured Pages path
+        env:
+          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: |
+          flutter build web --release --no-web-resources-cdn --base-href "${PAGES_BASE_PATH%/}/"
           dart run .github/prepare_web.dart
       - run: node --test test/web_cache_test.cjs
-      - uses: actions/configure-pages@v5
+      - name: Verify the compiled background worker against VM puzzles
+        env:
+          SUDOKU_FIXTURES_PATH: ${{ runner.temp }}/sudoku-vm.json
+        run: node --test test/background_worker_test.cjs
       - uses: actions/upload-pages-artifact@v3
         with:
           path: build/web
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

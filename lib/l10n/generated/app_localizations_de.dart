@@ -47,7 +47,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get difficultyNote =>
-      'Die ersten Schwierigkeitsstufen basieren auf Vorgabenzahlen. Eine Bewertung nach Lösungsstrategien ist geplant.';
+      'Rätsel werden nach logischen Lösungsstrategien bewertet und sind ohne Raten lösbar.';
 
   @override
   String get dailyTitle => 'Dein Tagesrätsel';
@@ -194,7 +194,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get errorDescription =>
-      'Bei ausgeschalteter Prüfung gibt es keine Rückmeldung zur Richtigkeit.';
+      'Nur falsche Einträge werden markiert. Regelkonflikte markiert sie nur bei doppelten Zahlen in Zeile, Spalte oder Block. Bei ausgeschalteter Prüfung gibt es keine Rückmeldung zur Richtigkeit.';
 
   @override
   String get about => 'Über Sudoku';
@@ -271,7 +271,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get conflict => 'Konflikt';
+  String get incorrectValue => 'Falscher Wert';
 
   @override
   String selectedNumber(int number) {
@@ -339,4 +339,111 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get homeSubtitle => 'Dein täglicher Moment zum Knobeln.';
+
+  @override
+  String get hint => 'Hinweis';
+
+  @override
+  String get hintIntro =>
+      'Gehe diese Schlussfolgerungen der Reihe nach durch. Kandidaten werden aus dem Brett berechnet, unabhängig von deinen Notizen. Es wird nichts automatisch eingetragen.';
+
+  @override
+  String get hintIncorrect =>
+      'Korrigiere oder lösche zuerst deine falschen Einträge. Hinweise bauen nicht auf einer falschen Zahl auf.';
+
+  @override
+  String get hintUnavailable =>
+      'Mit den unterstützten Techniken wurde kein nächster Schritt gefunden. Es wird keine Zahl geraten.';
+
+  @override
+  String hintStep(int number, String technique) {
+    return '$number. $technique';
+  }
+
+  @override
+  String hintCell(int row, int column) {
+    return 'Zeile $row, Spalte $column';
+  }
+
+  @override
+  String hintRating(int score, int steps, int bottlenecks) {
+    return 'Rätselaufwand: $score · $steps logische Schritte · $bottlenecks Engstellen. Eine Heuristik innerhalb der Technikstufe, keine Vorhersage der Lösungszeit.';
+  }
+
+  @override
+  String get techniqueNakedSingle => 'Einziger möglicher Kandidat';
+
+  @override
+  String get techniqueHiddenSingle => 'Einziger Platz in einer Einheit';
+
+  @override
+  String get techniqueLocked => 'Gebundene Kandidaten';
+
+  @override
+  String get techniqueNakedPair => 'Offenes Paar';
+
+  @override
+  String get techniqueHiddenPair => 'Verstecktes Paar';
+
+  @override
+  String get techniqueNakedTriple => 'Offenes Tripel';
+
+  @override
+  String get techniqueHiddenTriple => 'Verstecktes Tripel';
+
+  @override
+  String get techniqueXWing => 'X-Wing';
+
+  @override
+  String get techniqueXYWing => 'XY-Wing';
+
+  @override
+  String hintNakedSingle(String cell, String digits) {
+    return 'In $cell schließen Zeile, Spalte und Block alle Zahlen außer $digits aus. Trage hier $digits ein.';
+  }
+
+  @override
+  String hintHiddenSingle(String cells, String digits, String cell) {
+    return 'In der Einheit mit den Feldern $cells kann $digits nur in $cell stehen. Trage dort $digits ein.';
+  }
+
+  @override
+  String hintLocked(String digits, String cells) {
+    return 'Alle verbliebenen Positionen für $digits in einer Zeile, Spalte oder einem Block liegen im Schnittbereich mit einer anderen Einheit: $cells. Die Zahl ist an diesen Schnittbereich gebunden und entfällt im Rest der anderen Einheit.';
+  }
+
+  @override
+  String hintNakedSubset(String cells, String digits) {
+    return 'Die Felder $cells teilen eine Einheit und haben nur die Kandidaten $digits. Diese Zahlen belegen die Felder in irgendeiner Reihenfolge und können aus den übrigen Feldern der Einheit gestrichen werden.';
+  }
+
+  @override
+  String hintHiddenSubset(String digits, String cells) {
+    return 'Innerhalb einer gemeinsamen Einheit kommen die Zahlen $digits als Kandidaten nur in $cells vor. Diese Felder sind für diese Zahlen reserviert; streiche ihre anderen Kandidaten.';
+  }
+
+  @override
+  String hintXWing(String digits, String cells) {
+    return 'Für $digits haben zwei Zeilen (oder Spalten) genau dieselben zwei möglichen Spalten (oder Zeilen): $cells. In jeder kreuzenden Einheit muss die Zahl einmal stehen und kann dort nirgendwo anders vorkommen.';
+  }
+
+  @override
+  String hintXYWing(String cells, String digits) {
+    return 'Diese drei Felder mit je zwei Kandidaten bilden ein XY-Wing: $cells. Das erste Feld ist das Drehfeld und sieht die beiden anderen. Jeder Wert des Drehfelds erzwingt $digits in einem der Flügel. Felder, die beide Flügel sehen, können $digits nicht enthalten.';
+  }
+
+  @override
+  String hintCandidate(String cell, String digits) {
+    return '$cell: $digits';
+  }
+
+  @override
+  String hintCandidates(String evidence) {
+    return 'Kandidaten in diesem Schritt: $evidence';
+  }
+
+  @override
+  String hintRemoval(String digits, String cell) {
+    return 'Streiche $digits aus $cell.';
+  }
 }

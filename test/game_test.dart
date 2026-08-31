@@ -7,7 +7,78 @@ import 'package:sudoku/features/game/domain/sudoku_engine.dart';
 
 void main() {
   final engine = SudokuEngine();
-  test('free v2 grids are diverse and not just symmetries of the cyclic template', () async {
+  test('nine placements exhaust a digit; notes do not count and erase/undo restore it', () {
+    final solution = List.generate(
+      81,
+      (i) => (i ~/ 9 * 3 + i ~/ 27 + i % 9) % 9 + 1,
+    );
+    final threes = [
+      for (var c = 0; c < 81; c++)
+        if (solution[c] == 3) c,
+    ];
+    final givens = List.filled(81, 0);
+    for (final c in threes.take(8)) {
+      givens[c] = 3;
+    }
+    var game = GameSession.start(
+      Puzzle(
+        id: 'digit-limit',
+        difficulty: Difficulty.easy,
+        givens: givens,
+        solution: solution,
+      ),
+    );
+    final empty = solution.indexOf(1);
+    game = game.enter(empty, 3, pencil: true);
+    expect(game.isDigitAvailable(3), isTrue);
+    game = game.enter(threes.last, 3);
+    expect(game.isDigitAvailable(3), isFalse);
+    expect(game.enter(empty, 3), same(game));
+    expect(game.enter(empty, 3, pencil: true), same(game));
+    expect(game.undo().isDigitAvailable(3), isTrue);
+    expect(game.undo().redo().isDigitAvailable(3), isFalse);
+    expect(game.enter(threes.last, 0).isDigitAvailable(3), isTrue);
+    expect(game.isDigitAvailable(0), isFalse);
+    expect(game.isDigitAvailable(10), isFalse);
+  });
+  test(
+    'only incorrect entries are wrong, independently of placement order',
+    () {
+      final solution = List.generate(
+        81,
+        (i) => (i ~/ 9 * 3 + i ~/ 27 + i % 9) % 9 + 1,
+      );
+      final givens = List.filled(81, 0)..[0] = solution[0];
+      final puzzle = Puzzle(
+        id: 'error-test',
+        difficulty: Difficulty.easy,
+        givens: givens,
+        solution: solution,
+      );
+      for (final wrongFirst in [true, false]) {
+        var game = GameSession.start(puzzle);
+        for (final cell in wrongFirst ? [1, 73] : [73, 1]) {
+          game = game.enter(cell, 1);
+        }
+        expect(game.hasConflict(0), isTrue);
+        expect(game.hasConflict(73), isTrue);
+        expect(game.isIncorrect(0), isFalse);
+        expect(game.isIncorrect(73), isFalse);
+        expect(game.isIncorrect(1), isTrue);
+        expect(game.isIncorrect(2), isFalse);
+        final corrected = game.enter(1, solution[1]);
+        expect(corrected.isIncorrect(1), isFalse);
+        expect(corrected.undo().isIncorrect(1), isTrue);
+        expect(corrected.undo().redo().isIncorrect(1), isFalse);
+        expect(game.enter(1, 0).isIncorrect(1), isFalse);
+        expect(game.enter(2, 1, pencil: true).isIncorrect(2), isFalse);
+      }
+      final noConflict = GameSession.start(puzzle).enter(1, 9);
+      expect(noConflict.hasConflict(1), isFalse);
+      expect(noConflict.isIncorrect(1), isTrue);
+    },
+  );
+  test('free v3 grids are diverse and not just symmetries of the cyclic template', () async {
     final solutions = <String>{};
     var rectangles = 0;
     for (var seed = 100; seed < 108; seed++) {
@@ -15,7 +86,7 @@ void main() {
         seed: seed,
         difficulty: Difficulty.easy,
       );
-      expect(puzzle.id, startsWith('v2-'));
+      expect(puzzle.id, startsWith('v3-'));
       solutions.add(puzzle.solution.join());
       final board = puzzle.solution;
       // A cyclic order-nine template has no two-row/two-column swaps.
@@ -71,16 +142,16 @@ void main() {
       }
     }
   });
-  test('daily puzzles ignore time and are reproducible', () async {
+  test('daily puzzles ignore time and retain their fingerprint', () async {
     final a = await engine.daily(DateTime(2026, 8, 31, 1));
     final b = await engine.daily(DateTime(2026, 8, 31, 23));
     final c = await engine.daily(DateTime(2026, 9, 1));
     expect(a.givens, b.givens);
     expect(a.solution, b.solution);
-    expect(a.id, 'daily-v1-2026-08-31');
+    expect(a.id, 'daily-v2-2026-08-31');
     expect(
       a.givens.join(),
-      '008573406000000009000810703000020000040901000273080501900135602007098010000700940',
+      '000752000007000050210430000009000006046829510100000800000067025090000700000983000',
     );
     expect(a.givens, isNot(c.givens));
   });

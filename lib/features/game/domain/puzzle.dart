@@ -1,3 +1,5 @@
+import 'difficulty_rating.dart';
+
 enum Difficulty() {
   easy,
   medium,
@@ -10,6 +12,7 @@ final class Puzzle({
   required List<int> givens,
   required List<int> solution,
   final String? dailyDate,
+  final DifficultyRating rating = const DifficultyRating(),
 }) {
   this
     : givens = List.unmodifiableOf(givens),
@@ -24,6 +27,7 @@ final class Puzzle({
     'givens': givens,
     'solution': solution,
     'dailyDate': dailyDate,
+    'rating': rating.toJson(),
   };
 
   factory fromJson(Map<String, Object?> json) {
@@ -43,6 +47,7 @@ final class Puzzle({
       givens: givens,
       solution: solution,
       dailyDate: json['dailyDate'] as String?,
+      rating: DifficultyRating.fromJson(json['rating'] as Map<String, Object?>),
     );
   }
 }

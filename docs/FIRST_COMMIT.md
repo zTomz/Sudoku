@@ -13,19 +13,20 @@ Rudi UI 0.2.0 has been published on GitHub at `eff9e33e4797e8bbee9c24395b00757ca
 ```shell
 flutter pub get --enforce-lockfile
 flutter gen-l10n
+dart run build_runner build
 dart format --output=none --set-exit-if-changed lib test .github/prepare_web.dart
 dart analyze --fatal-infos
 dart analyze --fatal-infos .github/prepare_web.dart
 flutter test
 ```
 
-Verify generated localization has no diff after regeneration and ensure pubspec.lock uses public dependencies rather than local paths. Platform builds and the Web cache checks are documented in RELEASING.md; run local artifact builds only when requested.
+Verify generated localization and Riverpod files have no diff after regeneration and ensure pubspec.lock uses public dependencies rather than local paths. Platform builds and the Web cache checks are documented in RELEASING.md; run local artifact builds only when requested.
 
-The only custom build helper is `.github/prepare_web.dart`, which generates the browser offline cache. Other checks use standard Flutter/Dart commands. `AGENTS.md` remains an ignored local assistant guide. Never stage Android signing keys, `key.properties`, `local.properties`, `pubspec_overrides.yaml`, build output, or private saves. The prepared source changes can be staged together once verification passes; no commit or push is performed automatically.
+The only custom build helper is `.github/prepare_web.dart`, which compiles the puzzle worker and generates the browser offline cache. Other checks use standard Flutter/Dart commands. `AGENTS.md` remains an ignored local assistant guide. Never stage Android signing keys, `key.properties`, `local.properties`, `pubspec_overrides.yaml`, build output, or private saves. The prepared source changes can be staged together once verification passes; no commit or push is performed automatically.
 
 Suggested commit subjects:
 
 - Rudi: `feat: add grouped settings, floating navigation and modal controls`
 - Sudoku: `feat: introduce offline Sudoku with daily puzzles and Rudi UI`
 
-Pages deployment is manual. CI builds unsigned Android bundles and portable Windows/Web artifacts; those are not signed Store releases. The interactive device acceptance test remains with the maintainer.
+Pages deployment runs on pushes to `main`, with an additional manual trigger, once GitHub Actions is selected as the repository's Pages source. CI builds unsigned Android bundles and portable Windows/Web artifacts; those are not signed Store releases. The interactive device acceptance test remains with the maintainer.

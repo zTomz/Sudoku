@@ -10,6 +10,30 @@ Future<void> main(List<String> arguments) async {
       'Run flutter build web --release --no-web-resources-cdn first.',
     );
   }
+  final workerOutput = Directory('.dart_tool/sudoku-worker')
+    ..createSync(recursive: true);
+  final compilation = await Process.run(Platform.resolvedExecutable, [
+    'compile',
+    'js',
+    '-O2',
+    '--no-source-maps',
+    'lib/features/game/data/puzzle_worker.dart',
+    '-o',
+    '${workerOutput.path}/sudoku_worker.js',
+  ]);
+  if (compilation.exitCode != 0) {
+    throw StateError(
+      'Puzzle worker compilation failed: ${compilation.stdout}\n${compilation.stderr}',
+    );
+  }
+  await File('${workerOutput.path}/sudoku_worker.js')
+      .copy('${directory.path}/sudoku_worker.js');
+  // Flutter may have copied metadata from a local debug worker compilation.
+  // Do not publish compiler dependency paths or source maps with the worker.
+  for (final suffix in ['.deps', '.map']) {
+    final metadata = File('${directory.path}/sudoku_worker.js$suffix');
+    if (metadata.existsSync()) await metadata.delete();
+  }
   await File('${directory.path}/offline_bootstrap.js').writeAsString("""
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

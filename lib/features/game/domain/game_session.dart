@@ -63,6 +63,11 @@ final class GameSession({
   bool get canUndo => cursor > 0 && !complete;
   bool get canRedo => cursor < history.length && !complete;
 
+  bool isDigitAvailable(int digit) =>
+      digit >= 1 &&
+      digit <= 9 &&
+      values.where((value) => value == digit).length < 9;
+
   GameSession enter(
     int cell,
     int digit, {
@@ -73,6 +78,7 @@ final class GameSession({
         cell >= 81 ||
         digit < 0 ||
         digit > 9 ||
+        (digit != 0 && !isDigitAvailable(digit)) ||
         puzzle.givens[cell] != 0 ||
         complete) {
       return this;
@@ -137,6 +143,11 @@ final class GameSession({
   bool hasConflict(int cell) =>
       values[cell] != 0 &&
       peers(cell).any((peer) => values[peer] == values[cell]);
+
+  bool isIncorrect(int cell) =>
+      puzzle.givens[cell] == 0 &&
+      values[cell] != 0 &&
+      values[cell] != puzzle.solution[cell];
 
   Map<String, Object?> toJson() => {
     'puzzle': puzzle.toJson(),

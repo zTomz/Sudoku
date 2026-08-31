@@ -3,6 +3,10 @@ import 'dart:ui' as ui;
 import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'controller_harness.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:rudi_ui/rudi_ui.dart';
@@ -15,6 +19,7 @@ import 'package:sudoku/features/game/domain/puzzle.dart';
 import 'package:sudoku/features/game/domain/sudoku_engine.dart';
 import 'package:sudoku/features/game/presentation/board_palette.dart';
 import 'package:sudoku/features/game/presentation/game_page.dart';
+import 'package:sudoku/features/game/presentation/hint_sheet.dart';
 import 'package:sudoku/features/settings/domain/app_settings.dart';
 import 'package:sudoku/l10n/generated/app_localizations.dart';
 
@@ -29,6 +34,226 @@ void main() {
       difficulty: Difficulty.medium,
     );
   });
+  for (final numberFirst in [false, true]) {
+    testWidgets(
+      'completed digit blocks taps, keyboard and pencil; undo/erase restore it (numberFirst: $numberFirst)',
+      (tester) async {
+        final missing = [
+          for (var c = 0; c < 81; c++)
+            if (puzzle.solution[c] == 3 && puzzle.givens[c] == 0) c,
+        ];
+        expect(missing, isNotEmpty);
+        var session = GameSession.start(puzzle);
+        for (final c in missing.take(missing.length - 1)) {
+          session = session.enter(c, 3);
+        }
+        final harness = ControllerHarness(
+          GameRepository(
+            MemoryStore()
+              ..value = SavedGames(
+                free: session,
+                settings: AppSettings(numberFirst: numberFirst),
+              ).encode(),
+          ),
+        );
+        addTearDown(harness.dispose);
+        final controller = harness.controller;
+        await controller.initialize();
+        controller.resumeFree();
+        controller.moveSelection(missing.last);
+        await tester.pumpWidget(
+          _GameHarness(controller: controller, container: harness.container),
+        );
+        await tester.pumpAndSettle();
+        final number = find.byKey(const ValueKey('number-3'));
+        await tester.tap(number);
+        if (numberFirst) {
+          await tester.tap(find.byKey(ValueKey('cell-${missing.last}')));
+        }
+        await tester.pumpAndSettle();
+        expect(controller.game!.values.where((v) => v == 3).length, 9);
+        expect(controller.selectedDigit, 0);
+        expect(tester.widget<RudiPressable>(number).onPressed, isNull);
+        expect(
+          find.descendant(of: number, matching: find.byType(RudiGlyph)),
+          findsOneWidget,
+        );
+        final empty = controller.game!.values.indexOf(0);
+        controller.moveSelection(empty);
+        await tester.tap(number);
+        await tester.sendKeyEvent(LogicalKeyboardKey.digit3);
+        controller.enter(3);
+        controller.togglePencil();
+        await tester.sendKeyEvent(LogicalKeyboardKey.digit3);
+        controller.enter(3);
+        expect(controller.game!.values[empty], 0);
+        expect(controller.game!.notes[empty], 0);
+        controller.togglePencil();
+        controller.undo();
+        await tester.pumpAndSettle();
+        expect(tester.widget<RudiPressable>(number).onPressed, isNotNull);
+        controller.redo();
+        await tester.pumpAndSettle();
+        expect(tester.widget<RudiPressable>(number).onPressed, isNull);
+        controller.moveSelection(missing.last);
+        controller.enter(0);
+        await tester.pumpAndSettle();
+        expect(tester.widget<RudiPressable>(number).onPressed, isNotNull);
+        expect(
+          find.descendant(of: number, matching: find.text('3')),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+        controller.suspend();
+      },
+    );
+  }
+  for (final language in ['de', 'en']) {
+    testWidgets(
+      'localized hints are read-only, responsive and hidden while paused ($language)',
+      (tester) async {
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final harness = ControllerHarness(
+          GameRepository(
+            MemoryStore()
+              ..value = SavedGames(free: GameSession.start(puzzle)).encode(),
+          ),
+        );
+        addTearDown(harness.dispose);
+        final controller = harness.controller;
+        await controller.initialize();
+        controller.resumeFree();
+        final values = [...controller.game!.values];
+        await tester.pumpWidget(
+          _GameHarness(
+            controller: controller,
+            container: harness.container,
+            textScale: 1.8,
+            locale: Locale(language),
+          ),
+        );
+        final l = await AppLocalizations.delegate.load(Locale(language));
+        await tester.tap(find.text(l.hint));
+        await tester.pumpAndSettle();
+        expect(find.byType(HintContent), findsOneWidget);
+        expect(find.text(l.hintIntro), findsOneWidget);
+        expect(controller.paused, isFalse);
+        expect(controller.game!.values, values);
+        final seconds = controller.game!.elapsedSeconds;
+        await tester.pump(const Duration(seconds: 2));
+        expect(controller.game!.elapsedSeconds, greaterThanOrEqualTo(seconds));
+        controller.suspend();
+        await tester.pumpAndSettle();
+        expect(find.text(l.hintIntro), findsNothing);
+        controller.activate();
+        expect(controller.paused, isTrue);
+        controller.togglePause();
+        await tester.pumpAndSettle();
+        expect(find.text(l.hintIntro), findsOneWidget);
+        final cell = controller.game!.values.indexOf(0);
+        controller.moveSelection(cell);
+        controller.enter(puzzle.solution[cell] % 9 + 1);
+        await tester.pumpAndSettle();
+        expect(find.text(l.hintIncorrect), findsOneWidget);
+        expect(find.text(l.hintIntro), findsNothing);
+        expect(tester.takeException(), isNull);
+        controller.suspend();
+      },
+    );
+  }
+  for (final mode in ErrorCheck.values) {
+    testWidgets('only wrong entries are marked with ${mode.name}', (
+      tester,
+    ) async {
+      final solution = List.generate(
+        81,
+        (i) => (i ~/ 9 * 3 + i ~/ 27 + i % 9) % 9 + 1,
+      );
+      final givens = List.filled(81, 0)..[0] = solution[0];
+      final sample = Puzzle(
+        id: 'error-test',
+        difficulty: Difficulty.easy,
+        givens: givens,
+        solution: solution,
+      );
+      final session = GameSession.start(sample).enter(1, 1).enter(73, 1);
+      final store = MemoryStore()
+        ..value = SavedGames(
+          free: session,
+          settings: AppSettings(errorCheck: mode),
+        ).encode();
+      final controllerHarness = ControllerHarness(GameRepository(store));
+      final controller = controllerHarness.controller;
+      addTearDown(controllerHarness.dispose);
+      await controller.initialize();
+      controller.resumeFree();
+      controller.selectCell(2);
+      await tester.pumpWidget(
+        _GameHarness(
+          container: controllerHarness.container,
+          controller: controller,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      TextStyle style(int cell) => tester
+          .widget<Text>(
+            find.descendant(
+              of: find.byKey(ValueKey('cell-$cell')),
+              matching: find.text('${controller.game!.values[cell]}'),
+            ),
+          )
+          .style!;
+      void check({required bool wrong}) {
+        expect(style(0).decoration, isNull);
+        expect(style(73).decoration, isNull);
+        expect(style(0).color, isNot(const Color(0xffd5505b)));
+        expect(style(73).color, isNot(const Color(0xffd5505b)));
+        expect(style(1).decoration, wrong ? TextDecoration.underline : isNull);
+        if (controller.selected != 1) {
+          expect(
+            style(1).color,
+            wrong ? const Color(0xffd5505b) : isNot(const Color(0xffd5505b)),
+          );
+        }
+        final errorSemantics = find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              (widget.properties.value?.contains('Falscher Wert') ?? false),
+        );
+        expect(errorSemantics, wrong ? findsOneWidget : findsNothing);
+      }
+
+      check(wrong: mode != ErrorCheck.off);
+      await tester.tap(find.byKey(const ValueKey('cell-1')));
+      await tester.pumpAndSettle();
+      check(wrong: mode != ErrorCheck.off);
+      controller.enter(solution[1]);
+      await tester.pumpAndSettle();
+      check(wrong: false);
+      controller.undo();
+      await tester.pumpAndSettle();
+      check(wrong: mode != ErrorCheck.off);
+      controller.redo();
+      await tester.pumpAndSettle();
+      check(wrong: false);
+      controller.enter(9);
+      controller.selectCell(2);
+      await tester.pumpAndSettle();
+      check(wrong: mode == ErrorCheck.solution);
+      controller.suspend();
+    });
+  }
+
+  test(
+    'default checking compares only incorrect entries with the solution',
+    () {
+      expect(const AppSettings().errorCheck, ErrorCheck.solution);
+    },
+  );
   for (final size in [
     const Size(390, 844),
     const Size(320, 568),
@@ -42,11 +267,17 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       final store = MemoryStore()
         ..value = SavedGames(free: GameSession.start(puzzle)).encode();
-      final controller = SudokuController(GameRepository(store));
+      final controllerHarness = ControllerHarness(GameRepository(store));
+      final controller = controllerHarness.controller;
       await controller.initialize();
       controller.resumeFree();
-      addTearDown(controller.dispose);
-      await tester.pumpWidget(_GameHarness(controller: controller));
+      addTearDown(controllerHarness.dispose);
+      await tester.pumpWidget(
+        _GameHarness(
+          container: controllerHarness.container,
+          controller: controller,
+        ),
+      );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(
@@ -107,9 +338,13 @@ void main() {
     tester.view.physicalSize = const Size(390, 844);
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(tester.view.resetPhysicalSize);
-    final controller = SudokuController(GameRepository(MemoryStore()));
+    final controllerHarness = ControllerHarness(GameRepository(MemoryStore()));
+    final controller = controllerHarness.controller;
     await tester.pumpWidget(
-      SudokuApp(controller: controller, locale: const Locale('de')),
+      UncontrolledProviderScope(
+        container: controllerHarness.container,
+        child: const SudokuApp(locale: Locale('de')),
+      ),
     );
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('new-game')), findsOneWidget);
@@ -133,16 +368,22 @@ void main() {
   testWidgets(
     'lifecycle pause is modal and system back resumes the same game',
     (tester) async {
-      final controller = SudokuController(
+      final controllerHarness = ControllerHarness(
         GameRepository(
           MemoryStore()
             ..value = SavedGames(free: GameSession.start(puzzle)).encode(),
         ),
       );
+      final controller = controllerHarness.controller;
       await controller.initialize();
       controller.resumeFree();
-      addTearDown(controller.dispose);
-      await tester.pumpWidget(_GameHarness(controller: controller));
+      addTearDown(controllerHarness.dispose);
+      await tester.pumpWidget(
+        _GameHarness(
+          container: controllerHarness.container,
+          controller: controller,
+        ),
+      );
       await tester.pumpAndSettle();
       final cell = puzzle.givens.indexOf(0);
       controller.selectCell(cell);
@@ -171,11 +412,18 @@ void main() {
     addTearDown(tester.view.reset);
     final store = MemoryStore()
       ..value = SavedGames(free: GameSession.start(puzzle)).encode();
-    final controller = SudokuController(GameRepository(store));
+    final controllerHarness = ControllerHarness(GameRepository(store));
+    final controller = controllerHarness.controller;
     await controller.initialize();
     controller.resumeFree();
-    addTearDown(controller.dispose);
-    await tester.pumpWidget(_GameHarness(controller: controller, textScale: 2));
+    addTearDown(controllerHarness.dispose);
+    await tester.pumpWidget(
+      _GameHarness(
+        container: controllerHarness.container,
+        controller: controller,
+        textScale: 2,
+      ),
+    );
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(
@@ -197,13 +445,17 @@ void main() {
       final cell = puzzle.givens.indexOf(0);
       final session = GameSession.start(puzzle)
           .enter(cell, puzzle.solution[cell]);
-      final controller = SudokuController(
+      final controllerHarness = ControllerHarness(
         GameRepository(
           MemoryStore()..value = SavedGames(free: session).encode(),
         ),
       );
+      final controller = controllerHarness.controller;
       await tester.pumpWidget(
-        SudokuApp(controller: controller, locale: const Locale('de')),
+        UncontrolledProviderScope(
+          container: controllerHarness.container,
+          child: const SudokuApp(locale: Locale('de')),
+        ),
       );
       await tester.pumpAndSettle();
       final choice = find.byKey(const ValueKey('start-hard'));
@@ -265,15 +517,21 @@ void main() {
         ].take(9)) {
           sample = sample.enter(cell, puzzle.solution[cell]);
         }
-        final controller = SudokuController(
+        final controllerHarness = ControllerHarness(
           GameRepository(
             MemoryStore()..value = SavedGames(free: sample).encode(),
           ),
         );
+        final controller = controllerHarness.controller;
         await controller.initialize();
         controller.resumeFree();
-        addTearDown(controller.dispose);
-        await tester.pumpWidget(_GameHarness(controller: controller));
+        addTearDown(controllerHarness.dispose);
+        await tester.pumpWidget(
+          _GameHarness(
+            container: controllerHarness.container,
+            controller: controller,
+          ),
+        );
         await tester.pumpAndSettle();
         for (var cell = 0; cell < 81; cell++) {
           if (sample.values[cell] == 0) continue;
@@ -303,9 +561,7 @@ void main() {
     );
   }
 
-  test('old settings migrate and each board theme survives save/load', () {
-    final old = const AppSettings().toJson()..remove('boardTheme');
-    expect(AppSettings.fromJson(old).boardTheme, BoardTheme.classic);
+  test('each board theme survives save/load', () {
     for (final theme in BoardTheme.values) {
       final save = SavedGames(settings: AppSettings(boardTheme: theme));
       expect(SavedGames.decode(save.encode()).settings.boardTheme, theme);
@@ -355,27 +611,34 @@ void main() {
 
 final class const _GameHarness({
   required final SudokuController controller,
+  required final ProviderContainer container,
   final double textScale = 1,
+  final Locale locale = const Locale('de'),
 }) extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => RudiApp(
-    builder: (context, child) => MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaler: TextScaler.linear(textScale)),
-      child: child!,
-    ),
-    locale: const Locale('de'),
-    supportedLocales: AppLocalizations.supportedLocales,
-    localizationsDelegates: const [
-      AppLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-    ],
-    theme: sudokuTheme(Brightness.light, controller.settings),
-    home: ListenableBuilder(
-      listenable: controller,
-      builder: (context, _) => RepaintBoundary(
-        key: const ValueKey('game-render'),
-        child: GamePage(controller: controller),
+  Widget build(BuildContext context) => UncontrolledProviderScope(
+    container: container,
+    child: RudiApp(
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context)
+            .copyWith(textScaler: TextScaler.linear(textScale)),
+        child: child!,
+      ),
+      locale: locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      theme: sudokuTheme(Brightness.light, controller.settings),
+      home: Consumer(
+        builder: (context, ref, _) {
+          ref.watch(sudokuControllerProvider);
+          return RepaintBoundary(
+            key: const ValueKey('game-render'),
+            child: GamePage(controller: controller),
+          );
+        },
       ),
     ),
   );

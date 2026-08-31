@@ -19,7 +19,7 @@ enum BoardTheme() {
 
 final class const AppSettings({
   final AppAppearance appearance = AppAppearance.system,
-  final ErrorCheck errorCheck = ErrorCheck.conflicts,
+  final ErrorCheck errorCheck = ErrorCheck.solution,
   final BoardTheme boardTheme = BoardTheme.classic,
   final bool showTimer = true,
   final bool cleanNotes = true,
@@ -55,10 +55,7 @@ final class const AppSettings({
   factory fromJson(Map<String, Object?> json) => AppSettings(
     appearance: AppAppearance.values.byName(json['appearance'] as String),
     errorCheck: ErrorCheck.values.byName(json['errorCheck'] as String),
-    // Version 0.1 saves did not contain a board theme.
-    boardTheme: BoardTheme.values.byName(
-      json['boardTheme'] as String? ?? 'classic',
-    ),
+    boardTheme: BoardTheme.values.byName(json['boardTheme'] as String),
     showTimer: json['showTimer'] as bool,
     cleanNotes: json['cleanNotes'] as bool,
     haptics: json['haptics'] as bool,

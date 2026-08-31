@@ -2,8 +2,13 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sudoku/app/sudoku_controller.dart';
+
+import 'controller_harness.dart';
+
 import 'package:sudoku/features/game/data/game_repository.dart';
+import 'package:sudoku/features/game/domain/game_session.dart';
 import 'package:sudoku/features/game/domain/puzzle.dart';
+import 'package:sudoku/features/game/domain/sudoku_engine.dart';
 import 'package:sudoku/features/settings/domain/app_settings.dart';
 
 final class MemoryStore() implements SnapshotStore {
@@ -25,11 +30,31 @@ final class MemoryStore() implements SnapshotStore {
 }
 
 void main() {
+  test('disposing during generation leaves the saved game untouched', () async {
+    final puzzle = await SudokuEngine().generate(
+      seed: 42,
+      difficulty: Difficulty.easy,
+    );
+    final store = MemoryStore()
+      ..value = SavedGames(free: GameSession.start(puzzle)).encode();
+    final snapshot = store.value;
+    final controllerHarness = ControllerHarness(GameRepository(store));
+    final controller = controllerHarness.controller;
+    await controller.initialize();
+    final pending = controller.startFree(Difficulty.hard);
+    expect(controller.busy, isTrue);
+    controllerHarness.dispose();
+    await pending;
+    expect(store.value, snapshot);
+    expect(store.writes, 0);
+  });
+
   test(
     'free and daily sessions, preferences and undo survive reopening',
     () async {
       final store = MemoryStore();
-      final controller = SudokuController(GameRepository(store));
+      final controllerHarness = ControllerHarness(GameRepository(store));
+      final controller = controllerHarness.controller;
       await controller.initialize();
       await controller.startFree(Difficulty.easy);
       final cell = controller.game!.puzzle.givens.indexOf(0);
@@ -43,20 +68,22 @@ void main() {
       );
       controller.leaveGame();
       await controller.persist();
-      controller.dispose();
-      final loaded = SudokuController(GameRepository(store));
+      controllerHarness.dispose();
+      final loadedHarness = ControllerHarness(GameRepository(store));
+      final loaded = loadedHarness.controller;
       await loaded.initialize();
       expect(loaded.free!.puzzle.id, freeId);
       expect(loaded.free!.canUndo, true);
       expect(loaded.dailyGames.containsKey('2026-08-01'), true);
       expect(loaded.settings.errorCheck, ErrorCheck.off);
       expect(loaded.settings.showTimer, false);
-      loaded.dispose();
+      loadedHarness.dispose();
     },
   );
   test('failed read preserves the original save and can be retried', () async {
     final store = MemoryStore()..value = 'corrupt data';
-    final controller = SudokuController(GameRepository(store));
+    final controllerHarness = ControllerHarness(GameRepository(store));
+    final controller = controllerHarness.controller;
     await controller.initialize();
     expect(controller.loadFailed, true);
     expect(controller.ready, false);
@@ -67,11 +94,12 @@ void main() {
     store.value = SavedGames().encode();
     await controller.initialize();
     expect(controller.ready, true);
-    controller.dispose();
+    controllerHarness.dispose();
   });
   test('write failures are visible and retries recover', () async {
     final store = MemoryStore();
-    final controller = SudokuController(GameRepository(store));
+    final controllerHarness = ControllerHarness(GameRepository(store));
+    final controller = controllerHarness.controller;
     await controller.initialize();
     store.failWrite = true;
     await controller.startFree(Difficulty.easy);
@@ -80,7 +108,7 @@ void main() {
     await controller.persist();
     expect(controller.saveFailed, false);
     expect(SavedGames.decode(store.value!).free, isNotNull);
-    controller.dispose();
+    controllerHarness.dispose();
   });
   test('writes are serialized even when completion is delayed', () async {
     final events = <String>[];
@@ -99,7 +127,8 @@ void main() {
     expect(SavedGames.decode(store.value!).settings.showTimer, false);
   });
   test('number-first keyboard navigation never enters a number', () async {
-    final controller = SudokuController(GameRepository(MemoryStore()));
+    final controllerHarness = ControllerHarness(GameRepository(MemoryStore()));
+    final controller = controllerHarness.controller;
     await controller.initialize();
     await controller.startFree(Difficulty.easy);
     controller.changeSettings(const AppSettings(numberFirst: true));
@@ -112,15 +141,22 @@ void main() {
     controller.togglePause();
     controller.enter(5);
     expect(controller.game!.values[cell], 3);
-    controller.dispose();
+    controllerHarness.dispose();
   });
   test('disposing during generation does not start timers or notify', () async {
-    final controller = SudokuController(GameRepository(MemoryStore()));
+    final controllerHarness = ControllerHarness(GameRepository(MemoryStore()));
+    final controller = controllerHarness.controller;
     await controller.initialize();
+    var notifications = 0;
+    controllerHarness.container.listen(
+      sudokuControllerProvider,
+      (_, _) => notifications++,
+    );
     final generating = controller.startFree(Difficulty.hard);
-    controller.dispose();
+    final beforeDisposal = notifications;
+    controllerHarness.dispose();
     await generating;
-    expect(controller.playing, false);
+    expect(notifications, beforeDisposal);
   });
 }
 

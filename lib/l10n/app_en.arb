@@ -12,7 +12,7 @@
   "easy": "Easy",
   "medium": "Medium",
   "hard": "Hard",
-  "difficultyNote": "Starter difficulty levels use clue counts. Strategy-based grading is planned.",
+  "difficultyNote": "Puzzles are rated by logical solving techniques and can be solved without guessing.",
   "dailyTitle": "Your daily puzzle",
   "dailyDescription": "The same puzzle for everyone. A fresh start every day.",
   "playDaily": "Play today's puzzle",
@@ -64,7 +64,7 @@
   "checkOff": "Off",
   "checkConflicts": "Rule conflicts",
   "checkSolution": "Compare with solution",
-  "errorDescription": "With checking off, no correctness feedback is shown.",
+  "errorDescription": "Only incorrect entries are marked. Rule conflicts marks them only when a digit is repeated in a row, column or box. With checking off, no correctness feedback is shown.",
   "about": "About Sudoku",
   "aboutDescription": "An open-source Sudoku app by Tom Vogel. Built with Flutter and Rudi UI. All game data stays on this device.",
   "version": "Version 0.1.0",
@@ -117,7 +117,7 @@
       }
     }
   },
-  "conflict": "Conflict",
+  "incorrectValue": "Incorrect value",
   "selectedNumber": "Selected number: {number}",
   "@selectedNumber": {
     "placeholders": {
@@ -151,5 +151,164 @@
   "boardPaper": "Paper",
   "boardTheme": "Board theme",
   "boardMidnight": "Midnight",
-  "homeSubtitle": "Your daily moment to puzzle."
+  "homeSubtitle": "Your daily moment to puzzle.",
+  "hint": "Hint",
+  "hintIntro": "Follow these deductions in order. Candidates are calculated from the board, independently of your notes. Nothing is entered automatically.",
+  "hintIncorrect": "First correct or erase your incorrect entries. Hints will not build on a wrong number.",
+  "hintUnavailable": "No next step was found with the supported techniques. No number will be guessed.",
+  "hintStep": "{number}. {technique}",
+  "@hintStep": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "technique": {
+        "type": "String"
+      }
+    }
+  },
+  "hintCell": "row {row}, column {column}",
+  "@hintCell": {
+    "placeholders": {
+      "row": {
+        "type": "int"
+      },
+      "column": {
+        "type": "int"
+      }
+    }
+  },
+  "hintRating": "Puzzle effort: {score} · {steps} logical steps · {bottlenecks} bottlenecks. A heuristic within the technique tier, not a solve-time prediction.",
+  "@hintRating": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      },
+      "steps": {
+        "type": "int"
+      },
+      "bottlenecks": {
+        "type": "int"
+      }
+    }
+  },
+  "techniqueNakedSingle": "Only possible candidate",
+  "techniqueHiddenSingle": "Only place in a unit",
+  "techniqueLocked": "Locked candidates",
+  "techniqueNakedPair": "Naked pair",
+  "techniqueHiddenPair": "Hidden pair",
+  "techniqueNakedTriple": "Naked triple",
+  "techniqueHiddenTriple": "Hidden triple",
+  "techniqueXWing": "X-Wing",
+  "techniqueXYWing": "XY-Wing",
+  "hintNakedSingle": "In {cell}, the row, column and block exclude every digit except {digits}. Enter {digits} here.",
+  "@hintNakedSingle": {
+    "placeholders": {
+      "cell": {
+        "type": "String"
+      },
+      "digits": {
+        "type": "String"
+      }
+    }
+  },
+  "hintHiddenSingle": "Within the unit containing {cells}, {digits} can only go in {cell}. Enter {digits} here.",
+  "@hintHiddenSingle": {
+    "placeholders": {
+      "cells": {
+        "type": "String"
+      },
+      "digits": {
+        "type": "String"
+      },
+      "cell": {
+        "type": "String"
+      }
+    }
+  },
+  "hintLocked": "All remaining positions for {digits} in a row, column or block lie in its intersection with another unit: {cells}. This locks the digit into that intersection, excluding it from the rest of the other unit.",
+  "@hintLocked": {
+    "placeholders": {
+      "digits": {
+        "type": "String"
+      },
+      "cells": {
+        "type": "String"
+      }
+    }
+  },
+  "hintNakedSubset": "The cells {cells} share a unit and have only the candidates {digits}. These digits occupy these cells in some order and can be removed from the other cells in the unit.",
+  "@hintNakedSubset": {
+    "placeholders": {
+      "cells": {
+        "type": "String"
+      },
+      "digits": {
+        "type": "String"
+      }
+    }
+  },
+  "hintHiddenSubset": "Within a shared unit, the digits {digits} occur as candidates only in {cells}. These cells are reserved for those digits; remove their other candidates.",
+  "@hintHiddenSubset": {
+    "placeholders": {
+      "digits": {
+        "type": "String"
+      },
+      "cells": {
+        "type": "String"
+      }
+    }
+  },
+  "hintXWing": "For {digits}, two rows (or columns) have exactly the same two possible columns (or rows): {cells}. One digit must occupy each crossing unit, so it cannot occur elsewhere in those units.",
+  "@hintXWing": {
+    "placeholders": {
+      "digits": {
+        "type": "String"
+      },
+      "cells": {
+        "type": "String"
+      }
+    }
+  },
+  "hintXYWing": "These three two-candidate cells form an XY-Wing: {cells}. The first cell is the pivot and sees the other two. Either pivot value forces {digits} in one of the wings. Cells seeing both wings cannot contain {digits}.",
+  "@hintXYWing": {
+    "placeholders": {
+      "cells": {
+        "type": "String"
+      },
+      "digits": {
+        "type": "String"
+      }
+    }
+  },
+  "hintCandidate": "{cell}: {digits}",
+  "@hintCandidate": {
+    "placeholders": {
+      "cell": {
+        "type": "String"
+      },
+      "digits": {
+        "type": "String"
+      }
+    }
+  },
+  "hintCandidates": "Candidates at this step: {evidence}",
+  "@hintCandidates": {
+    "placeholders": {
+      "evidence": {
+        "type": "String"
+      }
+    }
+  },
+  "hintRemoval": "Remove {digits} from {cell}.",
+  "@hintRemoval": {
+    "placeholders": {
+      "digits": {
+        "type": "String"
+      },
+      "cell": {
+        "type": "String"
+      }
+    }
+  }
 }

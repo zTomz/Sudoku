@@ -54,3 +54,6 @@ android/key.properties
 *.keystore
 
 AGENTS.md
+
+# Locally compiled background worker (release helper compiles its own copy).
+/web/sudoku_worker.js*

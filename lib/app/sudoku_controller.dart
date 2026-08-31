@@ -1,36 +1,68 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import 'providers.dart';
+import 'sudoku_state.dart';
 
 import '../features/game/data/game_repository.dart';
+import '../features/game/data/puzzle_generator.dart';
 import '../features/game/domain/game_session.dart';
 import '../features/game/domain/puzzle.dart';
-import '../features/game/domain/sudoku_engine.dart';
 import '../features/settings/domain/app_settings.dart';
 
-final class SudokuController(
-  final GameRepository repository, {
-  SudokuEngine? engine,
-}) extends ChangeNotifier {
-  this : _engine = engine ?? SudokuEngine();
-  final SudokuEngine _engine;
-  SavedGames _saved = SavedGames();
-  GameSession? _game;
+part 'sudoku_controller.g.dart';
+
+@Riverpod(keepAlive: true)
+class SudokuController() extends _$SudokuController {
+  late GameRepository _repository;
+  late PuzzleGenerator _generator;
+  GenerationJob? _generation;
+
+  @override
+  SudokuState build() {
+    _repository = ref.read(gameRepositoryProvider);
+    _generator = ref.read(puzzleGeneratorProvider);
+    ref.onDispose(() {
+      _disposed = true;
+      _ticker?.cancel();
+      _clock.stop();
+      _generation?.cancel();
+    });
+    return SudokuState(saved: SavedGames());
+  }
+
+  SavedGames get _saved => state.saved;
+  set _saved(SavedGames value) => state = state.copyWith(saved: value);
+  GameSession? get _game => state.game;
+  set _game(GameSession? value) => state = state.copyWith(game: value);
   Timer? _ticker;
   final Stopwatch _clock = Stopwatch();
   int _baseSeconds = 0;
   int _saveRevision = 0;
   bool _disposed = false;
-  bool ready = false;
-  bool loadFailed = false;
-  bool saveFailed = false;
-  bool generationFailed = false;
-  bool busy = false;
-  bool playing = false;
-  bool paused = false;
-  bool pencil = false;
-  int selected = -1;
-  int selectedDigit = 0;
+  bool _suspended = false;
+  bool get ready => state.ready;
+  set _ready(bool value) => state = state.copyWith(ready: value);
+  bool get loadFailed => state.loadFailed;
+  set _loadFailed(bool value) => state = state.copyWith(loadFailed: value);
+  bool get saveFailed => state.saveFailed;
+  set _saveFailed(bool value) => state = state.copyWith(saveFailed: value);
+  bool get generationFailed => state.generationFailed;
+  set _generationFailed(bool value) =>
+      state = state.copyWith(generationFailed: value);
+  bool get busy => state.busy;
+  set _busy(bool value) => state = state.copyWith(busy: value);
+  bool get playing => state.playing;
+  set _playing(bool value) => state = state.copyWith(playing: value);
+  bool get paused => state.paused;
+  set _paused(bool value) => state = state.copyWith(paused: value);
+  bool get pencil => state.pencil;
+  set _pencil(bool value) => state = state.copyWith(pencil: value);
+  int get selected => state.selected;
+  set _selected(int value) => state = state.copyWith(selected: value);
+  int get selectedDigit => state.selectedDigit;
+  set _selectedDigit(int value) => state = state.copyWith(selectedDigit: value);
 
   AppSettings get settings => _saved.settings;
   GameSession? get game => _game;
@@ -39,32 +71,30 @@ final class SudokuController(
   Iterable<GameResult> get results => _saved.results.values;
 
   Future<void> initialize() async {
-    if (busy || _disposed) return;
-    busy = true;
-    loadFailed = false;
-    _notify();
+    if (_disposed || busy || ready) return;
+    _busy = true;
+    _loadFailed = false;
     try {
-      final loaded = await repository.load();
+      final loaded = await _repository.load();
       if (_disposed) return;
       _saved = loaded;
-      ready = true;
+      _ready = true;
     } catch (_) {
-      if (!_disposed) loadFailed = true;
+      if (!_disposed) _loadFailed = true;
     } finally {
-      busy = false;
-      _notify();
+      if (!_disposed) _busy = false;
     }
   }
 
   Future<void> startFree(Difficulty difficulty) => _generate(
-    () => _engine.generate(
+    GenerationRequest(
       seed: DateTime.now().microsecondsSinceEpoch % 2147483646,
       difficulty: difficulty,
     ),
   );
 
   Future<void> startDaily(DateTime day) async {
-    if (busy || !ready || _disposed) return;
+    if (_disposed || busy || !ready) return;
     final today = DateTime.now();
     if (DateTime(
       day.year,
@@ -77,24 +107,30 @@ final class SudokuController(
       _open(existing);
       return;
     }
-    await _generate(() => _engine.daily(day));
+    await _generate(
+      GenerationRequest(
+        seed: day.year * 10000 + day.month * 100 + day.day,
+        difficulty: Difficulty.medium,
+        dailyDate: dateKey(day),
+      ),
+    );
   }
 
-  Future<void> _generate(Future<Puzzle> Function() create) async {
-    if (busy || !ready || _disposed) return;
-    busy = true;
-    generationFailed = false;
-    _notify();
+  Future<void> _generate(GenerationRequest request) async {
+    if (_disposed || busy || !ready) return;
+    _busy = true;
+    _generationFailed = false;
     try {
-      final puzzle = await create();
+      _generation = _generator(request);
+      final puzzle = await _generation!.result;
       if (_disposed) return;
       _open(GameSession.start(puzzle));
       await persist();
     } catch (_) {
-      if (!_disposed) generationFailed = true;
+      if (!_disposed) _generationFailed = true;
     } finally {
-      busy = false;
-      _notify();
+      _generation = null;
+      if (!_disposed) _busy = false;
     }
   }
 
@@ -105,37 +141,32 @@ final class SudokuController(
   void _open(GameSession session) {
     _stopClock();
     _game = session;
-    playing = true;
-    paused = false;
-    pencil = false;
-    selected = session.values.indexOf(0);
-    selectedDigit = 0;
+    _playing = true;
+    _paused = _suspended;
+    _pencil = false;
+    _selected = session.values.indexOf(0);
+    _selectedDigit = 0;
     _remember();
     _startClock();
-    _notify();
   }
 
   void selectCell(int cell) {
     if (!playing || paused || cell < 0 || cell >= 81) return;
-    selected = cell;
+    _selected = cell;
     if (settings.numberFirst && selectedDigit != 0) {
       enter(selectedDigit);
-    } else {
-      _notify();
     }
   }
 
   void moveSelection(int cell) {
     if (!playing || paused || cell < 0 || cell >= 81) return;
-    selected = cell;
-    _notify();
+    _selected = cell;
   }
 
   void chooseDigit(int digit) {
-    if (!playing || paused) return;
+    if (!playing || paused || _game?.isDigitAvailable(digit) != true) return;
     if (settings.numberFirst) {
-      selectedDigit = digit;
-      _notify();
+      _selectedDigit = digit;
     } else {
       enter(digit);
     }
@@ -168,11 +199,13 @@ final class SudokuController(
 
   void togglePencil() {
     if (!playing || paused || _game?.complete != false) return;
-    pencil = !pencil;
-    _notify();
+    _pencil = !pencil;
   }
 
   void _afterMove() {
+    if (selectedDigit != 0 && !_game!.isDigitAvailable(selectedDigit)) {
+      _selectedDigit = 0;
+    }
     _captureTime();
     if (_game!.complete) {
       _stopClock();
@@ -193,40 +226,40 @@ final class SudokuController(
       );
     }
     _remember();
-    _notify();
     unawaited(persist());
   }
 
   void leaveGame() {
     _stopClock();
-    playing = false;
-    paused = false;
+    _playing = false;
+    _paused = false;
     _remember();
-    _notify();
     unawaited(persist());
   }
 
   void togglePause() {
     if (!playing || _game?.complete != false) return;
     if (paused) {
-      paused = false;
+      _paused = false;
       _startClock();
     } else {
       _stopClock();
-      paused = true;
+      _paused = true;
     }
-    _notify();
     unawaited(persist());
   }
 
   void suspend() {
+    _suspended = true;
     if (playing && !paused && _game?.complete == false) {
       _stopClock();
-      paused = true;
-      _notify();
+      _paused = true;
     }
     if (ready) unawaited(persist());
   }
+
+  // Returning to the app does not resume a paused game implicitly.
+  void activate() => _suspended = false;
 
   void changeSettings(AppSettings value) {
     _saved = SavedGames(
@@ -235,20 +268,18 @@ final class SudokuController(
       daily: dailyGames,
       results: _saved.results,
     );
-    selectedDigit = 0;
-    _notify();
+    _selectedDigit = 0;
     unawaited(persist());
   }
 
   void _startClock() {
-    if (_game == null || _game!.complete) return;
+    if (_suspended || paused || _game == null || _game!.complete) return;
     _baseSeconds = _game!.elapsedSeconds;
     _clock
       ..reset()
       ..start();
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       _captureTime();
-      _notify();
       if (_clock.elapsed.inSeconds % 15 == 0) unawaited(persist());
     });
   }
@@ -280,32 +311,18 @@ final class SudokuController(
   }
 
   Future<void> persist() async {
-    if (!ready || _disposed) return;
+    if (_disposed || !ready) return;
     _remember();
     final revision = ++_saveRevision;
     try {
-      await repository.save(_saved);
+      await _repository.save(_saved);
       if (!_disposed && revision == _saveRevision && saveFailed) {
-        saveFailed = false;
-        _notify();
+        _saveFailed = false;
       }
     } catch (_) {
       if (!_disposed && revision == _saveRevision) {
-        saveFailed = true;
-        _notify();
+        _saveFailed = true;
       }
     }
-  }
-
-  void _notify() {
-    if (!_disposed) notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    _disposed = true;
-    _ticker?.cancel();
-    _clock.stop();
-    super.dispose();
   }
 }

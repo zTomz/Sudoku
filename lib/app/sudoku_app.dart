@@ -3,6 +3,7 @@ import '../common/presentation/destination_transition.dart';
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:rudi_ui/rudi_ui.dart';
 
@@ -18,17 +19,14 @@ import '../l10n/generated/app_localizations.dart';
 import 'app_theme.dart';
 import 'sudoku_controller.dart';
 
-final class const SudokuApp({
-  required final SudokuController controller,
-  final Locale? locale,
-  super.key,
-}) extends StatefulWidget {
+final class const SudokuApp({final Locale? locale, super.key})
+    extends ConsumerStatefulWidget {
   @override
-  State<SudokuApp> createState() => _SudokuAppState();
+  ConsumerState<SudokuApp> createState() => _SudokuAppState();
 }
 
 final class _SudokuAppState()
-    extends State<SudokuApp>
+    extends ConsumerState<SudokuApp>
     with WidgetsBindingObserver {
   AppSettings? _lastSettings;
   late RudiThemeData _light;
@@ -37,63 +35,69 @@ final class _SudokuAppState()
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    unawaited(widget.controller.initialize());
+    Future.microtask(() {
+      if (mounted) {
+        unawaited(ref.read(sudokuControllerProvider.notifier).initialize());
+      }
+    });
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state != AppLifecycleState.resumed) widget.controller.suspend();
+    if (state != AppLifecycleState.resumed) {
+      ref.read(sudokuControllerProvider.notifier).suspend();
+    } else {
+      ref.read(sudokuControllerProvider.notifier).activate();
+    }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    widget.controller.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => ListenableBuilder(
-    listenable: widget.controller,
-    builder: (context, _) {
-      final settings = widget.controller.settings;
-      if (_lastSettings != settings) {
-        _lastSettings = settings;
-        _light = sudokuTheme(Brightness.light, settings);
-        _dark = sudokuTheme(Brightness.dark, settings);
-      }
-      return RudiApp(
-        title: 'Sudoku',
-        theme: _light,
-        darkTheme: _dark,
-        locale: widget.locale,
-        themeMode: switch (settings.appearance) {
-          AppAppearance.system => RudiThemeMode.system,
-          AppAppearance.light => RudiThemeMode.light,
-          AppAppearance.dark => RudiThemeMode.dark,
-        },
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: _AppShell(controller: widget.controller),
-      );
-    },
-  );
+  Widget build(BuildContext context) {
+    final settings = ref.watch(
+      sudokuControllerProvider.select((s) => s.saved.settings),
+    );
+    if (_lastSettings != settings) {
+      _lastSettings = settings;
+      _light = sudokuTheme(Brightness.light, settings);
+      _dark = sudokuTheme(Brightness.dark, settings);
+    }
+    return RudiApp(
+      title: 'Sudoku',
+      theme: _light,
+      darkTheme: _dark,
+      locale: widget.locale,
+      themeMode: switch (settings.appearance) {
+        AppAppearance.system => RudiThemeMode.system,
+        AppAppearance.light => RudiThemeMode.light,
+        AppAppearance.dark => RudiThemeMode.dark,
+      },
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: const _AppShell(),
+    );
+  }
 }
 
-final class const _AppShell({required final SudokuController controller})
-    extends StatefulWidget {
+final class const _AppShell() extends ConsumerStatefulWidget {
   @override
-  State<_AppShell> createState() => _AppShellState();
+  ConsumerState<_AppShell> createState() => _AppShellState();
 }
 
-final class _AppShellState() extends State<_AppShell> {
+final class _AppShellState() extends ConsumerState<_AppShell> {
   int _destination = 0;
   @override
   Widget build(BuildContext context) {
-    final c = widget.controller, l = context.l10n;
+    ref.watch(sudokuControllerProvider);
+    final c = ref.read(sudokuControllerProvider.notifier), l = context.l10n;
     if (!c.ready || c.busy) {
       return RudiPage(
         child: Center(

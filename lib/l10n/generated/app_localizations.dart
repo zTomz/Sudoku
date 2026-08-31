@@ -173,7 +173,7 @@ abstract class AppLocalizations {
   /// No description provided for @difficultyNote.
   ///
   /// In en, this message translates to:
-  /// **'Starter difficulty levels use clue counts. Strategy-based grading is planned.'**
+  /// **'Puzzles are rated by logical solving techniques and can be solved without guessing.'**
   String get difficultyNote;
 
   /// No description provided for @dailyTitle.
@@ -443,7 +443,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorDescription.
   ///
   /// In en, this message translates to:
-  /// **'With checking off, no correctness feedback is shown.'**
+  /// **'Only incorrect entries are marked. Rule conflicts marks them only when a digit is repeated in a row, column or box. With checking off, no correctness feedback is shown.'**
   String get errorDescription;
 
   /// No description provided for @about.
@@ -572,11 +572,11 @@ abstract class AppLocalizations {
   /// **'Notes: {values}'**
   String candidates(String values);
 
-  /// No description provided for @conflict.
+  /// No description provided for @incorrectValue.
   ///
   /// In en, this message translates to:
-  /// **'Conflict'**
-  String get conflict;
+  /// **'Incorrect value'**
+  String get incorrectValue;
 
   /// No description provided for @selectedNumber.
   ///
@@ -697,6 +697,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your daily moment to puzzle.'**
   String get homeSubtitle;
+
+  /// No description provided for @hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hint'**
+  String get hint;
+
+  /// No description provided for @hintIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow these deductions in order. Candidates are calculated from the board, independently of your notes. Nothing is entered automatically.'**
+  String get hintIntro;
+
+  /// No description provided for @hintIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'First correct or erase your incorrect entries. Hints will not build on a wrong number.'**
+  String get hintIncorrect;
+
+  /// No description provided for @hintUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No next step was found with the supported techniques. No number will be guessed.'**
+  String get hintUnavailable;
+
+  /// No description provided for @hintStep.
+  ///
+  /// In en, this message translates to:
+  /// **'{number}. {technique}'**
+  String hintStep(int number, String technique);
+
+  /// No description provided for @hintCell.
+  ///
+  /// In en, this message translates to:
+  /// **'row {row}, column {column}'**
+  String hintCell(int row, int column);
+
+  /// No description provided for @hintRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Puzzle effort: {score} · {steps} logical steps · {bottlenecks} bottlenecks. A heuristic within the technique tier, not a solve-time prediction.'**
+  String hintRating(int score, int steps, int bottlenecks);
+
+  /// No description provided for @techniqueNakedSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'Only possible candidate'**
+  String get techniqueNakedSingle;
+
+  /// No description provided for @techniqueHiddenSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'Only place in a unit'**
+  String get techniqueHiddenSingle;
+
+  /// No description provided for @techniqueLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked candidates'**
+  String get techniqueLocked;
+
+  /// No description provided for @techniqueNakedPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Naked pair'**
+  String get techniqueNakedPair;
+
+  /// No description provided for @techniqueHiddenPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden pair'**
+  String get techniqueHiddenPair;
+
+  /// No description provided for @techniqueNakedTriple.
+  ///
+  /// In en, this message translates to:
+  /// **'Naked triple'**
+  String get techniqueNakedTriple;
+
+  /// No description provided for @techniqueHiddenTriple.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden triple'**
+  String get techniqueHiddenTriple;
+
+  /// No description provided for @techniqueXWing.
+  ///
+  /// In en, this message translates to:
+  /// **'X-Wing'**
+  String get techniqueXWing;
+
+  /// No description provided for @techniqueXYWing.
+  ///
+  /// In en, this message translates to:
+  /// **'XY-Wing'**
+  String get techniqueXYWing;
+
+  /// No description provided for @hintNakedSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'In {cell}, the row, column and block exclude every digit except {digits}. Enter {digits} here.'**
+  String hintNakedSingle(String cell, String digits);
+
+  /// No description provided for @hintHiddenSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'Within the unit containing {cells}, {digits} can only go in {cell}. Enter {digits} here.'**
+  String hintHiddenSingle(String cells, String digits, String cell);
+
+  /// No description provided for @hintLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'All remaining positions for {digits} in a row, column or block lie in its intersection with another unit: {cells}. This locks the digit into that intersection, excluding it from the rest of the other unit.'**
+  String hintLocked(String digits, String cells);
+
+  /// No description provided for @hintNakedSubset.
+  ///
+  /// In en, this message translates to:
+  /// **'The cells {cells} share a unit and have only the candidates {digits}. These digits occupy these cells in some order and can be removed from the other cells in the unit.'**
+  String hintNakedSubset(String cells, String digits);
+
+  /// No description provided for @hintHiddenSubset.
+  ///
+  /// In en, this message translates to:
+  /// **'Within a shared unit, the digits {digits} occur as candidates only in {cells}. These cells are reserved for those digits; remove their other candidates.'**
+  String hintHiddenSubset(String digits, String cells);
+
+  /// No description provided for @hintXWing.
+  ///
+  /// In en, this message translates to:
+  /// **'For {digits}, two rows (or columns) have exactly the same two possible columns (or rows): {cells}. One digit must occupy each crossing unit, so it cannot occur elsewhere in those units.'**
+  String hintXWing(String digits, String cells);
+
+  /// No description provided for @hintXYWing.
+  ///
+  /// In en, this message translates to:
+  /// **'These three two-candidate cells form an XY-Wing: {cells}. The first cell is the pivot and sees the other two. Either pivot value forces {digits} in one of the wings. Cells seeing both wings cannot contain {digits}.'**
+  String hintXYWing(String cells, String digits);
+
+  /// No description provided for @hintCandidate.
+  ///
+  /// In en, this message translates to:
+  /// **'{cell}: {digits}'**
+  String hintCandidate(String cell, String digits);
+
+  /// No description provided for @hintCandidates.
+  ///
+  /// In en, this message translates to:
+  /// **'Candidates at this step: {evidence}'**
+  String hintCandidates(String evidence);
+
+  /// No description provided for @hintRemoval.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {digits} from {cell}.'**
+  String hintRemoval(String digits, String cell);
 }
 
 class _AppLocalizationsDelegate

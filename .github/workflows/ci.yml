@@ -20,6 +20,8 @@ jobs:
           cache: true
       - run: flutter pub get --enforce-lockfile
       - run: flutter gen-l10n
+      - run: dart run build_runner build
+      - run: git diff --exit-code -- lib/app
       - run: git diff --exit-code -- lib/l10n/generated
       - run: dart format --output=none --set-exit-if-changed lib test .github/prepare_web.dart
       - run: dart analyze --fatal-infos
@@ -28,6 +30,7 @@ jobs:
       - run: flutter build web --release --no-web-resources-cdn
       - run: dart run .github/prepare_web.dart
       - run: node --test test/web_cache_test.cjs
+      - run: node --test test/background_worker_test.cjs
       - uses: actions/upload-artifact@v4
         with:
           name: sudoku-web

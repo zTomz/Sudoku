@@ -60,10 +60,12 @@ for (const scope of ["https://example.test/", "https://example.test/sudoku/"]) {
     const h = harness(scope);
     await h.lifecycle("install");
     assert.ok(h.requested.includes("main.dart.js"));
+    assert.ok(h.requested.includes("sudoku_worker.js"));
     assert.ok(h.requested.includes("assets/assets/fonts/GoogleSans.ttf"));
     assert.ok(h.requested.includes("canvaskit/canvaskit.wasm"));
     assert.ok(!h.requested.includes("_headers"));
     assert.deepEqual(await h.request(scope + "main.dart.js?v=1"), { cached: "main.dart.js" });
+    assert.deepEqual(await h.request(scope + "sudoku_worker.js"), { cached: "sudoku_worker.js" });
     assert.deepEqual(await h.request(scope + "calendar", "navigate"), { cached: "index.html" });
     assert.equal(await h.request("https://outside.test/game"), undefined);
     assert.equal(await h.request(scope + "unknown.json"), undefined);

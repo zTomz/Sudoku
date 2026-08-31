@@ -67,17 +67,17 @@ final class const SudokuBoard({
                                                 selected % 9 ~/ 3 == col ~/ 3));
                                     final same =
                                         value != 0 && value == activeDigit;
-                                    final error = switch (controller
-                                        .settings
-                                        .errorCheck) {
-                                      ErrorCheck.off => false,
-                                      ErrorCheck.conflicts => game.hasConflict(
-                                        cell,
-                                      ),
-                                      ErrorCheck.solution =>
-                                        value != 0 &&
-                                            value != game.puzzle.solution[cell],
-                                    };
+                                    final error =
+                                        !obscured &&
+                                        game.isIncorrect(cell) &&
+                                        switch (controller
+                                            .settings
+                                            .errorCheck) {
+                                          ErrorCheck.off => false,
+                                          ErrorCheck.conflicts =>
+                                            game.hasConflict(cell),
+                                          ErrorCheck.solution => true,
+                                        };
                                     final candidates = [
                                       for (var n = 1; n <= 9; n++)
                                         if (notes & (1 << n) != 0) n,
@@ -96,7 +96,7 @@ final class const SudokuBoard({
                                     return Semantics(
                                       selected: isSelected,
                                       value:
-                                          '$description${error ? ', ${context.l10n.conflict}' : ''}',
+                                          '$description${error ? ', ${context.l10n.incorrectValue}' : ''}',
                                       child: RudiPressable(
                                         key: ValueKey('cell-$cell'),
                                         semanticLabel: context.l10n.cellLabel(

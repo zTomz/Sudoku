@@ -1,5 +1,7 @@
 /sudoku-sw.js
   Cache-Control: no-cache
+/sudoku_worker.js
+  Cache-Control: no-cache
 /index.html
   Cache-Control: no-cache
 /flutter_bootstrap.js

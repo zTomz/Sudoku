@@ -3,12 +3,14 @@ import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rudi_ui/rudi_ui.dart';
 
 import '../../../app/sudoku_controller.dart';
 import '../../../common/presentation/destination_transition.dart';
 import '../../../common/presentation/ui.dart';
 import 'sudoku_board.dart';
+import 'hint_sheet.dart';
 import '../../../common/presentation/app_sheet.dart';
 import '../../settings/presentation/settings_page.dart';
 
@@ -69,9 +71,11 @@ final class const GamePage({
       await showAppSheet<void>(
         context: context,
         title: context.l10n.settings,
-        builder: (context) => ListenableBuilder(
-          listenable: controller,
-          builder: (context, _) => SettingsContent(controller: controller),
+        builder: (context) => Consumer(
+          builder: (context, ref, _) {
+            ref.watch(sudokuControllerProvider);
+            return SettingsContent(controller: controller);
+          },
         ),
       );
     }
@@ -352,6 +356,11 @@ final class const _GameControls({required final SudokuController controller})
               selected: controller.pencil,
               onPressed: enabled ? controller.togglePencil : null,
             ),
+            _Tool(
+              label: l.hint,
+              symbol: AppSymbol.info,
+              onPressed: enabled ? () => unawaited(showHint(context)) : null,
+            ),
           ],
         ),
         const SizedBox(height: 10),
@@ -367,7 +376,7 @@ final class const _GameControls({required final SudokuController controller})
                   child: RudiPressable(
                     key: ValueKey('number-$number'),
                     semanticLabel: '$number',
-                    onPressed: enabled
+                    onPressed: enabled && digitCounts[number] < 9
                         ? () => controller.chooseDigit(number)
                         : null,
                     builder: (context, state) {
