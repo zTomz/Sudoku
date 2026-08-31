@@ -20,6 +20,7 @@ import 'package:sudoku/features/game/domain/sudoku_engine.dart';
 import 'package:sudoku/features/game/presentation/board_palette.dart';
 import 'package:sudoku/features/game/presentation/game_page.dart';
 import 'package:sudoku/features/game/presentation/hint_sheet.dart';
+import 'package:sudoku/features/game/presentation/sudoku_board.dart';
 import 'package:sudoku/features/settings/domain/app_settings.dart';
 import 'package:sudoku/l10n/generated/app_localizations.dart';
 
@@ -34,6 +35,50 @@ void main() {
       difficulty: Difficulty.medium,
     );
   });
+  test('completion flash targets a newly completed digit', () {
+    final previous = List<int>.filled(81, 0);
+    final current = [...previous];
+    const sevens = [0, 12, 24, 28, 40, 52, 56, 68, 80];
+    for (final cell in sevens.take(8)) {
+      previous[cell] = 7;
+      current[cell] = 7;
+    }
+    current[sevens.last] = 7;
+
+    expect(completionFlashCells(previous, current), sevens.toSet());
+  });
+
+  test('completion flash targets a newly filled three-by-three box', () {
+    final previous = List<int>.filled(81, 0);
+    final current = [...previous];
+    const boxCells = [0, 1, 2, 9, 10, 11, 18, 19, 20];
+    for (var index = 0; index < boxCells.length - 1; index++) {
+      previous[boxCells[index]] = index + 1;
+      current[boxCells[index]] = index + 1;
+    }
+    current[boxCells.last] = 9;
+
+    expect(completionFlashCells(previous, current), boxCells.toSet());
+    expect(completionFlashCells(current, previous), isEmpty);
+  });
+
+  test('completion flash targets newly filled rows and columns', () {
+    for (final unit in [
+      [for (var cell = 0; cell < 9; cell++) cell],
+      [for (var cell = 0; cell < 81; cell += 9) cell],
+    ]) {
+      final previous = List<int>.filled(81, 0);
+      final current = [...previous];
+      for (var index = 0; index < unit.length - 1; index++) {
+        previous[unit[index]] = index + 1;
+        current[unit[index]] = index + 1;
+      }
+      current[unit.last] = 9;
+
+      expect(completionFlashCells(previous, current), unit.toSet());
+    }
+  });
+
   for (final numberFirst in [false, true]) {
     testWidgets(
       'completed digit blocks taps, keyboard and pencil; undo/erase restore it (numberFirst: $numberFirst)',

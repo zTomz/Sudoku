@@ -16,6 +16,7 @@
 </p>
 
 <p align="center">
+  <a href="#get-sudoku">Get Sudoku</a> &nbsp;·&nbsp;
   <a href="#features">Features</a> &nbsp;·&nbsp;
   <a href="#platforms">Platforms</a> &nbsp;·&nbsp;
   <a href="#run-from-source">Run from source</a> &nbsp;·&nbsp;
@@ -25,6 +26,16 @@
 ---
 
 Pick up your daily puzzle, return to an unfinished game, or start a fresh board. Sudoku keeps the experience simple: a clear grid, useful solving tools, and progress saved on your device.
+
+## Get Sudoku
+
+| Platform | Start here |
+| --- | --- |
+| **Web** | [Play Sudoku in your browser](https://ztomz.github.io/Sudoku/). After the first successful online visit, the app can work offline. |
+| **Android** | Download `app-release.apk` from the [latest release (v0.1.0)](https://github.com/zTomz/Sudoku/releases/tag/v0.1.0). |
+| **Windows** | Build the desktop app from source using the instructions below. |
+
+The [v0.1.0 release](https://github.com/zTomz/Sudoku/releases/tag/v0.1.0) is the first public version of Sudoku. GitHub also provides source archives on the release page.
 
 <!-- Screenshots: add real app captures here when available. Keep images in
      docs/screenshots/ and use relative paths with descriptive alt text.
@@ -38,7 +49,7 @@ Pick up your daily puzzle, return to an unfinished game, or start a fresh board.
 | **A puzzle every day** | Daily challenges with a calendar to revisit earlier days and keep track of completed puzzles. |
 | **Fresh boards, your pace** | Locally generated, unique-solution puzzles with verified no-guess logical paths in easy, medium and hard levels. |
 | **Tools for solving** | Pencil notes, automatic note cleanup, undo, redo and erasing. Explanatory hints show the logical steps leading to the next placement. Choose a cell first or select a number first. |
-| **Just enough guidance** | Solution checking marks only incorrect entries; correct digits and clues stay unmarked. Optional conflict-only checking or no checking. After nine placements, a digit becomes a disabled checkmark; erasing or undoing a placement makes it available again. |
+| **Just enough guidance** | Solution checking marks only incorrect entries; correct digits and clues stay unmarked. Optional conflict-only checking or no checking. After nine placements, a digit becomes a disabled checkmark; erasing or undoing a placement makes it available again. Completing a digit, row, column or 3×3 box triggers a smooth accent animation that spreads from the last entry and respects reduced-motion settings. |
 | **Pick up where you left off** | Automatic local saves, separate daily and free-play progress, and a pause dialog that conceals the board. |
 | **Make it yours** | Light, dark and system appearance, four board themes, optional haptics and an optional timer. |
 | **See your progress** | Completed puzzle counts, total play time and personal bests by difficulty. |
@@ -46,11 +57,11 @@ Pick up your daily puzzle, return to an unfinished game, or start a fresh board.
 
 ## Platforms
 
-The project currently includes **Android**, **Windows** and **Web** targets. It is in early development; iOS, macOS and Linux runners are not included yet.
+The project currently includes **Android**, **Windows** and **Web** targets. The Web app is [available on GitHub Pages](https://ztomz.github.io/Sudoku/), and the [latest GitHub release](https://github.com/zTomz/Sudoku/releases/tag/v0.1.0) provides the Android APK. Windows can be built from source. iOS, macOS and Linux runners are not included yet.
 
 You can run the app from source using the steps below. Platform builds, signing and Web deployment are documented in the [release guide](docs/RELEASING.md).
 
-The `Publish GitHub Pages` workflow automatically tests, builds and deploys the Web app on pushes to `main`, and can also be started manually on `main`. Enable **Settings → Pages → Source → GitHub Actions** in the repository once. The workflow uses the configured Pages path and preserves offline support.
+The `Publish GitHub Pages` workflow automatically tests, builds and deploys the hosted Web app on pushes to `main`, and can also be started manually on `main`. The workflow uses the configured Pages path and preserves offline support.
 
 ## Your puzzles stay with you
 

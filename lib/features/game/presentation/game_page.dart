@@ -201,6 +201,7 @@ final class const GamePage({
                                       dimension: size,
                                       child: SudokuBoard(
                                         controller: controller,
+                                        game: game,
                                         obscured: controller.paused,
                                       ),
                                     );
