@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rudi_ui/rudi_ui.dart';
 
@@ -26,9 +29,25 @@ final class _SudokuBoardState()
     duration: const Duration(
       milliseconds: _CompletionFlash.durationMilliseconds,
     ),
-  );
+  )..addListener(_handleFlashTick);
   Set<int> _flashCells = const {};
   int _flashOrigin = -1;
+  List<Duration> _hapticMoments = const [];
+  int _nextHapticMoment = 0;
+
+  void _handleFlashTick() {
+    if (_nextHapticMoment >= _hapticMoments.length) return;
+    final elapsed = _flashAnimation.lastElapsedDuration ?? Duration.zero;
+    if (elapsed < _hapticMoments[_nextHapticMoment]) return;
+
+    do {
+      _nextHapticMoment++;
+    } while (_nextHapticMoment < _hapticMoments.length &&
+        elapsed >= _hapticMoments[_nextHapticMoment]);
+    if (widget.controller.settings.haptics) {
+      unawaited(HapticFeedback.lightImpact());
+    }
+  }
 
   @override
   void didUpdateWidget(covariant SudokuBoard oldWidget) {
@@ -44,6 +63,8 @@ final class _SudokuBoardState()
           widget.game.values[cell] != 0,
       orElse: () => -1,
     );
+    _hapticMoments = completionHapticMoments(_flashCells, _flashOrigin);
+    _nextHapticMoment = 0;
     if (_flashCells.isEmpty || MediaQuery.disableAnimationsOf(context)) {
       _flashAnimation.value = 0;
     } else {
@@ -298,8 +319,8 @@ final class const _CompletionFlash({
   required final BoardPalette palette,
 }) extends StatelessWidget {
   static const durationMilliseconds = 2100;
-  static const _delayMilliseconds = 500;
-  static const _staggerMilliseconds = 90;
+  static const delayMilliseconds = 500;
+  static const staggerMilliseconds = 90;
   static const _enterMilliseconds = 260;
   static const _holdMilliseconds = 240;
   static const _exitMilliseconds = 320;
@@ -317,14 +338,12 @@ final class const _CompletionFlash({
 
   ({double opacity, double shape, double angle}) _visual(int cell) {
     if (origin < 0) return (opacity: 0, shape: 1, angle: 0);
-    final rowDistance = (cell ~/ 9 - origin ~/ 9).abs(),
-        columnDistance = (cell % 9 - origin % 9).abs(),
-        distance = rowDistance > columnDistance ? rowDistance : columnDistance;
+    final distance = _completionWaveDistance(cell, origin);
     final tilt = _tiltDirection(cell);
     final elapsed =
         animation.value * durationMilliseconds -
-        _delayMilliseconds -
-        distance * _staggerMilliseconds;
+        delayMilliseconds -
+        distance * staggerMilliseconds;
     if (elapsed <= 0 ||
         elapsed >= _enterMilliseconds + _holdMilliseconds + _exitMilliseconds) {
       return (opacity: 0, shape: 1, angle: -.0872665);
@@ -457,6 +476,28 @@ Set<int> completionFlashCells(List<int> previous, List<int> current) {
     addCompletedUnit(boxCells);
   }
   return cells;
+}
+
+@visibleForTesting
+List<Duration> completionHapticMoments(Set<int> cells, int origin) {
+  if (origin < 0 || cells.isEmpty) return const [];
+  final distances = <int>{
+    for (final cell in cells) _completionWaveDistance(cell, origin),
+  }.toList()..sort();
+  return [
+    for (final distance in distances)
+      Duration(
+        milliseconds:
+            _CompletionFlash.delayMilliseconds +
+            distance * _CompletionFlash.staggerMilliseconds,
+      ),
+  ];
+}
+
+int _completionWaveDistance(int cell, int origin) {
+  final rowDistance = (cell ~/ 9 - origin ~/ 9).abs(),
+      columnDistance = (cell % 9 - origin % 9).abs();
+  return rowDistance > columnDistance ? rowDistance : columnDistance;
 }
 
 final class const _BoardDigit(

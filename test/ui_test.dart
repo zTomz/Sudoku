@@ -79,6 +79,18 @@ void main() {
     }
   });
 
+  test('completion haptics follow each visual wavefront once', () {
+    const origin = 40;
+    final cells = {40, 31, 39, 41, 49, 22, 38, 42, 58};
+
+    expect(completionHapticMoments(cells, origin), const [
+      Duration(milliseconds: 500),
+      Duration(milliseconds: 590),
+      Duration(milliseconds: 680),
+    ]);
+    expect(completionHapticMoments(cells, -1), isEmpty);
+  });
+
   for (final numberFirst in [false, true]) {
     testWidgets(
       'completed digit blocks taps, keyboard and pencil; undo/erase restore it (numberFirst: $numberFirst)',
