@@ -153,17 +153,58 @@
   "boardMidnight": "Midnight",
   "homeSubtitle": "Your daily moment to puzzle.",
   "hint": "Hint",
-  "hintIntro": "Follow these deductions in order. Candidates are calculated from the board, independently of your notes. Nothing is entered automatically.",
   "hintIncorrect": "First correct or erase your incorrect entries. Hints will not build on a wrong number.",
   "hintUnavailable": "No next step was found with the supported techniques. No number will be guessed.",
-  "hintStep": "{number}. {technique}",
-  "@hintStep": {
+  "hintLookHere": "Look here",
+  "hintLocateCell": "Start with {cell}.",
+  "@hintLocateCell": {
     "placeholders": {
-      "number": {
-        "type": "int"
-      },
-      "technique": {
+      "cell": {
         "type": "String"
+      }
+    }
+  },
+  "hintLocateArea": "Look at how the highlighted cells relate to each other.",
+  "hintReasonPlacement": "The highlighted numbers rule out every other possibility.",
+  "hintReasonElimination": "The highlighted candidates restrict each other. Crossed-out candidates can be eliminated.",
+  "hintAnswerTitle": "Your next move",
+  "hintExplainWhy": "Why?",
+  "hintContinue": "Continue",
+  "hintShowAnswer": "Show answer",
+  "hintExplanation": "Why does this work?",
+  "hintEnterValue": "Enter {digit} in {cell}.",
+  "@hintEnterValue": {
+    "placeholders": {
+      "cell": {
+        "type": "String"
+      },
+      "digit": {
+        "type": "int"
+      }
+    }
+  },
+  "hintBoardRelevant": "Relevant to the hint",
+  "hintBoardCandidates": "Hint candidates: {digits}",
+  "@hintBoardCandidates": {
+    "placeholders": {
+      "digits": {
+        "type": "String"
+      }
+    }
+  },
+  "hintBoardRemoved": "Eliminate from hint: {digits}",
+  "@hintBoardRemoved": {
+    "placeholders": {
+      "digits": {
+        "type": "String"
+      }
+    }
+  },
+  "hintBoardResult": "Hint answer: {digit}",
+  "@hintBoardResult": {
+    "placeholders": {
+      "digit": {
+        "type": "int"
       }
     }
   },

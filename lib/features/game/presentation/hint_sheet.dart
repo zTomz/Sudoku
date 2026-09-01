@@ -2,58 +2,60 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rudi_ui/rudi_ui.dart';
 
-import '../../../app/hint_provider.dart';
 import '../../../app/sudoku_controller.dart';
 import '../../../common/presentation/app_sheet.dart';
 import '../../../common/presentation/ui.dart';
 import '../../../l10n/generated/app_localizations.dart';
-import '../domain/game_hint.dart';
+import '../domain/difficulty_rating.dart';
 import '../domain/logical_solver.dart';
 
-Future<void> showHint(BuildContext context) => showAppSheet<void>(
+Future<void> showHintExplanation(
+  BuildContext context, {
+  required LogicalStep step,
+  required DifficultyRating? rating,
+}) => showAppSheet<void>(
   context: context,
-  title: context.l10n.hint,
-  builder: (_) => const HintContent(),
+  title: context.l10n.hintExplanation,
+  builder: (_) => HintExplanationContent(step: step, rating: rating),
 );
 
-final class const HintContent({super.key}) extends ConsumerWidget {
+final class const HintExplanationContent({
+  required final LogicalStep step,
+  required final DifficultyRating? rating,
+  super.key,
+}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n, theme = context.rudiTheme;
     final paused = ref.watch(sudokuControllerProvider.select((s) => s.paused));
     if (paused) return Text(l.paused, style: theme.text.body);
-    final hint = ref.watch(gameHintProvider);
-    final rating = ref.read(sudokuControllerProvider).game?.puzzle.rating;
-    final message = switch (hint?.status) {
-      HintStatus.available => l.hintIntro,
-      HintStatus.incorrect => l.hintIncorrect,
-      HintStatus.complete => l.finished,
-      HintStatus.unavailable || null => l.hintUnavailable,
-    };
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(message, style: theme.text.body),
-        if (hint?.status == HintStatus.available) ...[
-          for (var i = 0; i < hint!.steps.length; i++) ...[
-            const SizedBox(height: 20),
-            Text(
-              l.hintStep(i + 1, techniqueLabel(l, hint.steps[i].technique)),
-              style: theme.text.title,
-            ),
-            const SizedBox(height: 8),
-            Text(explainStep(l, hint.steps[i]), style: theme.text.body),
-          ],
-          if (rating != null) ...[
-            const SizedBox(height: 24),
-            Text(
-              l.hintRating(rating.score, rating.steps, rating.bottlenecks),
-              style: theme.text.caption.copyWith(
-                color: theme.colors.mutedForeground,
+        Text(techniqueLabel(l, step.technique), style: theme.text.title),
+        const SizedBox(height: 12),
+        Text(explainStep(l, step), style: theme.text.body),
+        if (rating != null) ...[
+          const SizedBox(height: 24),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  color: theme.colors.outline.withValues(alpha: .55),
+                ),
               ),
             ),
-          ],
+            child: Padding(
+              padding: const .only(top: 16),
+              child: Text(
+                l.hintRating(rating!.score, rating!.steps, rating!.bottlenecks),
+                style: theme.text.caption.copyWith(
+                  color: theme.colors.mutedForeground,
+                ),
+              ),
+            ),
+          ),
         ],
       ],
     );
@@ -73,8 +75,11 @@ String techniqueLabel(AppLocalizations l, SolveTechnique technique) =>
       SolveTechnique.xyWing => l.techniqueXYWing,
     };
 
+String hintCellLabel(AppLocalizations l, int cell) =>
+    l.hintCell(cell ~/ 9 + 1, cell % 9 + 1);
+
 String explainStep(AppLocalizations l, LogicalStep step) {
-  String cell(int c) => l.hintCell(c ~/ 9 + 1, c % 9 + 1);
+  String cell(int c) => hintCellLabel(l, c);
   String digits(int mask) => [
     for (var d = 1; d <= 9; d++)
       if (mask & (1 << d) != 0) d,

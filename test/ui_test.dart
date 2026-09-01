@@ -11,10 +11,12 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:rudi_ui/rudi_ui.dart';
 import 'package:sudoku/app/app_theme.dart';
+import 'package:sudoku/app/hint_provider.dart';
 import 'package:sudoku/app/sudoku_app.dart';
 import 'package:sudoku/app/sudoku_controller.dart';
 import 'package:sudoku/features/game/data/game_repository.dart';
 import 'package:sudoku/features/game/domain/game_session.dart';
+import 'package:sudoku/features/game/domain/logical_solver.dart';
 import 'package:sudoku/features/game/domain/puzzle.dart';
 import 'package:sudoku/features/game/domain/sudoku_engine.dart';
 import 'package:sudoku/features/game/presentation/board_palette.dart';
@@ -27,12 +29,16 @@ import 'package:sudoku/l10n/generated/app_localizations.dart';
 import 'storage_controller_test.dart' show MemoryStore;
 
 void main() {
-  late Puzzle puzzle;
+  late Puzzle puzzle, hardPuzzle;
   setUpAll(() async {
     await initializeDateFormatting();
     puzzle = await SudokuEngine().generate(
       seed: 991,
       difficulty: Difficulty.medium,
+    );
+    hardPuzzle = await SudokuEngine().generate(
+      seed: 4,
+      difficulty: Difficulty.hard,
     );
   });
   test('completion flash targets a newly completed digit', () {
@@ -183,7 +189,8 @@ void main() {
         final controller = harness.controller;
         await controller.initialize();
         controller.resumeFree();
-        final values = [...controller.game!.values];
+        final values = [...controller.game!.values],
+            notes = [...controller.game!.notes];
         await tester.pumpWidget(
           _GameHarness(
             controller: controller,
@@ -193,34 +200,246 @@ void main() {
           ),
         );
         final l = await AppLocalizations.delegate.load(Locale(language));
+        final hint = harness.container.read(gameHintProvider)!;
+        final placement = hint.steps.first.placement!;
+        final answer = hint.steps.first.digits.bitLength - 1;
+        final initialBoardRect = tester.getRect(
+          find.byKey(const ValueKey('game-puzzle')),
+        );
+        final initialContextControlsSize = tester.getSize(
+          find.byKey(const ValueKey('game-context-controls')),
+        );
         await tester.tap(find.text(l.hint));
         await tester.pumpAndSettle();
-        expect(find.byType(HintContent), findsOneWidget);
-        expect(find.text(l.hintIntro), findsOneWidget);
+        expect(
+          tester.getRect(find.byKey(const ValueKey('game-puzzle'))),
+          initialBoardRect,
+        );
+        expect(
+          tester.getSize(find.byKey(const ValueKey('game-context-controls'))),
+          initialContextControlsSize,
+        );
+        expect(find.byKey(const ValueKey('hint-coach')), findsOneWidget);
+        expect(find.text(l.hintLookHere), findsOneWidget);
+        expect(
+          find.text(l.hintLocateCell(hintCellLabel(l, placement))),
+          findsOneWidget,
+        );
+        expect(find.byKey(ValueKey('hint-focus-$placement')), findsOneWidget);
+        expect(find.byKey(ValueKey('hint-result-$placement')), findsNothing);
+        expect(
+          find.text(l.hintEnterValue(hintCellLabel(l, placement), answer)),
+          findsNothing,
+        );
         expect(controller.paused, isFalse);
         expect(controller.game!.values, values);
+        expect(controller.game!.notes, notes);
+        await tester.tap(find.byKey(const ValueKey('hint-advance')));
+        await tester.pump(const Duration(milliseconds: 80));
+        expect(
+          find.byKey(const ValueKey('hint-available-0-locate')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const ValueKey('hint-available-0-reason')),
+          findsOneWidget,
+        );
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byKey(const ValueKey('game-puzzle'))),
+          initialBoardRect,
+        );
+        expect(find.text(l.hintReasonPlacement), findsOneWidget);
+        expect(find.byKey(const ValueKey('hint-explanation')), findsNothing);
+        expect(
+          find.text(l.hintEnterValue(hintCellLabel(l, placement), answer)),
+          findsNothing,
+        );
+        expect(controller.game!.values, values);
+        expect(controller.game!.notes, notes);
+        await tester.tap(find.byKey(const ValueKey('hint-advance')));
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byKey(const ValueKey('game-puzzle'))),
+          initialBoardRect,
+        );
+        expect(
+          find.text(l.hintEnterValue(hintCellLabel(l, placement), answer)),
+          findsOneWidget,
+        );
+        expect(find.byKey(ValueKey('hint-result-$placement')), findsOneWidget);
+        expect(find.byKey(const ValueKey('hint-explanation')), findsOneWidget);
+        await tester.tap(find.byKey(const ValueKey('hint-explanation')));
+        await tester.pumpAndSettle();
+        expect(find.byType(HintExplanationContent), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byType(HintExplanationContent),
+            matching: find.text(techniqueLabel(l, hint.steps.first.technique)),
+          ),
+          findsOneWidget,
+        );
+        Navigator.of(tester.element(find.byType(HintExplanationContent))).pop();
+        await tester.pumpAndSettle();
         final seconds = controller.game!.elapsedSeconds;
         await tester.pump(const Duration(seconds: 2));
         expect(controller.game!.elapsedSeconds, greaterThanOrEqualTo(seconds));
         controller.suspend();
         await tester.pumpAndSettle();
-        expect(find.text(l.hintIntro), findsNothing);
+        expect(find.byKey(const ValueKey('hint-coach')), findsNothing);
         controller.activate();
         expect(controller.paused, isTrue);
         controller.togglePause();
         await tester.pumpAndSettle();
-        expect(find.text(l.hintIntro), findsOneWidget);
+        expect(find.byKey(const ValueKey('hint-coach')), findsOneWidget);
         final cell = controller.game!.values.indexOf(0);
         controller.moveSelection(cell);
         controller.enter(puzzle.solution[cell] % 9 + 1);
         await tester.pumpAndSettle();
+        expect(find.byKey(const ValueKey('hint-coach')), findsNothing);
+        await tester.tap(find.text(l.hint));
+        await tester.pumpAndSettle();
         expect(find.text(l.hintIncorrect), findsOneWidget);
-        expect(find.text(l.hintIntro), findsNothing);
         expect(tester.takeException(), isNull);
         controller.suspend();
       },
     );
   }
+  testWidgets(
+    'hint coach visualizes elimination chains and reveals only the next placement',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      var session = GameSession.start(hardPuzzle);
+      for (final step in LogicalSolver().solve(hardPuzzle.givens).steps) {
+        if (step.placement == null) break;
+        session = session.enter(step.placement!, step.digits.bitLength - 1);
+      }
+      final harness = ControllerHarness(
+        GameRepository(
+          MemoryStore()..value = SavedGames(free: session).encode(),
+        ),
+      );
+      addTearDown(harness.dispose);
+      final controller = harness.controller;
+      await controller.initialize();
+      controller.resumeFree();
+      await tester.pumpWidget(
+        _GameHarness(controller: controller, container: harness.container),
+      );
+      final l = AppLocalizations.of(
+        tester.element(find.byKey(const ValueKey('show-hint'))),
+      );
+      final hint = harness.container.read(gameHintProvider)!;
+      expect(hint.steps.length, greaterThan(1));
+      expect(hint.steps.first.removals, isNotEmpty);
+
+      await tester.tap(find.byKey(const ValueKey('show-hint')));
+      await tester.pumpAndSettle();
+      expect(find.text(l.hintLocateArea), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('hint-advance')));
+      await tester.pumpAndSettle();
+      final removal = hint.steps.first.removals.first;
+      final removedDigit = [
+        for (var digit = 1; digit <= 9; digit++)
+          if (removal.mask & (1 << digit) != 0) digit,
+      ].first;
+      final removalFinder = find.byKey(
+        ValueKey('hint-removal-${removal.cell}-$removedDigit'),
+      );
+      expect(removalFinder, findsOneWidget);
+      expect(
+        tester
+            .widget<Text>(
+              find.descendant(of: removalFinder, matching: find.byType(Text)),
+            )
+            .style
+            ?.decoration,
+        TextDecoration.lineThrough,
+      );
+
+      for (var index = 1; index < hint.steps.length; index++) {
+        await tester.tap(find.byKey(const ValueKey('hint-advance')));
+        await tester.pumpAndSettle();
+        expect(
+          find.text(techniqueLabel(l, hint.steps[index].technique)),
+          findsOneWidget,
+        );
+      }
+      final placement = hint.steps.last.placement!;
+      final digit = hint.steps.last.digits.bitLength - 1;
+      expect(
+        find.text(l.hintEnterValue(hintCellLabel(l, placement), digit)),
+        findsNothing,
+      );
+      await tester.tap(find.byKey(const ValueKey('hint-advance')));
+      await tester.pumpAndSettle();
+      expect(
+        find.text(l.hintEnterValue(hintCellLabel(l, placement), digit)),
+        findsOneWidget,
+      );
+      expect(find.byKey(ValueKey('hint-result-$placement')), findsOneWidget);
+      expect(controller.game!.values, session.values);
+
+      controller.moveSelection(placement);
+      controller.enter(digit);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('hint-coach')), findsNothing);
+      expect(controller.game!.values[placement], digit);
+      expect(tester.takeException(), isNull);
+      controller.suspend();
+    },
+  );
+  testWidgets('unavailable hint stays compact on a short large-text layout', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final solution = List.generate(
+      81,
+      (i) => (i ~/ 9 * 3 + i ~/ 27 + i % 9) % 9 + 1,
+    );
+    final session = GameSession.start(
+      Puzzle(
+        id: 'unavailable-hint',
+        difficulty: Difficulty.easy,
+        givens: List.filled(81, 0),
+        solution: solution,
+      ),
+    );
+    final harness = ControllerHarness(
+      GameRepository(MemoryStore()..value = SavedGames(free: session).encode()),
+    );
+    addTearDown(harness.dispose);
+    final controller = harness.controller;
+    await controller.initialize();
+    controller.resumeFree();
+    await tester.pumpWidget(
+      _GameHarness(
+        controller: controller,
+        container: harness.container,
+        textScale: 1.8,
+        locale: const Locale('de'),
+      ),
+    );
+    final l = AppLocalizations.of(
+      tester.element(find.byKey(const ValueKey('show-hint'))),
+    );
+
+    await tester.tap(find.byKey(const ValueKey('show-hint')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('hint-coach')), findsOneWidget);
+    expect(find.text(l.hintUnavailable), findsOneWidget);
+    expect(find.byKey(const ValueKey('hint-advance')), findsNothing);
+    expect(find.byKey(const ValueKey('hint-explanation')), findsNothing);
+    expect(controller.game!.values, session.values);
+    expect(tester.takeException(), isNull);
+    controller.suspend();
+  });
   for (final mode in ErrorCheck.values) {
     testWidgets('only wrong entries are marked with ${mode.name}', (
       tester,
@@ -516,11 +735,8 @@ void main() {
       );
       await tester.pumpAndSettle();
       final choice = find.byKey(const ValueKey('start-hard'));
-      await tester.scrollUntilVisible(
-        choice,
-        180,
-        scrollable: find.byType(Scrollable).first,
-      );
+      await tester.ensureVisible(choice);
+      await tester.pumpAndSettle();
       await tester.tap(choice);
       await tester.pumpAndSettle();
       expect(find.text('Neues Rätsel starten?'), findsOneWidget);
@@ -562,7 +778,10 @@ void main() {
       'numeral text layout stays centered inside each cell at $viewport',
       (tester) async {
         final loader = FontLoader('GoogleSans')
-          ..addFont(rootBundle.load('assets/fonts/GoogleSans.ttf'));
+          ..addFont(rootBundle.load('assets/fonts/GoogleSans-Regular.ttf'))
+          ..addFont(rootBundle.load('assets/fonts/GoogleSans-Medium.ttf'))
+          ..addFont(rootBundle.load('assets/fonts/GoogleSans-SemiBold.ttf'))
+          ..addFont(rootBundle.load('assets/fonts/GoogleSans-Bold.ttf'));
         await loader.load();
         tester.view.devicePixelRatio = 1;
         tester.view.physicalSize = viewport;

@@ -11,10 +11,37 @@ import '../domain/game_session.dart';
 import '../../settings/domain/app_settings.dart';
 import 'board_palette.dart';
 
+@immutable
+final class const SudokuHintVisual._(
+  final Set<int> cells,
+  final Map<int, int> candidates,
+  final Map<int, int> removals,
+  final int? focus,
+  final int? placement,
+  final int? digit,
+) {
+  factory({
+    required Set<int> cells,
+    Map<int, int> candidates = const {},
+    Map<int, int> removals = const {},
+    int? focus,
+    int? placement,
+    int? digit,
+  }) => SudokuHintVisual._(
+    Set.unmodifiable(cells),
+    Map.unmodifiable(candidates),
+    Map.unmodifiable(removals),
+    focus,
+    placement,
+    digit,
+  );
+}
+
 final class const SudokuBoard({
   required final SudokuController controller,
   required final GameSession game,
   final bool obscured = false,
+  final SudokuHintVisual? hint,
   super.key,
 }) extends StatefulWidget {
   @override
@@ -83,6 +110,7 @@ final class _SudokuBoardState()
     final game = widget.game,
         controller = widget.controller,
         obscured = widget.obscured,
+        hint = obscured ? null : widget.hint,
         selected = obscured ? -1 : controller.selected;
     final palette = BoardPalette.resolve(
       controller.settings.boardTheme,
@@ -124,7 +152,25 @@ final class _SudokuBoardState()
                                             notes = game.notes[cell];
                                         final given =
                                                 game.puzzle.givens[cell] != 0,
-                                            isSelected = selected == cell;
+                                            isSelected = selected == cell,
+                                            hintFocused = hint?.focus == cell,
+                                            hintHighlighted =
+                                                hint?.cells.contains(cell) ==
+                                                    true ||
+                                                hint?.removals.containsKey(
+                                                      cell,
+                                                    ) ==
+                                                    true,
+                                            hintResult =
+                                                hint?.placement == cell &&
+                                                hint?.digit != null,
+                                            hintCandidateMask =
+                                                hint?.candidates[cell] ?? 0,
+                                            hintRemovalMask =
+                                                hint?.removals[cell] ?? 0,
+                                            hintMask =
+                                                hintCandidateMask |
+                                                hintRemovalMask;
                                         final related =
                                             selected >= 0 &&
                                             (selected ~/ 9 == row ||
@@ -162,10 +208,44 @@ final class _SudokuBoardState()
                                             : context.l10n.candidates(
                                                 candidates.join(', '),
                                               );
+                                        String digitsIn(int mask) => [
+                                          for (
+                                            var digit = 1;
+                                            digit <= 9;
+                                            digit++
+                                          )
+                                            if (mask & (1 << digit) != 0) digit,
+                                        ].join(', ');
+                                        final hintDetails = [
+                                          if (hintCandidateMask != 0)
+                                            context.l10n.hintBoardCandidates(
+                                              digitsIn(hintCandidateMask),
+                                            ),
+                                          if (hintRemovalMask != 0)
+                                            context.l10n.hintBoardRemoved(
+                                              digitsIn(hintRemovalMask),
+                                            ),
+                                        ];
+                                        final hintDescription = hintResult
+                                            ? context.l10n.hintBoardResult(
+                                                hint!.digit!,
+                                              )
+                                            : hintDetails.isNotEmpty
+                                            ? hintDetails.join(', ')
+                                            : hintHighlighted
+                                            ? context.l10n.hintBoardRelevant
+                                            : null;
                                         return Semantics(
+                                          key: hintResult
+                                              ? ValueKey('hint-result-$cell')
+                                              : hintFocused
+                                              ? ValueKey('hint-focus-$cell')
+                                              : hintHighlighted
+                                              ? ValueKey('hint-cell-$cell')
+                                              : null,
                                           selected: isSelected,
                                           value:
-                                              '$description${error ? ', ${context.l10n.incorrectValue}' : ''}',
+                                              '$description${error ? ', ${context.l10n.incorrectValue}' : ''}${hintDescription == null ? '' : ', $hintDescription'}',
                                           child: RudiPressable(
                                             key: ValueKey('cell-$cell'),
                                             semanticLabel: context.l10n
@@ -182,11 +262,22 @@ final class _SudokuBoardState()
                                                   )
                                                   ? Duration.zero
                                                   : const Duration(
-                                                      milliseconds: 150,
+                                                      milliseconds: 240,
                                                     ),
                                               curve: Curves.easeOutCubic,
                                               color: isSelected
                                                   ? palette.selected
+                                                  : hintResult
+                                                  ? palette.same
+                                                  : hintFocused
+                                                  ? palette.same
+                                                  : hintHighlighted
+                                                  ? Color.alphaBlend(
+                                                      palette.accent.withValues(
+                                                        alpha: .14,
+                                                      ),
+                                                      palette.background,
+                                                    )
                                                   : same
                                                   ? palette.same
                                                   : related ||
@@ -198,75 +289,119 @@ final class _SudokuBoardState()
                                                   ? const SizedBox.expand()
                                                   : ExcludeSemantics(
                                                       child: Center(
-                                                        child: value != 0
-                                                            ? _BoardDigit(
-                                                                '$value',
-                                                                style: context.rudiTheme.text.title.copyWith(
-                                                                  fontSize:
-                                                                      cellSize *
-                                                                      .56,
-                                                                  height: 1,
-                                                                  color:
-                                                                      isSelected
-                                                                      ? palette
-                                                                            .onSelected
-                                                                      : error
-                                                                      ? const Color(
-                                                                          0xffd5505b,
-                                                                        )
-                                                                      : given
-                                                                      ? palette
-                                                                            .ink
-                                                                      : palette
-                                                                            .accent,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
-                                                                  decoration:
-                                                                      error
-                                                                      ? TextDecoration
-                                                                            .underline
-                                                                      : null,
-                                                                ),
+                                                        child: AnimatedSwitcher(
+                                                          duration:
+                                                              MediaQuery.disableAnimationsOf(
+                                                                context,
                                                               )
-                                                            : Padding(
-                                                                padding:
-                                                                    const EdgeInsets.all(
-                                                                      2,
-                                                                    ),
-                                                                child: Column(
-                                                                  children: [
-                                                                    for (
-                                                                      var r = 0;
-                                                                      r < 3;
-                                                                      r++
-                                                                    )
-                                                                      Expanded(
-                                                                        child: Row(
-                                                                          children: [
-                                                                            for (
-                                                                              var c = 0;
-                                                                              c < 3;
-                                                                              c++
-                                                                            )
-                                                                              Expanded(
-                                                                                child: Center(
-                                                                                  child: _BoardDigit(
-                                                                                    notes & (1 << (r * 3 + c + 1)) != 0 ? '${r * 3 + c + 1}' : '',
-                                                                                    style: context.rudiTheme.text.caption.copyWith(
-                                                                                      fontSize: cellSize * .23,
-                                                                                      height: 1,
-                                                                                      color: isSelected ? palette.onSelected : palette.note,
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                              ),
-                                                                          ],
-                                                                        ),
+                                                              ? Duration.zero
+                                                              : const Duration(
+                                                                  milliseconds:
+                                                                      220,
+                                                                ),
+                                                          switchInCurve: Curves
+                                                              .easeOutCubic,
+                                                          switchOutCurve: Curves
+                                                              .easeInCubic,
+                                                          transitionBuilder:
+                                                              (
+                                                                child,
+                                                                animation,
+                                                              ) => FadeTransition(
+                                                                opacity:
+                                                                    animation,
+                                                                child: ScaleTransition(
+                                                                  scale:
+                                                                      Tween(
+                                                                        begin:
+                                                                            .96,
+                                                                        end:
+                                                                            1.0,
+                                                                      ).animate(
+                                                                        animation,
                                                                       ),
-                                                                  ],
+                                                                  child: child,
                                                                 ),
                                                               ),
+                                                          child: value != 0
+                                                              ? _BoardDigit(
+                                                                  '$value',
+                                                                  key: ValueKey(
+                                                                    'value-$cell-$value',
+                                                                  ),
+                                                                  style: context.rudiTheme.text.title.copyWith(
+                                                                    fontSize:
+                                                                        cellSize *
+                                                                        .56,
+                                                                    height: 1,
+                                                                    color:
+                                                                        isSelected
+                                                                        ? palette
+                                                                              .onSelected
+                                                                        : error
+                                                                        ? const Color(
+                                                                            0xffd5505b,
+                                                                          )
+                                                                        : given
+                                                                        ? palette
+                                                                              .ink
+                                                                        : palette
+                                                                              .accent,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                    decoration:
+                                                                        error
+                                                                        ? TextDecoration
+                                                                              .underline
+                                                                        : null,
+                                                                  ),
+                                                                )
+                                                              : hintResult
+                                                              ? _BoardDigit(
+                                                                  '${hint!.digit!}',
+                                                                  key: ValueKey(
+                                                                    'hint-answer-$cell-${hint.digit}',
+                                                                  ),
+                                                                  style: context.rudiTheme.text.title.copyWith(
+                                                                    fontSize:
+                                                                        cellSize *
+                                                                        .56,
+                                                                    height: 1,
+                                                                    color:
+                                                                        isSelected
+                                                                        ? palette
+                                                                              .onSelected
+                                                                        : palette
+                                                                              .accent,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                  ),
+                                                                )
+                                                              : _BoardCandidates(
+                                                                  key: ValueKey(
+                                                                    'candidates-$cell-$hintMask-$hintRemovalMask-${hintMask != 0}',
+                                                                  ),
+                                                                  mask:
+                                                                      hintMask !=
+                                                                          0
+                                                                      ? hintMask
+                                                                      : notes,
+                                                                  removalMask:
+                                                                      hintRemovalMask,
+                                                                  isHint:
+                                                                      hintMask !=
+                                                                      0,
+                                                                  selected:
+                                                                      isSelected,
+                                                                  cell: cell,
+                                                                  cellSize:
+                                                                      cellSize,
+                                                                  palette:
+                                                                      palette,
+                                                                ),
+                                                        ),
                                                       ),
                                                     ),
                                             ),
@@ -308,6 +443,70 @@ final class _SudokuBoardState()
       ),
     );
   }
+}
+
+final class const _BoardCandidates({
+  required final int mask,
+  required final int removalMask,
+  required final bool isHint,
+  required final bool selected,
+  required final int cell,
+  required final double cellSize,
+  required final BoardPalette palette,
+  super.key,
+}) extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const .all(2),
+    child: Column(
+      children: [
+        for (var row = 0; row < 3; row++)
+          Expanded(
+            child: Row(
+              children: [
+                for (var column = 0; column < 3; column++)
+                  Expanded(
+                    child: Center(
+                      child: Builder(
+                        builder: (context) {
+                          final digit = row * 3 + column + 1;
+                          final visible = mask & (1 << digit) != 0;
+                          final removed = removalMask & (1 << digit) != 0;
+                          return _BoardDigit(
+                            visible ? '$digit' : '',
+                            key: isHint && visible
+                                ? ValueKey(
+                                    '${removed ? 'hint-removal' : 'hint-candidate'}-$cell-$digit',
+                                  )
+                                : null,
+                            style: context.rudiTheme.text.caption.copyWith(
+                              fontSize: cellSize * .23,
+                              height: 1,
+                              color: selected
+                                  ? palette.onSelected
+                                  : removed
+                                  ? palette.note.withValues(alpha: .55)
+                                  : isHint
+                                  ? palette.accent
+                                  : palette.note,
+                              fontWeight: isHint ? .w600 : null,
+                              decoration: removed
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                              decorationColor: palette.accent,
+                              decorationThickness: 2,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+      ],
+    ),
+  );
 }
 
 final class const _CompletionFlash({
@@ -503,6 +702,7 @@ int _completionWaveDistance(int cell, int origin) {
 final class const _BoardDigit(
   final String value, {
   required final TextStyle style,
+  super.key,
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(

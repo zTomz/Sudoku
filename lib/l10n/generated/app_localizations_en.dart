@@ -342,10 +342,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hint => 'Hint';
 
   @override
-  String get hintIntro =>
-      'Follow these deductions in order. Candidates are calculated from the board, independently of your notes. Nothing is entered automatically.';
-
-  @override
   String get hintIncorrect =>
       'First correct or erase your incorrect entries. Hints will not build on a wrong number.';
 
@@ -354,8 +350,61 @@ class AppLocalizationsEn extends AppLocalizations {
       'No next step was found with the supported techniques. No number will be guessed.';
 
   @override
-  String hintStep(int number, String technique) {
-    return '$number. $technique';
+  String get hintLookHere => 'Look here';
+
+  @override
+  String hintLocateCell(String cell) {
+    return 'Start with $cell.';
+  }
+
+  @override
+  String get hintLocateArea =>
+      'Look at how the highlighted cells relate to each other.';
+
+  @override
+  String get hintReasonPlacement =>
+      'The highlighted numbers rule out every other possibility.';
+
+  @override
+  String get hintReasonElimination =>
+      'The highlighted candidates restrict each other. Crossed-out candidates can be eliminated.';
+
+  @override
+  String get hintAnswerTitle => 'Your next move';
+
+  @override
+  String get hintExplainWhy => 'Why?';
+
+  @override
+  String get hintContinue => 'Continue';
+
+  @override
+  String get hintShowAnswer => 'Show answer';
+
+  @override
+  String get hintExplanation => 'Why does this work?';
+
+  @override
+  String hintEnterValue(String cell, int digit) {
+    return 'Enter $digit in $cell.';
+  }
+
+  @override
+  String get hintBoardRelevant => 'Relevant to the hint';
+
+  @override
+  String hintBoardCandidates(String digits) {
+    return 'Hint candidates: $digits';
+  }
+
+  @override
+  String hintBoardRemoved(String digits) {
+    return 'Eliminate from hint: $digits';
+  }
+
+  @override
+  String hintBoardResult(int digit) {
+    return 'Hint answer: $digit';
   }
 
   @override

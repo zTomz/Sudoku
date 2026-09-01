@@ -90,6 +90,29 @@ void main() {
     },
   );
 
+  test('a directly placeable hint contains exactly one logical step', () {
+    final solution = List.generate(
+      81,
+      (i) => (i ~/ 9 * 3 + i ~/ 27 + i % 9) % 9 + 1,
+    );
+    final givens = [...solution]..[80] = 0;
+    final hint = GameHint.forGame(
+      GameSession.start(
+        Puzzle(
+          id: 'single-step-hint',
+          difficulty: Difficulty.easy,
+          givens: givens,
+          solution: solution,
+        ),
+      ),
+    );
+
+    expect(hint.status, HintStatus.available);
+    expect(hint.steps, hasLength(1));
+    expect(hint.steps.single.placement, 80);
+    expect(hint.steps.single.technique, SolveTechnique.nakedSingle);
+  });
+
   test('hints explain an elimination chain through the next placement without changing the game', () async {
     final puzzle = await engine.generate(seed: 4, difficulty: Difficulty.hard);
     var game = GameSession.start(puzzle);

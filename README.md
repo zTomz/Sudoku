@@ -48,7 +48,7 @@ The [v0.1.0 release](https://github.com/zTomz/Sudoku/releases/tag/v0.1.0) is the
 | --- | --- |
 | **A puzzle every day** | Daily challenges with a calendar to revisit earlier days and keep track of completed puzzles. |
 | **Fresh boards, your pace** | Locally generated, unique-solution puzzles with verified no-guess logical paths in easy, medium and hard levels. |
-| **Tools for solving** | Pencil notes, automatic note cleanup, undo, redo and erasing. Explanatory hints show the logical steps leading to the next placement. Choose a cell first or select a number first. |
+| **Tools for solving** | Pencil notes, automatic note cleanup, undo, redo and erasing. Hints first point to the relevant area, then explain the reasoning, and reveal the number only when explicitly requested. Choose a cell first or select a number first. |
 | **Just enough guidance** | Solution checking marks only incorrect entries; correct digits and clues stay unmarked. Optional conflict-only checking or no checking. After nine placements, a digit becomes a disabled checkmark; erasing or undoing a placement makes it available again. Completing a digit, row, column or 3×3 box triggers a smooth accent animation with subtle haptics that follow the wave from the last entry and respect the reduced-motion and haptic settings. |
 | **Pick up where you left off** | Automatic local saves, separate daily and free-play progress, and a pause dialog that conceals the board. |
 | **Make it yours** | Light, dark and system appearance, four board themes, optional haptics and an optional timer. |
@@ -120,7 +120,7 @@ Bug reports, UI improvements, translations and code contributions are welcome. S
 
 New free-play and daily puzzles are graded by logical solving techniques: singles for easy; locked candidates and pairs for medium; triples, X-Wing and XY-Wing additionally available for hard. Medium and hard puzzles must resist the simpler technique set. An additional effort score counts technique frequency and scarce immediate moves, allowing finer comparison within a tier; it is shown in the hint sheet. Generation prefers rotationally symmetric clues, but prioritizes the requested difficulty. Ratings are deterministic heuristics, not a universal measure of human difficulty.
 
-Free-play and daily puzzles use the same technique-graded generator; no legacy generator or save migrations are included. Generation is bounded and may offer a retry rather than substitute an incorrectly rated puzzle. Hints use the current board, ignore player notes and ask for incorrect entries to be corrected first; they do not automatically enter numbers. Backup/export and additional Sudoku variants are not implemented yet.
+Free-play and daily puzzles use the same technique-graded generator; no legacy generator or save migrations are included. Generation is bounded and may offer a retry rather than substitute an incorrectly rated puzzle. Hints use the current board and ignore player notes. They visually explain the next deduction without changing notes or entering numbers automatically. Backup/export and additional Sudoku variants are not implemented yet.
 
 ## Built with
 

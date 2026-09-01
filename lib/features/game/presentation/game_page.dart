@@ -1,23 +1,169 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:cue/cue.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rudi_ui/rudi_ui.dart';
 
+import '../../../app/hint_provider.dart';
 import '../../../app/sudoku_controller.dart';
 import '../../../common/presentation/destination_transition.dart';
 import '../../../common/presentation/ui.dart';
-import 'sudoku_board.dart';
-import 'hint_sheet.dart';
 import '../../../common/presentation/app_sheet.dart';
 import '../../settings/presentation/settings_page.dart';
+import '../domain/game_hint.dart';
+import '../domain/logical_solver.dart';
+import 'hint_sheet.dart';
+import 'sudoku_board.dart';
 
 final class const GamePage({
   required final SudokuController controller,
   super.key,
-}) extends StatelessWidget {
+}) extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<GamePage> createState() => _GamePageState();
+}
+
+enum _HintPhase() {
+  locate,
+  reason,
+  answer,
+}
+
+final class _HintCoachState(
+  final GameHint hint, {
+  final int stepIndex = 0,
+  final _HintPhase phase = _HintPhase.locate,
+}) {
+  LogicalStep? get step =>
+      hint.status == HintStatus.available ? hint.steps[stepIndex] : null;
+}
+
+final class _GamePageState() extends ConsumerState<GamePage> {
+  _HintCoachState? _coach;
+  String? _coachValues;
+
+  SudokuController get controller => widget.controller;
+
+  String get _valuesFingerprint => controller.game!.values.join(',');
+
+  @override
+  void didUpdateWidget(covariant GamePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_coach != null && _coachValues != _valuesFingerprint) {
+      _coach = null;
+      _coachValues = null;
+    }
+  }
+
+  void _showHint() {
+    final hint = ref.read(gameHintProvider);
+    if (hint == null) return;
+    setState(() {
+      _coach = _HintCoachState(hint);
+      _coachValues = _valuesFingerprint;
+    });
+  }
+
+  void _closeHint() => setState(() {
+    _coach = null;
+    _coachValues = null;
+  });
+
+  void _advanceHint() {
+    final coach = _coach, step = coach?.step;
+    if (coach == null || step == null) return;
+    setState(() {
+      _coach = switch (coach.phase) {
+        _HintPhase.locate => _HintCoachState(
+          coach.hint,
+          stepIndex: coach.stepIndex,
+          phase: _HintPhase.reason,
+        ),
+        _HintPhase.reason
+            when step.placement == null &&
+                coach.stepIndex < coach.hint.steps.length - 1 =>
+          _HintCoachState(
+            coach.hint,
+            stepIndex: coach.stepIndex + 1,
+            phase: _HintPhase.reason,
+          ),
+        _HintPhase.reason => _HintCoachState(
+          coach.hint,
+          stepIndex: coach.stepIndex,
+          phase: _HintPhase.answer,
+        ),
+        _HintPhase.answer => coach,
+      };
+    });
+  }
+
+  SudokuHintVisual? get _hintVisual {
+    final coach = _coach, step = coach?.step;
+    if (coach == null || step == null || controller.paused) return null;
+    final placement = step.placement;
+    final showingElimination =
+        coach.phase == _HintPhase.reason && placement == null;
+    return SudokuHintVisual(
+      cells: switch (coach.phase) {
+        _HintPhase.locate => step.cells.toSet(),
+        _HintPhase.reason when placement != null => _placementEvidenceCells(
+          step,
+        ),
+        _HintPhase.reason => step.cells.toSet(),
+        _HintPhase.answer => {?placement},
+      },
+      focus: placement,
+      candidates: showingElimination ? step.candidates : const {},
+      removals: showingElimination ? _removalMasks(step) : const {},
+      placement: coach.phase == _HintPhase.answer ? placement : null,
+      digit: coach.phase == _HintPhase.answer && placement != null
+          ? step.digits.bitLength - 1
+          : null,
+    );
+  }
+
+  Set<int> _placementEvidenceCells(LogicalStep step) {
+    final placement = step.placement!;
+    if (step.technique == SolveTechnique.hiddenSingle) {
+      return step.cells.toSet();
+    }
+    return {
+      placement,
+      for (var cell = 0; cell < 81; cell++)
+        if (controller.game!.values[cell] != 0 &&
+            (cell ~/ 9 == placement ~/ 9 ||
+                cell % 9 == placement % 9 ||
+                (cell ~/ 27 == placement ~/ 27 &&
+                    cell % 9 ~/ 3 == placement % 9 ~/ 3)))
+          cell,
+    };
+  }
+
+  Map<int, int> _removalMasks(LogicalStep step) {
+    final result = <int, int>{};
+    for (final removal in step.removals) {
+      result.update(
+        removal.cell,
+        (mask) => mask | removal.mask,
+        ifAbsent: () => removal.mask,
+      );
+    }
+    return result;
+  }
+
+  Future<void> _showHintExplanation(BuildContext context) async {
+    final coach = _coach, step = coach?.step;
+    if (coach == null || step == null) return;
+    await showHintExplanation(
+      context,
+      step: step,
+      rating: controller.game!.puzzle.rating,
+    );
+  }
+
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
     if (event is! KeyDownEvent ||
         controller.paused ||
@@ -203,6 +349,7 @@ final class const GamePage({
                                         controller: controller,
                                         game: game,
                                         obscured: controller.paused,
+                                        hint: _hintVisual,
                                       ),
                                     );
                                     return Center(
@@ -221,7 +368,15 @@ final class const GamePage({
                                 constraints: const BoxConstraints(
                                   maxWidth: 600,
                                 ),
-                                child: _GameControls(controller: controller),
+                                child: _GameControls(
+                                  controller: controller,
+                                  coach: controller.paused ? null : _coach,
+                                  onShowHint: _showHint,
+                                  onAdvanceHint: _advanceHint,
+                                  onExplainHint: () =>
+                                      unawaited(_showHintExplanation(context)),
+                                  onCloseHint: _closeHint,
+                                ),
                               ),
                             ),
                           ],
@@ -300,11 +455,20 @@ final class const _PauseDialog({required final SudokuController controller})
   }
 }
 
-final class const _GameControls({required final SudokuController controller})
-    extends StatelessWidget {
+final class const _GameControls({
+  required final SudokuController controller,
+  required final _HintCoachState? coach,
+  required final VoidCallback onShowHint,
+  required final VoidCallback onAdvanceHint,
+  required final VoidCallback onExplainHint,
+  required final VoidCallback onCloseHint,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n, theme = context.rudiTheme, game = controller.game!;
+    final l = context.l10n,
+        theme = context.rudiTheme,
+        game = controller.game!,
+        activeCoach = coach;
     if (game.complete) {
       return Column(
         mainAxisSize: .min,
@@ -320,6 +484,8 @@ final class const _GameControls({required final SudokuController controller})
       );
     }
     final enabled = !controller.paused;
+    final scaledCaption = MediaQuery.textScalerOf(context).scale(14);
+    final contextControlsHeight = 96.0 * math.max(1.0, scaledCaption / 14.0);
     final digitCounts = List<int>.filled(10, 0);
     for (final value in game.values) {
       digitCounts[value]++;
@@ -327,42 +493,44 @@ final class const _GameControls({required final SudokuController controller})
     return Column(
       mainAxisSize: .min,
       children: [
-        Text(
-          l.progress(game.filled),
-          style: theme.text.caption.copyWith(
-            color: theme.colors.mutedForeground,
+        SizedBox(
+          key: const ValueKey('game-context-controls'),
+          height: contextControlsHeight,
+          child: AnimatedSwitcher(
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 240),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, animation) =>
+                FadeTransition(opacity: animation, child: child),
+            layoutBuilder: (currentChild, previousChildren) => Stack(
+              alignment: .topCenter,
+              children: [...previousChildren, ?currentChild],
+            ),
+            child: activeCoach != null
+                ? Cue.onMount(
+                    key: ValueKey(
+                      'hint-${activeCoach.hint.status.name}-${activeCoach.stepIndex}-${activeCoach.phase.name}',
+                    ),
+                    motion: MediaQuery.disableAnimationsOf(context)
+                        ? CueMotion.none
+                        : .smooth(),
+                    acts: [.translateY(from: 6)],
+                    child: _HintCoach(
+                      coach: activeCoach,
+                      onAdvance: onAdvanceHint,
+                      onExplain: onExplainHint,
+                      onClose: onCloseHint,
+                    ),
+                  )
+                : _GameTools(
+                    key: const ValueKey('game-tools'),
+                    controller: controller,
+                    enabled: enabled,
+                    onShowHint: onShowHint,
+                  ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            _Tool(
-              label: l.undo,
-              symbol: AppSymbol.undo,
-              onPressed: enabled && game.canUndo ? controller.undo : null,
-            ),
-            _Tool(
-              label: l.redo,
-              symbol: AppSymbol.redo,
-              onPressed: enabled && game.canRedo ? controller.redo : null,
-            ),
-            _Tool(
-              label: l.erase,
-              symbol: AppSymbol.erase,
-              onPressed: enabled ? () => controller.enter(0) : null,
-            ),
-            _Tool(
-              label: l.notes,
-              symbol: AppSymbol.pencil,
-              selected: controller.pencil,
-              onPressed: enabled ? controller.togglePencil : null,
-            ),
-            _Tool(
-              label: l.hint,
-              symbol: AppSymbol.info,
-              onPressed: enabled ? () => unawaited(showHint(context)) : null,
-            ),
-          ],
         ),
         const SizedBox(height: 10),
         Row(
@@ -443,11 +611,214 @@ final class const _GameControls({required final SudokuController controller})
   }
 }
 
+final class const _GameTools({
+  required final SudokuController controller,
+  required final bool enabled,
+  required final VoidCallback onShowHint,
+  super.key,
+}) extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n, theme = context.rudiTheme, game = controller.game!;
+    return Column(
+      mainAxisSize: .min,
+      children: [
+        Text(
+          l.progress(game.filled),
+          style: theme.text.caption.copyWith(
+            color: theme.colors.mutedForeground,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            _Tool(
+              label: l.undo,
+              symbol: AppSymbol.undo,
+              onPressed: enabled && game.canUndo ? controller.undo : null,
+            ),
+            _Tool(
+              label: l.redo,
+              symbol: AppSymbol.redo,
+              onPressed: enabled && game.canRedo ? controller.redo : null,
+            ),
+            _Tool(
+              label: l.erase,
+              symbol: AppSymbol.erase,
+              onPressed: enabled ? () => controller.enter(0) : null,
+            ),
+            _Tool(
+              label: l.notes,
+              symbol: AppSymbol.pencil,
+              selected: controller.pencil,
+              onPressed: enabled ? controller.togglePencil : null,
+            ),
+            _Tool(
+              key: const ValueKey('show-hint'),
+              label: l.hint,
+              symbol: AppSymbol.info,
+              onPressed: enabled ? onShowHint : null,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+final class const _HintCoach({
+  required final _HintCoachState coach,
+  required final VoidCallback onAdvance,
+  required final VoidCallback onExplain,
+  required final VoidCallback onClose,
+}) extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n, theme = context.rudiTheme, step = coach.step;
+    final title = switch ((coach.hint.status, coach.phase, step)) {
+      (HintStatus.available, _HintPhase.locate, _) => l.hintLookHere,
+      (HintStatus.available, _HintPhase.reason, final LogicalStep step) =>
+        techniqueLabel(l, step.technique),
+      (HintStatus.available, _HintPhase.answer, _) => l.hintAnswerTitle,
+      _ => l.hint,
+    };
+    final body = switch ((coach.hint.status, coach.phase, step)) {
+      (HintStatus.incorrect, _, _) => l.hintIncorrect,
+      (HintStatus.complete, _, _) => l.finished,
+      (HintStatus.unavailable, _, _) => l.hintUnavailable,
+      (HintStatus.available, _HintPhase.locate, final LogicalStep step)
+          when step.placement != null =>
+        l.hintLocateCell(hintCellLabel(l, step.placement!)),
+      (HintStatus.available, _HintPhase.locate, _) => l.hintLocateArea,
+      (HintStatus.available, _HintPhase.reason, final LogicalStep step)
+          when step.placement != null =>
+        l.hintReasonPlacement,
+      (HintStatus.available, _HintPhase.reason, _) => l.hintReasonElimination,
+      (HintStatus.available, _HintPhase.answer, final LogicalStep step) =>
+        l.hintEnterValue(
+          hintCellLabel(l, step.placement!),
+          step.digits.bitLength - 1,
+        ),
+      _ => l.hintUnavailable,
+    };
+    final actionLabel = switch ((coach.phase, step)) {
+      (_, null) || (_HintPhase.answer, _) => null,
+      (_HintPhase.locate, _) => l.hintExplainWhy,
+      (_HintPhase.reason, final LogicalStep step)
+          when step.placement == null &&
+              coach.stepIndex < coach.hint.steps.length - 1 =>
+        l.hintContinue,
+      (_HintPhase.reason, _) => l.hintShowAnswer,
+    };
+    return Semantics(
+      key: const ValueKey('hint-coach'),
+      container: true,
+      liveRegion: true,
+      label: '$title. $body',
+      child: Row(
+        crossAxisAlignment: .start,
+        children: [
+          Expanded(
+            child: ExcludeSemantics(
+              child: Column(
+                crossAxisAlignment: .start,
+                children: [
+                  Text(
+                    title,
+                    style: theme.text.label.copyWith(
+                      color: coach.hint.status == HintStatus.available
+                          ? theme.colors.accent
+                          : theme.colors.foreground,
+                    ),
+                    maxLines: 1,
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    body,
+                    style: theme.text.caption.copyWith(
+                      color: theme.colors.mutedForeground,
+                    ),
+                    maxLines: 2,
+                    overflow: .ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: .end,
+            children: [
+              Row(
+                mainAxisSize: .min,
+                children: [
+                  if (step != null && coach.phase == _HintPhase.answer)
+                    RudiIconButton(
+                      key: const ValueKey('hint-explanation'),
+                      icon: const AppIcon(AppSymbol.info),
+                      semanticLabel: l.hintExplanation,
+                      onPressed: onExplain,
+                    ),
+                  RudiIconButton(
+                    key: const ValueKey('hint-close'),
+                    icon: const AppIcon(AppSymbol.close),
+                    semanticLabel: l.close,
+                    onPressed: onClose,
+                  ),
+                ],
+              ),
+              if (actionLabel != null)
+                _HintCoachAction(label: actionLabel, onPressed: onAdvance),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+final class const _HintCoachAction({
+  required final String label,
+  required final VoidCallback onPressed,
+}) extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.rudiTheme;
+    return RudiPressable(
+      key: const ValueKey('hint-advance'),
+      semanticLabel: label,
+      onPressed: onPressed,
+      builder: (context, state) => AnimatedContainer(
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : theme.motion.fast,
+        constraints: const BoxConstraints(minHeight: 36, minWidth: 48),
+        padding: const .symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: state.pressed || state.hovered
+              ? theme.colors.accent
+              : theme.colors.surface,
+          borderRadius: .circular(theme.radii.pill),
+        ),
+        child: Text(
+          label,
+          style: theme.text.caption.copyWith(
+            color: state.pressed || state.hovered
+                ? theme.colors.onPrimary
+                : theme.colors.foreground,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 final class const _Tool({
   required final String label,
   required final AppSymbol symbol,
   required final VoidCallback? onPressed,
   final bool selected = false,
+  super.key,
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

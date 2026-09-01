@@ -704,12 +704,6 @@ abstract class AppLocalizations {
   /// **'Hint'**
   String get hint;
 
-  /// No description provided for @hintIntro.
-  ///
-  /// In en, this message translates to:
-  /// **'Follow these deductions in order. Candidates are calculated from the board, independently of your notes. Nothing is entered automatically.'**
-  String get hintIntro;
-
   /// No description provided for @hintIncorrect.
   ///
   /// In en, this message translates to:
@@ -722,11 +716,95 @@ abstract class AppLocalizations {
   /// **'No next step was found with the supported techniques. No number will be guessed.'**
   String get hintUnavailable;
 
-  /// No description provided for @hintStep.
+  /// No description provided for @hintLookHere.
   ///
   /// In en, this message translates to:
-  /// **'{number}. {technique}'**
-  String hintStep(int number, String technique);
+  /// **'Look here'**
+  String get hintLookHere;
+
+  /// No description provided for @hintLocateCell.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with {cell}.'**
+  String hintLocateCell(String cell);
+
+  /// No description provided for @hintLocateArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Look at how the highlighted cells relate to each other.'**
+  String get hintLocateArea;
+
+  /// No description provided for @hintReasonPlacement.
+  ///
+  /// In en, this message translates to:
+  /// **'The highlighted numbers rule out every other possibility.'**
+  String get hintReasonPlacement;
+
+  /// No description provided for @hintReasonElimination.
+  ///
+  /// In en, this message translates to:
+  /// **'The highlighted candidates restrict each other. Crossed-out candidates can be eliminated.'**
+  String get hintReasonElimination;
+
+  /// No description provided for @hintAnswerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your next move'**
+  String get hintAnswerTitle;
+
+  /// No description provided for @hintExplainWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Why?'**
+  String get hintExplainWhy;
+
+  /// No description provided for @hintContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get hintContinue;
+
+  /// No description provided for @hintShowAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show answer'**
+  String get hintShowAnswer;
+
+  /// No description provided for @hintExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Why does this work?'**
+  String get hintExplanation;
+
+  /// No description provided for @hintEnterValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter {digit} in {cell}.'**
+  String hintEnterValue(String cell, int digit);
+
+  /// No description provided for @hintBoardRelevant.
+  ///
+  /// In en, this message translates to:
+  /// **'Relevant to the hint'**
+  String get hintBoardRelevant;
+
+  /// No description provided for @hintBoardCandidates.
+  ///
+  /// In en, this message translates to:
+  /// **'Hint candidates: {digits}'**
+  String hintBoardCandidates(String digits);
+
+  /// No description provided for @hintBoardRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Eliminate from hint: {digits}'**
+  String hintBoardRemoved(String digits);
+
+  /// No description provided for @hintBoardResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Hint answer: {digit}'**
+  String hintBoardResult(int digit);
 
   /// No description provided for @hintCell.
   ///

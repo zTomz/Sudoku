@@ -344,10 +344,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get hint => 'Hinweis';
 
   @override
-  String get hintIntro =>
-      'Gehe diese Schlussfolgerungen der Reihe nach durch. Kandidaten werden aus dem Brett berechnet, unabhängig von deinen Notizen. Es wird nichts automatisch eingetragen.';
-
-  @override
   String get hintIncorrect =>
       'Korrigiere oder lösche zuerst deine falschen Einträge. Hinweise bauen nicht auf einer falschen Zahl auf.';
 
@@ -356,8 +352,61 @@ class AppLocalizationsDe extends AppLocalizations {
       'Mit den unterstützten Techniken wurde kein nächster Schritt gefunden. Es wird keine Zahl geraten.';
 
   @override
-  String hintStep(int number, String technique) {
-    return '$number. $technique';
+  String get hintLookHere => 'Schau hier hin';
+
+  @override
+  String hintLocateCell(String cell) {
+    return 'Beginne mit $cell.';
+  }
+
+  @override
+  String get hintLocateArea =>
+      'Sieh dir an, wie die markierten Felder zusammenhängen.';
+
+  @override
+  String get hintReasonPlacement =>
+      'Die hervorgehobenen Zahlen schließen alle anderen Möglichkeiten aus.';
+
+  @override
+  String get hintReasonElimination =>
+      'Die markierten Kandidaten bedingen einander. Durchgestrichene Kandidaten entfallen.';
+
+  @override
+  String get hintAnswerTitle => 'Dein nächster Zug';
+
+  @override
+  String get hintExplainWhy => 'Warum?';
+
+  @override
+  String get hintContinue => 'Weiter';
+
+  @override
+  String get hintShowAnswer => 'Lösung zeigen';
+
+  @override
+  String get hintExplanation => 'Warum funktioniert das?';
+
+  @override
+  String hintEnterValue(String cell, int digit) {
+    return 'Trage $digit in $cell ein.';
+  }
+
+  @override
+  String get hintBoardRelevant => 'Für den Hinweis relevantes Feld';
+
+  @override
+  String hintBoardCandidates(String digits) {
+    return 'Hinweiskandidaten: $digits';
+  }
+
+  @override
+  String hintBoardRemoved(String digits) {
+    return 'Im Hinweis zu streichen: $digits';
+  }
+
+  @override
+  String hintBoardResult(int digit) {
+    return 'Hinweislösung: $digit';
   }
 
   @override

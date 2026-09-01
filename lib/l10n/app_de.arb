@@ -101,17 +101,58 @@
   "boardMidnight": "Nacht",
   "homeSubtitle": "Dein täglicher Moment zum Knobeln.",
   "hint": "Hinweis",
-  "hintIntro": "Gehe diese Schlussfolgerungen der Reihe nach durch. Kandidaten werden aus dem Brett berechnet, unabhängig von deinen Notizen. Es wird nichts automatisch eingetragen.",
   "hintIncorrect": "Korrigiere oder lösche zuerst deine falschen Einträge. Hinweise bauen nicht auf einer falschen Zahl auf.",
   "hintUnavailable": "Mit den unterstützten Techniken wurde kein nächster Schritt gefunden. Es wird keine Zahl geraten.",
-  "hintStep": "{number}. {technique}",
-  "@hintStep": {
+  "hintLookHere": "Schau hier hin",
+  "hintLocateCell": "Beginne mit {cell}.",
+  "@hintLocateCell": {
     "placeholders": {
-      "number": {
-        "type": "int"
-      },
-      "technique": {
+      "cell": {
         "type": "String"
+      }
+    }
+  },
+  "hintLocateArea": "Sieh dir an, wie die markierten Felder zusammenhängen.",
+  "hintReasonPlacement": "Die hervorgehobenen Zahlen schließen alle anderen Möglichkeiten aus.",
+  "hintReasonElimination": "Die markierten Kandidaten bedingen einander. Durchgestrichene Kandidaten entfallen.",
+  "hintAnswerTitle": "Dein nächster Zug",
+  "hintExplainWhy": "Warum?",
+  "hintContinue": "Weiter",
+  "hintShowAnswer": "Lösung zeigen",
+  "hintExplanation": "Warum funktioniert das?",
+  "hintEnterValue": "Trage {digit} in {cell} ein.",
+  "@hintEnterValue": {
+    "placeholders": {
+      "cell": {
+        "type": "String"
+      },
+      "digit": {
+        "type": "int"
+      }
+    }
+  },
+  "hintBoardRelevant": "Für den Hinweis relevantes Feld",
+  "hintBoardCandidates": "Hinweiskandidaten: {digits}",
+  "@hintBoardCandidates": {
+    "placeholders": {
+      "digits": {
+        "type": "String"
+      }
+    }
+  },
+  "hintBoardRemoved": "Im Hinweis zu streichen: {digits}",
+  "@hintBoardRemoved": {
+    "placeholders": {
+      "digits": {
+        "type": "String"
+      }
+    }
+  },
+  "hintBoardResult": "Hinweislösung: {digit}",
+  "@hintBoardResult": {
+    "placeholders": {
+      "digit": {
+        "type": "int"
       }
     }
   },
