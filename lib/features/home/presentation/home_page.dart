@@ -60,7 +60,7 @@ final class const HomePage({
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 620),
           child: ListView(
-            padding: const .fromLTRB(16, 16, 16, 20),
+            padding: const .fromLTRB(16, 16, 16, 128),
             children: [
               Row(
                 children: [

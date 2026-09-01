@@ -187,27 +187,12 @@ final class const _HomeShell({
   required final Widget body,
 }) extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => Stack(
-    children: [
-      Positioned.fill(
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: 96 + MediaQuery.paddingOf(context).bottom,
-          ),
-          child: body,
-        ),
-      ),
-      Positioned(
-        left: 16,
-        right: 16,
-        bottom: 16 + MediaQuery.paddingOf(context).bottom,
-        child: Center(
-          child: AppNavigation(
-            selectedIndex: selectedIndex,
-            onSelected: onDestinationSelected,
-          ),
-        ),
-      ),
-    ],
+  Widget build(BuildContext context) => RudiPage(
+    padding: EdgeInsets.zero,
+    navigation: AppNavigation(
+      selectedIndex: selectedIndex,
+      onSelected: onDestinationSelected,
+    ),
+    child: body,
   );
 }

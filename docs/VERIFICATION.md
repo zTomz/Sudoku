@@ -66,7 +66,7 @@ Difficulty remains a clue-count heuristic (42/34/28 targets), not a human-techni
 
 ## Public Rudi dependency and first-commit readiness
 
-- Rudi UI 0.2.0 is published at eff9e33e4797e8bbee9c24395b00757ca1e48380. Both the manifest and lockfile pin this public Git commit.
+- Rudi UI 0.2.0 is published at 46057ebd56464e45b22080ae7447a04d63a208c5. Both the manifest and lockfile pin this public Git commit.
 - The ignored local override was backed up outside the repository. Dependency resolution with --enforce-lockfile passed without it.
 - Localization regeneration produced identical output. Formatting, static analysis, all 27 Sudoku tests and the commit dependency gate passed.
 - Android release app bundle, Windows release and Web release built against public Rudi. The Android bundle is unsigned; store signing remains separate.

@@ -537,8 +537,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: eff9e33e4797e8bbee9c24395b00757ca1e48380
-      resolved-ref: eff9e33e4797e8bbee9c24395b00757ca1e48380
+      ref: "46057ebd56464e45b22080ae7447a04d63a208c5"
+      resolved-ref: "46057ebd56464e45b22080ae7447a04d63a208c5"
       url: "https://github.com/zTomz/rudi_ui.git"
     source: git
     version: "0.2.0"

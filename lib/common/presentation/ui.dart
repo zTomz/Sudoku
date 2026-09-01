@@ -55,8 +55,11 @@ final class const ContentPage({required final Widget child, super.key})
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 960),
         child: ListView(
-          padding: EdgeInsets.all(
+          padding: EdgeInsets.fromLTRB(
             MediaQuery.sizeOf(context).width < 600 ? 16 : 40,
+            MediaQuery.sizeOf(context).width < 600 ? 16 : 40,
+            MediaQuery.sizeOf(context).width < 600 ? 16 : 40,
+            128,
           ),
           children: [child],
         ),
@@ -85,7 +88,7 @@ enum AppSymbol() {
   check,
   chevron,
   info,
-  close
+  close,
 }
 
 final class const AppIcon(

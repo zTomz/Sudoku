@@ -23,6 +23,7 @@ import 'package:sudoku/features/game/presentation/board_palette.dart';
 import 'package:sudoku/features/game/presentation/game_page.dart';
 import 'package:sudoku/features/game/presentation/hint_sheet.dart';
 import 'package:sudoku/features/game/presentation/sudoku_board.dart';
+import 'package:sudoku/features/home/presentation/home_page.dart';
 import 'package:sudoku/features/settings/domain/app_settings.dart';
 import 'package:sudoku/l10n/generated/app_localizations.dart';
 
@@ -625,6 +626,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('new-game')), findsOneWidget);
     expect(tester.takeException(), isNull);
+    final homeList = find.descendant(
+      of: find.byType(HomePage),
+      matching: find.byType(ListView),
+    );
+    final navigationRect = tester.getRect(
+      find.byType(RudiFloatingNavigationBar),
+    );
+    expect(navigationRect.top, lessThan(tester.getRect(homeList).bottom));
     for (final index in [1, 2, 0, 3]) {
       await tester.tap(find.byKey(ValueKey('nav-$index')));
       await tester.pump(const Duration(milliseconds: 60));

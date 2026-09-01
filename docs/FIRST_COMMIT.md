@@ -4,7 +4,7 @@ The source version is 0.1.0+1. Earlier 0.2.x files were local UI previews, not p
 
 ## Public dependency resolved
 
-Rudi UI 0.2.0 has been published on GitHub at `eff9e33e4797e8bbee9c24395b00757ca1e48380`. Sudoku's manifest and lockfile now resolve that public Git revision. The local override has been removed from the repository and backed up outside it. No sibling Rudi checkout is required.
+Rudi UI 0.2.0 has been published on GitHub at `46057ebd56464e45b22080ae7447a04d63a208c5`. Sudoku's manifest and lockfile now resolve that public Git revision. The local override has been removed from the repository and backed up outside it. No sibling Rudi checkout is required.
 
 1. Run the checks below without a local override; confirm Rudi resolves through Git at the pinned hash and version 0.2.0.
 2. Review the complete staged source, workflows, generated localization and public lockfile together with `git diff --cached`.
