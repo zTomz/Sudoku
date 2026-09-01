@@ -209,6 +209,47 @@ void main() {
       expect(GameSession.fromJson(game.toJson()).complete, true);
     },
   );
+  test('the final repeated digit is filled after the board is solved', () {
+    final solution = List.generate(
+      81,
+      (i) => (i ~/ 9 * 3 + i ~/ 27 + i % 9) % 9 + 1,
+    );
+    final autoFilledCells = [
+      for (var cell = 0; cell < 81; cell++)
+        if (solution[cell] == 4) cell,
+    ];
+    final givens = [...solution]..[0] = 0;
+    for (final cell in autoFilledCells) {
+      givens[cell] = 0;
+    }
+    final puzzle = Puzzle(
+      id: 'final-cell-autofill',
+      difficulty: Difficulty.easy,
+      givens: givens,
+      solution: solution,
+    );
+
+    final completed = GameSession.start(puzzle).enter(0, solution[0]);
+
+    expect(completed.complete, isTrue);
+    for (final cell in autoFilledCells) {
+      expect(completed.values[cell], 4);
+    }
+    expect(completed.cursor, 1);
+    expect(
+      completed.history.single.map((edit) => edit.cell),
+      containsAll(<int>[0, ...autoFilledCells]),
+    );
+
+    final incorrect = GameSession.start(puzzle).enter(0, 4);
+    expect(incorrect.complete, isFalse);
+    for (final cell in autoFilledCells) {
+      expect(incorrect.values[cell], 0);
+    }
+
+    final corrected = incorrect.enter(0, solution[0]);
+    expect(corrected.complete, isTrue);
+  });
   test('corrupt move history is rejected instead of altering givens', () async {
     final puzzle = await engine.generate(seed: 19, difficulty: Difficulty.easy);
     final session = GameSession.start(puzzle);

@@ -14,6 +14,7 @@ import 'package:sudoku/app/app_theme.dart';
 import 'package:sudoku/app/hint_provider.dart';
 import 'package:sudoku/app/sudoku_app.dart';
 import 'package:sudoku/app/sudoku_controller.dart';
+import 'package:sudoku/features/daily/presentation/daily_page.dart';
 import 'package:sudoku/features/game/data/game_repository.dart';
 import 'package:sudoku/features/game/domain/game_session.dart';
 import 'package:sudoku/features/game/domain/logical_solver.dart';
@@ -30,6 +31,10 @@ import 'package:sudoku/l10n/generated/app_localizations.dart';
 import 'storage_controller_test.dart' show MemoryStore;
 
 void main() {
+  final testSolution = List.generate(
+    81,
+    (i) => (i ~/ 9 * 3 + i ~/ 27 + i % 9) % 9 + 1,
+  );
   late Puzzle puzzle, hardPuzzle;
   setUpAll(() async {
     await initializeDateFormatting();
@@ -45,14 +50,20 @@ void main() {
   test('completion flash targets a newly completed digit', () {
     final previous = List<int>.filled(81, 0);
     final current = [...previous];
-    const sevens = [0, 12, 24, 28, 40, 52, 56, 68, 80];
+    final sevens = [
+      for (var cell = 0; cell < 81; cell++)
+        if (testSolution[cell] == 7) cell,
+    ];
     for (final cell in sevens.take(8)) {
       previous[cell] = 7;
       current[cell] = 7;
     }
     current[sevens.last] = 7;
 
-    expect(completionFlashCells(previous, current), sevens.toSet());
+    expect(
+      completionFlashCells(previous, current, testSolution),
+      sevens.toSet(),
+    );
   });
 
   test('completion flash targets a newly filled three-by-three box', () {
@@ -60,13 +71,16 @@ void main() {
     final current = [...previous];
     const boxCells = [0, 1, 2, 9, 10, 11, 18, 19, 20];
     for (var index = 0; index < boxCells.length - 1; index++) {
-      previous[boxCells[index]] = index + 1;
-      current[boxCells[index]] = index + 1;
+      previous[boxCells[index]] = testSolution[boxCells[index]];
+      current[boxCells[index]] = testSolution[boxCells[index]];
     }
-    current[boxCells.last] = 9;
+    current[boxCells.last] = testSolution[boxCells.last];
 
-    expect(completionFlashCells(previous, current), boxCells.toSet());
-    expect(completionFlashCells(current, previous), isEmpty);
+    expect(
+      completionFlashCells(previous, current, testSolution),
+      boxCells.toSet(),
+    );
+    expect(completionFlashCells(current, previous, testSolution), isEmpty);
   });
 
   test('completion flash targets newly filled rows and columns', () {
@@ -77,13 +91,85 @@ void main() {
       final previous = List<int>.filled(81, 0);
       final current = [...previous];
       for (var index = 0; index < unit.length - 1; index++) {
-        previous[unit[index]] = index + 1;
-        current[unit[index]] = index + 1;
+        previous[unit[index]] = testSolution[unit[index]];
+        current[unit[index]] = testSolution[unit[index]];
       }
-      current[unit.last] = 9;
+      current[unit.last] = testSolution[unit.last];
 
-      expect(completionFlashCells(previous, current), unit.toSet());
+      expect(
+        completionFlashCells(previous, current, testSolution),
+        unit.toSet(),
+      );
     }
+  });
+
+  test('completion flash ignores incorrectly filled units', () {
+    final previous = [...testSolution]..[8] = 0;
+    final current = [...previous]..[8] = testSolution[7];
+
+    expect(completionFlashCells(previous, current, testSolution), isEmpty);
+  });
+
+  test('a filled board flashes from its automatically completed cell', () {
+    final current = [...testSolution];
+    final previous = [...current]
+      ..[10] = 0
+      ..[70] = 0;
+
+    expect(completionFlashCells(previous, current, testSolution), {
+      for (var cell = 0; cell < 81; cell++) cell,
+    });
+    expect(completionFlashOrigin(previous, current, preferredOrigin: 10), 70);
+  });
+
+  test('auto-filled digits reveal separately from the entered cell', () {
+    final fours = [
+      for (var cell = 0; cell < 81; cell++)
+        if (testSolution[cell] == 4) cell,
+    ];
+    final trigger = testSolution.indexWhere((digit) => digit != 4);
+    final previous = [...testSolution]..[trigger] = 0;
+    for (final cell in fours) {
+      previous[cell] = 0;
+    }
+
+    final reveals = autoFillRevealCells(
+      previous,
+      testSolution,
+      testSolution,
+      preferredOrigin: trigger,
+    );
+
+    expect(reveals.toSet(), fours.toSet());
+    expect(reveals, isNot(contains(trigger)));
+    expect(
+      [for (var order = 0; order < 3; order++) autoFillRevealDelay(order)],
+      const [
+        Duration.zero,
+        Duration(milliseconds: 260),
+        Duration(milliseconds: 520),
+      ],
+    );
+    expect(autoFillSequenceDuration(3), const Duration(milliseconds: 920));
+    final correctedPrevious = [...previous]..[trigger] = 4;
+    expect(
+      autoFillRevealCells(
+        correctedPrevious,
+        testSolution,
+        testSolution,
+        preferredOrigin: trigger,
+      ).toSet(),
+      fours.toSet(),
+    );
+    expect(
+      autoFillRevealCells(
+        previous,
+        previous,
+        testSolution,
+        preferredOrigin: trigger,
+      ),
+      isEmpty,
+    );
   });
 
   test('completion haptics follow each visual wavefront once', () {
@@ -650,6 +736,66 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  testWidgets('daily calendar swipes between months with full day targets', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(320, 568);
+    addTearDown(tester.view.reset);
+    final controllerHarness = ControllerHarness(GameRepository(MemoryStore()));
+    final controller = controllerHarness.controller;
+    addTearDown(controllerHarness.dispose);
+    await controller.initialize();
+    await tester.pumpWidget(
+      _DailyHarness(controller: controller, textScale: 1.6),
+    );
+    await tester.pumpAndSettle();
+    final now = DateTime.now();
+    final currentMonth = DateTime(now.year, now.month);
+    final previousMonth = DateTime(now.year, now.month - 1);
+
+    expect(
+      find.byKey(
+        ValueKey(
+          'rudi-calendar-month-${currentMonth.year}-${currentMonth.month}',
+        ),
+      ),
+      findsOneWidget,
+    );
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('rudi-calendar-pages')),
+    );
+    await tester.pumpAndSettle();
+    await tester.drag(
+      find.byKey(const ValueKey('rudi-calendar-pages')),
+      const Offset(280, 0),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(
+        ValueKey(
+          'rudi-calendar-month-${previousMonth.year}-${previousMonth.month}',
+        ),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Heute'), findsNothing);
+    final nextMonth = find.bySemanticsLabel('Nächster Monat');
+    await tester.ensureVisible(nextMonth);
+    await tester.pumpAndSettle();
+    await tester.tap(nextMonth);
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(
+        ValueKey(
+          'rudi-calendar-month-${currentMonth.year}-${currentMonth.month}',
+        ),
+      ),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
     'lifecycle pause is modal and system back resumes the same game',
     (tester) async {
@@ -926,5 +1072,27 @@ final class const _GameHarness({
         },
       ),
     ),
+  );
+}
+
+final class const _DailyHarness({
+  required final SudokuController controller,
+  final double textScale = 1,
+}) extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => RudiApp(
+    builder: (context, child) => MediaQuery(
+      data: MediaQuery.of(context)
+          .copyWith(textScaler: TextScaler.linear(textScale)),
+      child: child!,
+    ),
+    locale: const Locale('de'),
+    supportedLocales: AppLocalizations.supportedLocales,
+    localizationsDelegates: const [
+      AppLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+    ],
+    theme: sudokuTheme(Brightness.light, controller.settings),
+    home: DailyPage(controller: controller),
   );
 }

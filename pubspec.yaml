@@ -20,7 +20,7 @@ dependencies:
   rudi_ui:
     git:
       url: https://github.com/zTomz/rudi_ui.git
-      ref: 46057ebd56464e45b22080ae7447a04d63a208c5
+      ref: 310f67e22ff45cfdd7c831e6a80c23edd3c2dec7
   shared_preferences: ^2.5.5
   solar_icons: ^0.1.0
 

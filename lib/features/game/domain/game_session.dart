@@ -95,6 +95,34 @@ final class GameSession({
           nextNotes[peer] &= ~(1 << digit);
         }
       }
+      final emptyCells = [
+        for (var index = 0; index < 81; index++)
+          if (nextValues[index] == 0) index,
+      ];
+      if (digit != 0 &&
+          nextValues[cell] != values[cell] &&
+          emptyCells.isNotEmpty &&
+          emptyCells.every(
+            (emptyCell) =>
+                puzzle.solution[emptyCell] == puzzle.solution[emptyCells.first],
+          ) &&
+          List.generate(
+            81,
+            (index) =>
+                nextValues[index] == 0 ||
+                nextValues[index] == puzzle.solution[index],
+          ).every((matches) => matches)) {
+        final lastDigit = puzzle.solution[emptyCells.first];
+        for (final emptyCell in emptyCells) {
+          nextValues[emptyCell] = lastDigit;
+          nextNotes[emptyCell] = 0;
+          if (cleanNotes) {
+            for (final peer in peers(emptyCell)) {
+              nextNotes[peer] &= ~(1 << lastDigit);
+            }
+          }
+        }
+      }
     }
     final changes = [
       for (var i = 0; i < 81; i++)
