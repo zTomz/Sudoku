@@ -61,7 +61,9 @@ for (const scope of ["https://example.test/", "https://example.test/sudoku/"]) {
     await h.lifecycle("install");
     assert.ok(h.requested.includes("main.dart.js"));
     assert.ok(h.requested.includes("sudoku_worker.js"));
-    assert.ok(h.requested.includes("assets/assets/fonts/GoogleSans.ttf"));
+    for (const font of ["Regular", "Medium", "SemiBold", "Bold"]) {
+      assert.ok(h.requested.includes(`assets/assets/fonts/GoogleSans-${font}.ttf`));
+    }
     assert.ok(h.requested.includes("canvaskit/canvaskit.wasm"));
     assert.ok(!h.requested.includes("_headers"));
     assert.deepEqual(await h.request(scope + "main.dart.js?v=1"), { cached: "main.dart.js" });
