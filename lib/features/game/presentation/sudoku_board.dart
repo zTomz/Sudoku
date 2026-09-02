@@ -490,9 +490,9 @@ final class const _AutoFillDigit({
   }
 }
 
-const _autoFillStaggerMilliseconds = 260;
-const _autoFillMotionMilliseconds = 220;
-const _autoFillCompletionPauseMilliseconds = 180;
+const _autoFillStaggerMilliseconds = 500;
+const _autoFillMotionMilliseconds = 300;
+const _autoFillCompletionPauseMilliseconds = 250;
 
 @visibleForTesting
 Duration autoFillRevealDelay(int order) => Duration(

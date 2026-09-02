@@ -9,6 +9,7 @@ import 'controller_harness.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:reel_text/reel_text.dart';
 import 'package:rudi_ui/rudi_ui.dart';
 import 'package:sudoku/app/app_theme.dart';
 import 'package:sudoku/app/hint_provider.dart';
@@ -146,11 +147,11 @@ void main() {
       [for (var order = 0; order < 3; order++) autoFillRevealDelay(order)],
       const [
         Duration.zero,
-        Duration(milliseconds: 260),
-        Duration(milliseconds: 520),
+        Duration(milliseconds: 500),
+        Duration(milliseconds: 1000),
       ],
     );
-    expect(autoFillSequenceDuration(3), const Duration(milliseconds: 920));
+    expect(autoFillSequenceDuration(3), const Duration(milliseconds: 1550));
     final correctedPrevious = [...previous]..[trigger] = 4;
     expect(
       autoFillRevealCells(
@@ -561,6 +562,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      expect(controller.game!.mistakes, 1);
 
       TextStyle style(int cell) => tester
           .widget<Text>(
@@ -617,6 +619,70 @@ void main() {
       expect(const AppSettings().errorCheck, ErrorCheck.solution);
     },
   );
+  testWidgets('a correct entry shows its points beside the board', (
+    tester,
+  ) async {
+    final scorePuzzle = Puzzle(
+      id: 'score-popup-test',
+      difficulty: Difficulty.easy,
+      givens: List.filled(81, 0),
+      solution: testSolution,
+    );
+    var scoreGame = GameSession.start(scorePuzzle);
+    for (var cell = 0; cell < 8; cell++) {
+      scoreGame = scoreGame.enter(cell, testSolution[cell]);
+    }
+    final controllerHarness = ControllerHarness(
+      GameRepository(
+        MemoryStore()..value = SavedGames(free: scoreGame).encode(),
+      ),
+    );
+    final controller = controllerHarness.controller;
+    addTearDown(controllerHarness.dispose);
+    await controller.initialize();
+    controller.resumeFree();
+    await tester.pumpWidget(
+      _GameHarness(
+        container: controllerHarness.container,
+        controller: controller,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final scoreRectBefore = tester.getRect(
+      find.byKey(const ValueKey('game-score')),
+    );
+    final cell = controller.selected;
+    final previousPoints = controller.game!.points;
+    controller.enter(controller.game!.puzzle.solution[cell]);
+    final awarded = controller.game!.points - previousPoints;
+    await tester.pump(const Duration(milliseconds: 16));
+
+    expect(awarded, 30);
+    expect(find.text('+$awarded'), findsOneWidget);
+    final popupText = tester.widget<Text>(find.text('+$awarded'));
+    expect(popupText.maxLines, 1);
+    expect(popupText.softWrap, isFalse);
+    final popup = tester.getRect(find.byKey(const ValueKey('score-popup')));
+    final enteredCell = tester.getRect(
+      find.byKey(ValueKey('cell-${controller.scoreAwardCell}')),
+    );
+    expect(
+      popup.center.dx,
+      moreOrLessEquals(enteredCell.center.dx, epsilon: .1),
+    );
+    expect(popup.top, lessThan(enteredCell.top));
+    expect(find.byKey(const ValueKey('game-score')), findsOneWidget);
+    expect(find.byType(ReelText), findsOneWidget);
+    final scoreRectAfter = tester.getRect(
+      find.byKey(const ValueKey('game-score')),
+    );
+    expect(scoreRectAfter, scoreRectBefore);
+    final reelText = tester.widget<ReelText>(find.byType(ReelText));
+    expect(reelText.text, '${controller.game!.points}');
+    expect(reelText.options.direction, ReelTextDirection.down);
+    controller.suspend();
+  });
   for (final size in [
     const Size(390, 844),
     const Size(320, 568),

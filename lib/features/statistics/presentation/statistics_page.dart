@@ -37,6 +37,11 @@ final class const StatisticsPage({
               ),
             ),
             Text(l.solved, style: theme.text.title),
+            const SizedBox(height: 8),
+            Text(
+              l.pointsValue(controller.totalPoints),
+              style: theme.text.headline.copyWith(color: theme.colors.accent),
+            ),
             const SizedBox(height: 24),
             Text(
               '${l.totalTime}: ${durationLabel(results.fold(0, (total, result) => total + result.seconds))}',
@@ -64,6 +69,14 @@ final class const StatisticsPage({
                         style: theme.text.title,
                       ),
                       Text('${matching.length} ${l.solved.toLowerCase()}'),
+                      Text(
+                        l.mistakesValue(
+                          matching.fold(
+                            0,
+                            (total, result) => total + result.mistakes,
+                          ),
+                        ),
+                      ),
                       Text(
                         matching.isEmpty
                             ? '—'

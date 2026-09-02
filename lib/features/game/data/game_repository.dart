@@ -25,21 +25,30 @@ final class const GameResult(
   final Difficulty difficulty,
   final int seconds,
   final String? dailyDate,
+  final int points,
+  final int mistakes,
 ) {
   Map<String, Object?> toJson() => {
     'id': id,
     'difficulty': difficulty.name,
     'seconds': seconds,
     'dailyDate': dailyDate,
+    'points': points,
+    'mistakes': mistakes,
   };
   factory fromJson(Map<String, Object?> json) {
     final seconds = json['seconds'] as int;
-    if (seconds < 0) throw const FormatException('Invalid result');
+    final points = json['points'] as int, mistakes = json['mistakes'] as int;
+    if (seconds < 0 || points < 0 || mistakes < 0) {
+      throw const FormatException('Invalid result');
+    }
     return GameResult(
       json['id'] as String,
       Difficulty.values.byName(json['difficulty'] as String),
       seconds,
       json['dailyDate'] as String?,
+      points,
+      mistakes,
     );
   }
 }
@@ -56,7 +65,7 @@ final class SavedGames({
   final Map<String, GameResult> results;
 
   String encode() => jsonEncode({
-    'schemaVersion': 1,
+    'schemaVersion': 2,
     'settings': settings.toJson(),
     'free': free?.toJson(),
     'daily': daily.map((key, value) => MapEntry(key, value.toJson())),
@@ -65,7 +74,7 @@ final class SavedGames({
 
   factory decode(String value) {
     final json = jsonDecode(value) as Map<String, Object?>;
-    if (json['schemaVersion'] != 1) {
+    if (json['schemaVersion'] != 2) {
       throw const FormatException('Unsupported save version');
     }
     final daily = (json['daily'] as Map<String, Object?>).map((key, value) {

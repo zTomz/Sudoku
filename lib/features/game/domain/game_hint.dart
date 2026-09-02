@@ -5,7 +5,7 @@ enum HintStatus() {
   available,
   incorrect,
   complete,
-  unavailable
+  unavailable,
 }
 
 /// A read-only proof prefix through the next placement. Player notes are not

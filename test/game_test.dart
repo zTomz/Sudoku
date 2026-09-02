@@ -78,6 +78,77 @@ void main() {
       expect(noConflict.isIncorrect(1), isTrue);
     },
   );
+  test(
+    'points and mistakes cannot be farmed with undo or repeated entries',
+    () {
+      final solution = List.generate(
+        81,
+        (i) => (i ~/ 9 * 3 + i ~/ 27 + i % 9) % 9 + 1,
+      );
+      final puzzle = Puzzle(
+        id: 'score-test',
+        difficulty: Difficulty.easy,
+        givens: List.filled(81, 0),
+        solution: solution,
+      );
+      var game = GameSession.start(puzzle);
+      for (var cell = 0; cell < 8; cell++) {
+        game = game.enter(cell, solution[cell]);
+      }
+      expect(game.points, 80);
+
+      game = game.enter(8, solution[8]);
+      expect(game.points, 110);
+      expect(game.awardedUnits, contains(0));
+      expect(game.undo().points, 110);
+      game = game.undo().enter(8, solution[8]);
+      expect(game.points, 110);
+
+      final wrongDigit = solution[9] == 9 ? 8 : 9;
+      game = game.enter(9, wrongDigit);
+      expect(game.mistakes, 1);
+      expect(game.points, 110);
+      game = game.undo();
+      expect(game.mistakes, 1);
+      game = game.enter(9, wrongDigit);
+      expect(game.mistakes, 2);
+    },
+  );
+
+  test('column, box and final bonuses are calculated and persisted', () {
+    final solution = List.generate(
+      81,
+      (i) => (i ~/ 9 * 3 + i ~/ 27 + i % 9) % 9 + 1,
+    );
+    final puzzle = Puzzle(
+      id: 'bonus-test',
+      difficulty: Difficulty.medium,
+      givens: List.filled(81, 0),
+      solution: solution,
+      dailyDate: '2026-09-02',
+    );
+    var game = GameSession.start(puzzle);
+    for (final cell in [0, 9, 18, 27, 36, 45, 54, 63, 72]) {
+      game = game.enter(cell, solution[cell]);
+    }
+    expect(game.points, 110);
+    expect(game.awardedUnits, contains(9));
+
+    for (final cell in [1, 2, 10, 11, 19, 20]) {
+      game = game.enter(cell, solution[cell]);
+    }
+    expect(game.awardedUnits, contains(18));
+    expect(game.points, 195);
+    expect(game.finalPoints, 545);
+
+    final restored = GameSession.fromJson(
+      jsonDecode(jsonEncode(game.toJson())) as Map<String, Object?>,
+    );
+    expect(restored.points, game.points);
+    expect(restored.mistakes, game.mistakes);
+    expect(restored.awardedCells, game.awardedCells);
+    expect(restored.awardedUnits, game.awardedUnits);
+  });
   test('free v3 grids are diverse and not just symmetries of the cyclic template', () async {
     final solutions = <String>{};
     var rectangles = 0;

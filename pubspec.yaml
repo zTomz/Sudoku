@@ -17,6 +17,7 @@ dependencies:
   riverpod_annotation: ^4.0.6
   web: ^1.1.1
   intl: any
+  reel_text: ^0.4.4
   rudi_ui:
     git:
       url: https://github.com/zTomz/rudi_ui.git

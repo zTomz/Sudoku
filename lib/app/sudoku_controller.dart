@@ -69,6 +69,11 @@ class SudokuController() extends _$SudokuController {
   GameSession? get free => _saved.free;
   Map<String, GameSession> get dailyGames => _saved.daily;
   Iterable<GameResult> get results => _saved.results.values;
+  int get totalPoints =>
+      results.fold(0, (total, result) => total + result.points);
+  int get scoreAwardSequence => state.scoreAwardSequence;
+  int get scoreAwardPoints => state.scoreAwardPoints;
+  int get scoreAwardCell => state.scoreAwardCell;
 
   Future<void> initialize() async {
     if (_disposed || busy || ready) return;
@@ -146,6 +151,7 @@ class SudokuController() extends _$SudokuController {
     _pencil = false;
     _selected = session.values.indexOf(0);
     _selectedDigit = 0;
+    state = state.copyWith(scoreAwardPoints: 0, scoreAwardCell: -1);
     _remember();
     _startClock();
   }
@@ -174,6 +180,8 @@ class SudokuController() extends _$SudokuController {
 
   void enter(int digit) {
     if (!playing || paused || _game == null) return;
+    final previousPoints = _game!.points;
+    final awardCell = selected;
     final next = _game!.enter(
       selected,
       digit,
@@ -182,6 +190,14 @@ class SudokuController() extends _$SudokuController {
     );
     if (identical(next, _game)) return;
     _game = next;
+    final awarded = next.points - previousPoints;
+    if (awarded > 0) {
+      state = state.copyWith(
+        scoreAwardSequence: state.scoreAwardSequence + 1,
+        scoreAwardPoints: awarded,
+        scoreAwardCell: awardCell,
+      );
+    }
     _afterMove();
   }
 
@@ -221,6 +237,8 @@ class SudokuController() extends _$SudokuController {
             g.puzzle.difficulty,
             g.elapsedSeconds,
             g.puzzle.dailyDate,
+            g.finalPoints,
+            g.mistakes,
           ),
         },
       );

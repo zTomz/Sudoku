@@ -49,10 +49,10 @@ The [v0.1.0 release](https://github.com/zTomz/Sudoku/releases/tag/v0.1.0) is the
 | **A puzzle every day** | Daily challenges with a swipeable calendar to revisit earlier days and keep track of completed puzzles. |
 | **Fresh boards, your pace** | Locally generated, unique-solution puzzles with verified no-guess logical paths in easy, medium and hard levels. |
 | **Tools for solving** | Pencil notes, automatic note cleanup, undo, redo and erasing. Hints first point to the relevant area, then explain the reasoning, and reveal the number only when explicitly requested. Choose a cell first or select a number first. |
-| **Just enough guidance** | Solution checking marks only incorrect entries; correct digits and clues stay unmarked. Optional conflict-only checking or no checking. After nine placements, a digit becomes a disabled checkmark; erasing or undoing a placement makes it available again. Once every remaining empty cell belongs to the same digit, those final entries are filled with a staggered animation. Completing a digit, row, column or 3×3 box triggers a smooth accent animation; a full board carries the wave across every cell. Subtle haptics follow the wave and respect the reduced-motion and haptic settings. |
+| **Just enough guidance** | Solution checking marks only incorrect entries; correct digits and clues stay unmarked. Optional conflict-only checking or no checking. Mistakes are still counted when visible checking is disabled. After nine placements, a digit becomes a disabled checkmark; erasing or undoing a placement makes it available again. Once every remaining empty cell belongs to the same digit, those final entries are filled with a staggered animation. Completing a digit, row, column or 3×3 box triggers a smooth accent animation; a full board carries the wave across every cell. Subtle haptics follow the wave and respect the reduced-motion and haptic settings. |
 | **Pick up where you left off** | Automatic local saves, separate daily and free-play progress, and a pause dialog that conceals the board. |
 | **Make it yours** | Light, dark and system appearance, four board themes, optional haptics and an optional timer. |
-| **See your progress** | Completed puzzle counts, total play time and personal bests by difficulty. |
+| **See your progress** | Earn points for correct entries and completed rows, columns and 3×3 boxes, with rolling score feedback plus completion and accuracy bonuses. Completed puzzle counts, mistakes, total play time and personal bests are tracked by difficulty. |
 | **Touch or keyboard** | Responsive layouts, keyboard controls, and English and German translations. |
 
 ## Platforms
@@ -127,6 +127,7 @@ Free-play and daily puzzles use the same technique-graded generator; no legacy g
 - **[Flutter & Dart](pubspec.yaml)** for the app and puzzle engine.
 - **[Rudi UI](https://github.com/zTomz/rudi_ui)** for components, themes and interaction patterns.
 - **[Cue](https://pub.dev/packages/cue)** for transitions.
+- **[Reel Text](https://pub.dev/packages/reel_text)** for rolling score updates.
 - **[Riverpod](https://riverpod.dev/)** with code generation for application state and testable dependencies.
 - **[Solar Icons](https://solar-icons.vercel.app/)** through the `solar_icons` Flutter package.
 - **Google Sans** for typography, bundled with the app.

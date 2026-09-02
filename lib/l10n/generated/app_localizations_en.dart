@@ -126,6 +126,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get finishedMessage => 'Another puzzle, solved at your own pace.';
 
   @override
+  String pointsValue(int points) {
+    return '$points points';
+  }
+
+  @override
+  String get pointsLabel => 'points';
+
+  @override
+  String pointsAwarded(int points) {
+    return '+$points points';
+  }
+
+  @override
+  String mistakesValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count mistakes',
+      one: '1 mistake',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get backHome => 'Back to start';
 
   @override
@@ -192,7 +216,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorDescription =>
-      'Only incorrect entries are marked. Rule conflicts marks them only when a digit is repeated in a row, column or box. With checking off, no correctness feedback is shown.';
+      'Controls only the markings on the board. Rule conflicts mark repeated digits in a row, column or box. Mistakes are always counted.';
 
   @override
   String get about => 'About Sudoku';

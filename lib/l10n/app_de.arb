@@ -37,6 +37,31 @@
   "pausedMessage": "Lass dir Zeit. Dein Rätsel wartet auf dich.",
   "finished": "Gut gelöst.",
   "finishedMessage": "Ein weiteres Rätsel. In deinem Tempo gelöst.",
+  "pointsValue": "{points} Punkte",
+  "@pointsValue": {
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "pointsLabel": "Punkte",
+  "pointsAwarded": "+{points} Punkte",
+  "@pointsAwarded": {
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "mistakesValue": "{count} Fehler",
+  "@mistakesValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "backHome": "Zur Startseite",
   "timer": "Spielzeit",
   "progress": "{filled} / 81 ausgefüllt",
@@ -57,7 +82,7 @@
   "checkOff": "Aus",
   "checkConflicts": "Regelkonflikte",
   "checkSolution": "Mit Lösung vergleichen",
-  "errorDescription": "Nur falsche Einträge werden markiert. Regelkonflikte markiert sie nur bei doppelten Zahlen in Zeile, Spalte oder Block. Bei ausgeschalteter Prüfung gibt es keine Rückmeldung zur Richtigkeit.",
+  "errorDescription": "Steuert nur die Markierung im Spielfeld. Regelkonflikte markieren doppelte Zahlen in Zeile, Spalte oder Block. Der Fehlerzähler läuft immer mit.",
   "about": "Über Sudoku",
   "aboutDescription": "Eine Open-Source-Sudoku-App von Tom Vogel. Entwickelt mit Flutter und Rudi UI. Alle Spieldaten bleiben auf diesem Gerät.",
   "version": "Version 0.1.0",

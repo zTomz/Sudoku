@@ -320,6 +320,30 @@ abstract class AppLocalizations {
   /// **'Another puzzle, solved at your own pace.'**
   String get finishedMessage;
 
+  /// No description provided for @pointsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} points'**
+  String pointsValue(int points);
+
+  /// No description provided for @pointsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'points'**
+  String get pointsLabel;
+
+  /// No description provided for @pointsAwarded.
+  ///
+  /// In en, this message translates to:
+  /// **'+{points} points'**
+  String pointsAwarded(int points);
+
+  /// No description provided for @mistakesValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1 {1 mistake} other {{count} mistakes}}'**
+  String mistakesValue(int count);
+
   /// No description provided for @backHome.
   ///
   /// In en, this message translates to:
@@ -443,7 +467,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorDescription.
   ///
   /// In en, this message translates to:
-  /// **'Only incorrect entries are marked. Rule conflicts marks them only when a digit is repeated in a row, column or box. With checking off, no correctness feedback is shown.'**
+  /// **'Controls only the markings on the board. Rule conflicts mark repeated digits in a row, column or box. Mistakes are always counted.'**
   String get errorDescription;
 
   /// No description provided for @about.

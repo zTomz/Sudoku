@@ -37,6 +37,31 @@
   "pausedMessage": "Take your time. Your puzzle will be here.",
   "finished": "Nicely done.",
   "finishedMessage": "Another puzzle, solved at your own pace.",
+  "pointsValue": "{points} points",
+  "@pointsValue": {
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "pointsLabel": "points",
+  "pointsAwarded": "+{points} points",
+  "@pointsAwarded": {
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "mistakesValue": "{count, plural, =1 {1 mistake} other {{count} mistakes}}",
+  "@mistakesValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "backHome": "Back to start",
   "timer": "Timer",
   "progress": "{filled} / 81 filled",
@@ -64,7 +89,7 @@
   "checkOff": "Off",
   "checkConflicts": "Rule conflicts",
   "checkSolution": "Compare with solution",
-  "errorDescription": "Only incorrect entries are marked. Rule conflicts marks them only when a digit is repeated in a row, column or box. With checking off, no correctness feedback is shown.",
+  "errorDescription": "Controls only the markings on the board. Rule conflicts mark repeated digits in a row, column or box. Mistakes are always counted.",
   "about": "About Sudoku",
   "aboutDescription": "An open-source Sudoku app by Tom Vogel. Built with Flutter and Rudi UI. All game data stays on this device.",
   "version": "Version 0.1.0",

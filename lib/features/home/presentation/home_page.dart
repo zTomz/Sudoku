@@ -96,7 +96,7 @@ final class const HomePage({
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      l.monthProgress(solvedThisMonth),
+                      '${l.monthProgress(solvedThisMonth)} · ${l.pointsValue(controller.totalPoints)}',
                       style: theme.text.caption.copyWith(
                         color: theme.colors.mutedForeground,
                       ),

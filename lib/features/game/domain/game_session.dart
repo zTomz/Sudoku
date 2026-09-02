@@ -1,5 +1,26 @@
 import 'puzzle.dart';
 
+abstract final class GameScoring() {
+  static const correctCell = 10;
+  static const completedRow = 20;
+  static const completedColumn = 20;
+  static const completedBox = 25;
+  static const dailyBonus = 50;
+
+  static int completionBonus(Difficulty difficulty) => switch (difficulty) {
+    Difficulty.easy => 100,
+    Difficulty.medium => 200,
+    Difficulty.hard => 350,
+  };
+
+  static int accuracyBonus(int mistakes) => switch (mistakes) {
+    0 => 100,
+    1 => 60,
+    2 => 30,
+    _ => 0,
+  };
+}
+
 final class const CellEdit(
   final int cell,
   final int beforeValue,
@@ -41,15 +62,22 @@ final class GameSession({
   List<List<CellEdit>> history = const [],
   final int cursor = 0,
   final int elapsedSeconds = 0,
+  Set<int> awardedCells = const {},
+  Set<int> awardedUnits = const {},
+  final int mistakes = 0,
 }) {
   this
     : values = List.unmodifiableOf(values),
       notes = List.unmodifiableOf(notes),
-      history = List.unmodifiableOf(history.map(List<CellEdit>.unmodifiableOf));
+      history = List.unmodifiableOf(history.map(List<CellEdit>.unmodifiableOf)),
+      awardedCells = Set.unmodifiable(awardedCells),
+      awardedUnits = Set.unmodifiable(awardedUnits);
 
   final List<int> values;
   final List<int> notes;
   final List<List<CellEdit>> history;
+  final Set<int> awardedCells;
+  final Set<int> awardedUnits;
 
   factory start(Puzzle puzzle) => GameSession(
     puzzle: puzzle,
@@ -62,6 +90,19 @@ final class GameSession({
   int get filled => values.where((v) => v != 0).length;
   bool get canUndo => cursor > 0 && !complete;
   bool get canRedo => cursor < history.length && !complete;
+  int get points =>
+      awardedCells.length * GameScoring.correctCell +
+      awardedUnits.fold(0, (total, unit) {
+        if (unit < 9) return total + GameScoring.completedRow;
+        if (unit < 18) return total + GameScoring.completedColumn;
+        return total + GameScoring.completedBox;
+      });
+
+  int get finalPoints =>
+      points +
+      GameScoring.completionBonus(puzzle.difficulty) +
+      GameScoring.accuracyBonus(mistakes) +
+      (puzzle.dailyDate == null ? 0 : GameScoring.dailyBonus);
 
   bool isDigitAvailable(int digit) =>
       digit >= 1 &&
@@ -130,6 +171,32 @@ final class GameSession({
           CellEdit(i, values[i], nextValues[i], notes[i], nextNotes[i]),
     ];
     if (changes.isEmpty) return this;
+    final nextAwardedCells = {...awardedCells};
+    final nextAwardedUnits = {...awardedUnits};
+    var nextMistakes = mistakes;
+    if (!pencil && digit != 0) {
+      if (digit == puzzle.solution[cell]) {
+        final candidateUnits = <int>{};
+        for (final edit in changes) {
+          if (edit.beforeValue == edit.afterValue ||
+              edit.afterValue != puzzle.solution[edit.cell]) {
+            continue;
+          }
+          nextAwardedCells.add(edit.cell);
+          final row = edit.cell ~/ 9, column = edit.cell % 9;
+          candidateUnits.addAll({
+            row,
+            9 + column,
+            18 + row ~/ 3 * 3 + column ~/ 3,
+          });
+        }
+        for (final unit in candidateUnits) {
+          if (_unitIsCorrect(nextValues, unit)) nextAwardedUnits.add(unit);
+        }
+      } else {
+        nextMistakes++;
+      }
+    }
     return GameSession(
       puzzle: puzzle,
       values: nextValues,
@@ -137,7 +204,25 @@ final class GameSession({
       history: [...history.take(cursor), changes],
       cursor: cursor + 1,
       elapsedSeconds: elapsedSeconds,
+      awardedCells: nextAwardedCells,
+      awardedUnits: nextAwardedUnits,
+      mistakes: nextMistakes,
     );
+  }
+
+  bool _unitIsCorrect(List<int> board, int unit) {
+    for (var offset = 0; offset < 9; offset++) {
+      final cell = switch (unit) {
+        < 9 => unit * 9 + offset,
+        < 18 => offset * 9 + unit - 9,
+        _ =>
+          ((unit - 18) ~/ 3 * 3 + offset ~/ 3) * 9 +
+              (unit - 18) % 3 * 3 +
+              offset % 3,
+      };
+      if (board[cell] != puzzle.solution[cell]) return false;
+    }
+    return true;
   }
 
   GameSession undo() => canUndo ? _travel(false) : this;
@@ -156,6 +241,9 @@ final class GameSession({
       history: history,
       cursor: cursor + (forward ? 1 : -1),
       elapsedSeconds: elapsedSeconds,
+      awardedCells: awardedCells,
+      awardedUnits: awardedUnits,
+      mistakes: mistakes,
     );
   }
 
@@ -166,6 +254,9 @@ final class GameSession({
     history: history,
     cursor: cursor,
     elapsedSeconds: seconds,
+    awardedCells: awardedCells,
+    awardedUnits: awardedUnits,
+    mistakes: mistakes,
   );
 
   bool hasConflict(int cell) =>
@@ -186,6 +277,9 @@ final class GameSession({
     ],
     'cursor': cursor,
     'elapsedSeconds': elapsedSeconds,
+    'awardedCells': awardedCells.toList()..sort(),
+    'awardedUnits': awardedUnits.toList()..sort(),
+    'mistakes': mistakes,
   };
 
   factory fromJson(Map<String, Object?> json) {
@@ -196,8 +290,15 @@ final class GameSession({
         .map((move) => (move as List<Object?>).map(CellEdit.fromJson).toList())
         .toList();
     final cursor = json['cursor'] as int,
-        seconds = json['elapsedSeconds'] as int;
-    if (cursor < 0 || cursor > history.length || seconds < 0) {
+        seconds = json['elapsedSeconds'] as int,
+        mistakes = json['mistakes'] as int;
+    final awardedCells = _readUniqueIndexes(json['awardedCells'], 81);
+    final awardedUnits = _readUniqueIndexes(json['awardedUnits'], 27);
+    if (cursor < 0 ||
+        cursor > history.length ||
+        seconds < 0 ||
+        mistakes < 0 ||
+        awardedCells.any((cell) => puzzle.givens[cell] != 0)) {
       throw const FormatException('Invalid session');
     }
     // Replay all moves to verify both undo/redo and the saved board agree.
@@ -234,6 +335,23 @@ final class GameSession({
       history: history,
       cursor: cursor,
       elapsedSeconds: seconds,
+      awardedCells: awardedCells,
+      awardedUnits: awardedUnits,
+      mistakes: mistakes,
     );
   }
+}
+
+Set<int> _readUniqueIndexes(Object? value, int upperBound) {
+  if (value is! List<Object?>) throw const FormatException('Invalid awards');
+  final indexes = <int>{};
+  for (final index in value) {
+    if (index is! int ||
+        index < 0 ||
+        index >= upperBound ||
+        !indexes.add(index)) {
+      throw const FormatException('Invalid awards');
+    }
+  }
+  return indexes;
 }

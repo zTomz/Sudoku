@@ -3,7 +3,7 @@ import 'difficulty_rating.dart';
 enum Difficulty() {
   easy,
   medium,
-  hard
+  hard,
 }
 
 final class Puzzle({

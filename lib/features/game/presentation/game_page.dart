@@ -5,6 +5,7 @@ import 'package:cue/cue.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reel_text/reel_text.dart';
 import 'package:rudi_ui/rudi_ui.dart';
 
 import '../../../app/hint_provider.dart';
@@ -305,7 +306,7 @@ final class _GamePageState() extends ConsumerState<GamePage> {
                             Padding(
                               padding: const .fromLTRB(20, 12, 20, 8),
                               child: Row(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: .center,
                                 children: [
                                   Expanded(
                                     child: Text(
@@ -313,17 +314,67 @@ final class _GamePageState() extends ConsumerState<GamePage> {
                                       style: theme.text.caption.copyWith(
                                         color: theme.colors.mutedForeground,
                                       ),
+                                      maxLines: 1,
+                                      overflow: .ellipsis,
                                     ),
                                   ),
                                   const SizedBox(width: 12),
-                                  if (controller.settings.showTimer)
-                                    Semantics(
-                                      label: l.timer,
-                                      child: Text(
-                                        durationLabel(game.elapsedSeconds),
-                                        style: theme.text.label,
+                                  Flexible(
+                                    flex: 2,
+                                    child: Semantics(
+                                      label:
+                                          '${l.pointsValue(game.points)}, ${l.mistakesValue(game.mistakes)}${controller.settings.showTimer ? ', ${l.timer}: ${durationLabel(game.elapsedSeconds)}' : ''}',
+                                      child: ExcludeSemantics(
+                                        child: Row(
+                                          key: const ValueKey('game-score'),
+                                          mainAxisAlignment: .end,
+                                          children: [
+                                            SizedBox(
+                                              width: 36,
+                                              child: ReelText(
+                                                '${game.points}',
+                                                textAlign: .end,
+                                                options: ReelTextOptions(
+                                                  direction:
+                                                      ReelTextDirection.down,
+                                                  duration: const Duration(
+                                                    milliseconds: 320,
+                                                  ),
+                                                  stagger: const Duration(
+                                                    milliseconds: 28,
+                                                  ),
+                                                  exitOffset: const Duration(
+                                                    milliseconds: 36,
+                                                  ),
+                                                  curve: Curves.easeOutCubic,
+                                                  bounce: .15,
+                                                  color: theme.colors.accent,
+                                                ),
+                                                style: theme.text.caption
+                                                    .copyWith(
+                                                      color:
+                                                          theme.colors.accent,
+                                                    ),
+                                              ),
+                                            ),
+                                            Flexible(
+                                              child: Text(
+                                                ' ${l.pointsLabel} · ${l.mistakesValue(game.mistakes)}${controller.settings.showTimer ? ' · ${durationLabel(game.elapsedSeconds)}' : ''}',
+                                                maxLines: 1,
+                                                softWrap: false,
+                                                overflow: .fade,
+                                                style: theme.text.caption
+                                                    .copyWith(
+                                                      color:
+                                                          theme.colors.accent,
+                                                    ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -345,11 +396,29 @@ final class _GamePageState() extends ConsumerState<GamePage> {
                                     final board = SizedBox.square(
                                       key: const ValueKey('game-puzzle'),
                                       dimension: size,
-                                      child: SudokuBoard(
-                                        controller: controller,
-                                        game: game,
-                                        obscured: controller.paused,
-                                        hint: _hintVisual,
+                                      child: Stack(
+                                        clipBehavior: .none,
+                                        children: [
+                                          Positioned.fill(
+                                            child: SudokuBoard(
+                                              controller: controller,
+                                              game: game,
+                                              obscured: controller.paused,
+                                              hint: _hintVisual,
+                                            ),
+                                          ),
+                                          if (!controller.paused &&
+                                              controller.scoreAwardPoints > 0)
+                                            _ScorePopup(
+                                              key: ValueKey(
+                                                controller.scoreAwardSequence,
+                                              ),
+                                              points:
+                                                  controller.scoreAwardPoints,
+                                              cell: controller.scoreAwardCell,
+                                              boardSize: size,
+                                            ),
+                                        ],
                                       ),
                                     );
                                     return Center(
@@ -474,6 +543,20 @@ final class const _GameControls({
         mainAxisSize: .min,
         children: [
           Text(l.finished, style: theme.text.headline),
+          const SizedBox(height: 8),
+          Text(
+            l.pointsValue(game.finalPoints),
+            key: const ValueKey('final-points'),
+            style: theme.text.display.copyWith(color: theme.colors.accent),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            l.mistakesValue(game.mistakes),
+            key: const ValueKey('final-mistakes'),
+            style: theme.text.body.copyWith(
+              color: theme.colors.mutedForeground,
+            ),
+          ),
           const SizedBox(height: 12),
           RudiButton(
             label: l.backHome,
@@ -607,6 +690,129 @@ final class const _GameControls({
           ],
         ),
       ],
+    );
+  }
+}
+
+final class const _ScorePopup({
+  required final int points,
+  required final int cell,
+  required final double boardSize,
+  super.key,
+}) extends StatefulWidget {
+  @override
+  State<_ScorePopup> createState() => _ScorePopupState();
+}
+
+final class _ScorePopupState() extends State<_ScorePopup> {
+  static const _animationDuration = Duration(milliseconds: 1400);
+
+  Timer? _reducedMotionTimer;
+  var _visible = true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context) &&
+        _reducedMotionTimer == null) {
+      _reducedMotionTimer = Timer(_animationDuration, () {
+        if (mounted) setState(() => _visible = false);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _reducedMotionTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_visible) return const SizedBox.shrink();
+    final theme = context.rudiTheme;
+    final cellSize = widget.boardSize / 9;
+    final row = widget.cell ~/ 9, column = widget.cell % 9;
+    const popupWidth = 56.0;
+    final left = (column + .5) * cellSize - popupWidth / 2;
+    final top = (row == 0 ? 4.0 : row * cellSize - 12) - 20;
+    final label = SizedBox(
+      width: popupWidth,
+      child: DecoratedBox(
+        key: const ValueKey('score-popup'),
+        decoration: BoxDecoration(
+          color: theme.colors.surface.withValues(alpha: .96),
+          borderRadius: .circular(999),
+          border: Border.all(color: theme.colors.accent.withValues(alpha: .18)),
+          boxShadow: [
+            BoxShadow(
+              color: theme.colors.foreground.withValues(alpha: .12),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+
+        child: Center(
+          child: Text(
+            '+${widget.points}',
+            textAlign: .center,
+            textScaler: TextScaler.noScaling,
+            maxLines: 1,
+            softWrap: false,
+            overflow: .visible,
+            style: theme.text.title.copyWith(
+              color: theme.colors.accent,
+              fontWeight: .w700,
+              height: 1,
+            ),
+          ),
+        ),
+      ),
+    );
+    return Positioned(
+      left: left,
+      top: top,
+      width: popupWidth,
+      height: 48,
+      child: IgnorePointer(
+        child: Semantics(
+          liveRegion: true,
+          label: context.l10n.pointsAwarded(widget.points),
+          child: ExcludeSemantics(
+            child: MediaQuery.disableAnimationsOf(context)
+                ? label
+                : Cue.onMount(
+                    motion: .easeOut(_animationDuration),
+                    acts: [
+                      OpacityAct.keyframed(
+                        frames: Keyframes.fractional(
+                          const [
+                            .key(1, at: 0),
+                            .key(1, at: .65),
+                            .key(0, at: 1),
+                          ],
+                          duration: _animationDuration,
+                          curve: Curves.easeIn,
+                        ),
+                      ),
+                      TranslateAct.keyframedY(
+                        frames: Keyframes.fractional(
+                          const [
+                            .key(0, at: 0),
+                            .key(-6, at: .65),
+                            .key(-18, at: 1),
+                          ],
+                          duration: _animationDuration,
+                          curve: Curves.easeOutCubic,
+                        ),
+                      ),
+                    ],
+                    child: label,
+                  ),
+          ),
+        ),
+      ),
     );
   }
 }

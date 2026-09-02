@@ -57,7 +57,7 @@ enum LogicalStatus() {
   solved,
   progress,
   stuck,
-  invalid
+  invalid,
 }
 
 final class LogicalResult({

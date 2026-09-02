@@ -127,6 +127,24 @@ class AppLocalizationsDe extends AppLocalizations {
   String get finishedMessage => 'Ein weiteres Rätsel. In deinem Tempo gelöst.';
 
   @override
+  String pointsValue(int points) {
+    return '$points Punkte';
+  }
+
+  @override
+  String get pointsLabel => 'Punkte';
+
+  @override
+  String pointsAwarded(int points) {
+    return '+$points Punkte';
+  }
+
+  @override
+  String mistakesValue(int count) {
+    return '$count Fehler';
+  }
+
+  @override
   String get backHome => 'Zur Startseite';
 
   @override
@@ -194,7 +212,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get errorDescription =>
-      'Nur falsche Einträge werden markiert. Regelkonflikte markiert sie nur bei doppelten Zahlen in Zeile, Spalte oder Block. Bei ausgeschalteter Prüfung gibt es keine Rückmeldung zur Richtigkeit.';
+      'Steuert nur die Markierung im Spielfeld. Regelkonflikte markieren doppelte Zahlen in Zeile, Spalte oder Block. Der Fehlerzähler läuft immer mit.';
 
   @override
   String get about => 'Über Sudoku';

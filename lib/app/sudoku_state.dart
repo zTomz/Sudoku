@@ -14,6 +14,9 @@ final class SudokuState({
   final bool pencil = false,
   final int selected = -1,
   final int selectedDigit = 0,
+  final int scoreAwardSequence = 0,
+  final int scoreAwardPoints = 0,
+  final int scoreAwardCell = -1,
 }) {
   SudokuState copyWith({
     SavedGames? saved,
@@ -28,6 +31,9 @@ final class SudokuState({
     bool? pencil,
     int? selected,
     int? selectedDigit,
+    int? scoreAwardSequence,
+    int? scoreAwardPoints,
+    int? scoreAwardCell,
   }) => SudokuState(
     saved: saved ?? this.saved,
     game: game ?? this.game,
@@ -41,5 +47,8 @@ final class SudokuState({
     pencil: pencil ?? this.pencil,
     selected: selected ?? this.selected,
     selectedDigit: selectedDigit ?? this.selectedDigit,
+    scoreAwardSequence: scoreAwardSequence ?? this.scoreAwardSequence,
+    scoreAwardPoints: scoreAwardPoints ?? this.scoreAwardPoints,
+    scoreAwardCell: scoreAwardCell ?? this.scoreAwardCell,
   );
 }

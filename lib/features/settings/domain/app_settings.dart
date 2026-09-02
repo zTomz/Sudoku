@@ -1,20 +1,20 @@
 enum AppAppearance() {
   system,
   light,
-  dark
+  dark,
 }
 
 enum ErrorCheck() {
   off,
   conflicts,
-  solution
+  solution,
 }
 
 enum BoardTheme() {
   classic,
   paper,
   mist,
-  midnight
+  midnight,
 }
 
 final class const AppSettings({
