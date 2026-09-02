@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sudoku/app/providers.dart';
+import 'package:sudoku/features/game/data/game_providers.dart';
 import 'package:sudoku/app/sudoku_controller.dart';
 import 'package:sudoku/features/game/data/game_repository.dart';
 import 'package:sudoku/features/game/data/puzzle_generator.dart';

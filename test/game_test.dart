@@ -6,6 +6,25 @@ import 'package:sudoku/features/game/domain/puzzle.dart';
 import 'package:sudoku/features/game/domain/sudoku_engine.dart';
 
 void main() {
+  test('grid navigation stays within row and column boundaries', () {
+    expect(adjacentCell(0, SudokuDirection.left), 0);
+    expect(adjacentCell(0, SudokuDirection.up), 0);
+    expect(adjacentCell(0, SudokuDirection.right), 1);
+    expect(adjacentCell(0, SudokuDirection.down), sudokuSideLength);
+    expect(adjacentCell(8, SudokuDirection.right), 8);
+    expect(adjacentCell(80, SudokuDirection.down), 80);
+  });
+
+  test('unit identities map to stable rows, columns and boxes', () {
+    final units = SudokuUnit.containing(cellAt(4, 5));
+
+    expect(units.map((unit) => unit.id), [4, 14, 22]);
+    expect(SudokuUnit.fromId(4).type, SudokuUnitType.row);
+    expect(SudokuUnit.fromId(14).type, SudokuUnitType.column);
+    expect(SudokuUnit.fromId(22).type, SudokuUnitType.box);
+    expect(SudokuUnit.fromId(22).cells, [30, 31, 32, 39, 40, 41, 48, 49, 50]);
+  });
+
   final engine = SudokuEngine();
   test('nine placements exhaust a digit; notes do not count and erase/undo restore it', () {
     final solution = List.generate(

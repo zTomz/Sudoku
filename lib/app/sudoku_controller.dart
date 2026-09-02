@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'providers.dart';
 import 'sudoku_state.dart';
 
+import '../features/game/application/game_clock.dart';
+import '../features/game/application/game_persistence.dart';
 import '../features/game/data/game_repository.dart';
+import '../features/game/data/game_providers.dart';
 import '../features/game/data/puzzle_generator.dart';
 import '../features/game/domain/game_session.dart';
 import '../features/game/domain/puzzle.dart';
@@ -17,16 +19,23 @@ part 'sudoku_controller.g.dart';
 class SudokuController() extends _$SudokuController {
   late GameRepository _repository;
   late PuzzleGenerator _generator;
+  late GameClock _clock;
+  late GamePersistence _persistence;
   GenerationJob? _generation;
 
   @override
   SudokuState build() {
     _repository = ref.read(gameRepositoryProvider);
     _generator = ref.read(puzzleGeneratorProvider);
+    _persistence = GamePersistence(_repository);
+    _clock = GameClock(
+      onTick: _updateElapsed,
+      onAutosave: () => unawaited(persist()),
+    );
     ref.onDispose(() {
       _disposed = true;
-      _ticker?.cancel();
-      _clock.stop();
+      _clock.dispose();
+      _persistence.dispose();
       _generation?.cancel();
     });
     return SudokuState(saved: SavedGames());
@@ -35,11 +44,9 @@ class SudokuController() extends _$SudokuController {
   SavedGames get _saved => state.saved;
   set _saved(SavedGames value) => state = state.copyWith(saved: value);
   GameSession? get _game => state.game;
-  set _game(GameSession? value) => state = state.copyWith(game: value);
-  Timer? _ticker;
-  final Stopwatch _clock = Stopwatch();
-  int _baseSeconds = 0;
-  int _saveRevision = 0;
+  set _game(GameSession? value) => state = value == null
+      ? state.copyWith(clearGame: true)
+      : state.copyWith(game: value);
   bool _disposed = false;
   bool _suspended = false;
   bool get ready => state.ready;
@@ -157,7 +164,7 @@ class SudokuController() extends _$SudokuController {
   }
 
   void selectCell(int cell) {
-    if (!playing || paused || cell < 0 || cell >= 81) return;
+    if (!playing || paused || cell < 0 || cell >= sudokuCellCount) return;
     _selected = cell;
     if (settings.numberFirst && selectedDigit != 0) {
       enter(selectedDigit);
@@ -165,7 +172,7 @@ class SudokuController() extends _$SudokuController {
   }
 
   void moveSelection(int cell) {
-    if (!playing || paused || cell < 0 || cell >= 81) return;
+    if (!playing || paused || cell < 0 || cell >= sudokuCellCount) return;
     _selected = cell;
   }
 
@@ -222,7 +229,7 @@ class SudokuController() extends _$SudokuController {
     if (selectedDigit != 0 && !_game!.isDigitAvailable(selectedDigit)) {
       _selectedDigit = 0;
     }
-    _captureTime();
+    _clock.capture();
     if (_game!.complete) {
       _stopClock();
       final g = _game!;
@@ -252,6 +259,7 @@ class SudokuController() extends _$SudokuController {
     _playing = false;
     _paused = false;
     _remember();
+    _game = null;
     unawaited(persist());
   }
 
@@ -292,27 +300,15 @@ class SudokuController() extends _$SudokuController {
 
   void _startClock() {
     if (_suspended || paused || _game == null || _game!.complete) return;
-    _baseSeconds = _game!.elapsedSeconds;
-    _clock
-      ..reset()
-      ..start();
-    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-      _captureTime();
-      if (_clock.elapsed.inSeconds % 15 == 0) unawaited(persist());
-    });
+    _clock.start(_game!.elapsedSeconds);
   }
 
-  void _captureTime() {
-    if (_game != null && _clock.isRunning) {
-      _game = _game!.withElapsed(_baseSeconds + _clock.elapsed.inSeconds);
-    }
+  void _updateElapsed(int elapsedSeconds) {
+    if (_game != null) _game = _game!.withElapsed(elapsedSeconds);
   }
 
   void _stopClock() {
-    _captureTime();
     _clock.stop();
-    _ticker?.cancel();
-    _ticker = null;
     _remember();
   }
 
@@ -331,16 +327,8 @@ class SudokuController() extends _$SudokuController {
   Future<void> persist() async {
     if (_disposed || !ready) return;
     _remember();
-    final revision = ++_saveRevision;
-    try {
-      await _repository.save(_saved);
-      if (!_disposed && revision == _saveRevision && saveFailed) {
-        _saveFailed = false;
-      }
-    } catch (_) {
-      if (!_disposed && revision == _saveRevision) {
-        _saveFailed = true;
-      }
-    }
+    final saved = await _persistence.save(_saved);
+    if (saved == true && saveFailed) _saveFailed = false;
+    if (saved == false) _saveFailed = true;
   }
 }

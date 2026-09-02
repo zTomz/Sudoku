@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../settings/domain/app_settings.dart';
+import '../domain/sudoku_grid.dart';
 import '../../../common/presentation/app_colors.dart';
 
 final class const BoardPalette({
@@ -72,10 +73,10 @@ final class SudokuGridPainter({
         (value * pixelRatio).roundToDouble() / pixelRatio;
     if (selected >= 0) {
       final rect = Rect.fromLTWH(
-        selected % 9 * size.width / 9,
-        selected ~/ 9 * size.height / 9,
-        size.width / 9,
-        size.height / 9,
+        columnOf(selected) * size.width / sudokuSideLength,
+        rowOf(selected) * size.height / sudokuSideLength,
+        size.width / sudokuSideLength,
+        size.height / sudokuSideLength,
       ).deflate(2.5);
       canvas.drawRect(
         rect,
@@ -85,12 +86,13 @@ final class SudokuGridPainter({
           ..strokeWidth = 1.3,
       );
     }
-    for (var i = 1; i < 9; i++) {
+    for (var i = 1; i < sudokuSideLength; i++) {
       final major = i % 3 == 0;
       final paint = Paint()
         ..color = major ? palette.blockLine : palette.thinLine
         ..strokeWidth = major ? thick : thin;
-      final x = snap(i * size.width / 9), y = snap(i * size.height / 9);
+      final x = snap(i * size.width / sudokuSideLength),
+          y = snap(i * size.height / sudokuSideLength);
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
       canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
     }

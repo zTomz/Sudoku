@@ -1,10 +1,10 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../features/game/domain/game_hint.dart';
-import 'sudoku_controller.dart';
+import '../../../../app/sudoku_controller.dart';
+import '../../domain/game_hint.dart';
 
-part 'hint_provider.g.dart';
+part 'game_hint_provider.g.dart';
 
 @riverpod
 GameHint? gameHint(Ref ref) {

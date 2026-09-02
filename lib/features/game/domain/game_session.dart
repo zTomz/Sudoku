@@ -40,15 +40,15 @@ final class const CellEdit(
     if (value
         case [int cell, int before, int after, int notesBefore, int notesAfter]
         when cell >= 0 &&
-            cell < 81 &&
+            cell < sudokuCellCount &&
             before >= 0 &&
-            before <= 9 &&
+            before <= sudokuSideLength &&
             after >= 0 &&
-            after <= 9 &&
+            after <= sudokuSideLength &&
             notesBefore >= 0 &&
-            notesBefore <= 1022 &&
+            notesBefore <= sudokuCandidateMask &&
             notesAfter >= 0 &&
-            notesAfter <= 1022) {
+            notesAfter <= sudokuCandidateMask) {
       return CellEdit(cell, before, after, notesBefore, notesAfter);
     }
     throw const FormatException('Invalid move');
@@ -82,20 +82,25 @@ final class GameSession({
   factory start(Puzzle puzzle) => GameSession(
     puzzle: puzzle,
     values: puzzle.givens,
-    notes: List.filled(81, 0),
+    notes: List.filled(sudokuCellCount, 0),
   );
 
-  bool get complete =>
-      List.generate(81, (i) => values[i] == puzzle.solution[i]).every((x) => x);
+  bool get complete => List.generate(
+    sudokuCellCount,
+    (i) => values[i] == puzzle.solution[i],
+  ).every((x) => x);
   int get filled => values.where((v) => v != 0).length;
   bool get canUndo => cursor > 0 && !complete;
   bool get canRedo => cursor < history.length && !complete;
   int get points =>
       awardedCells.length * GameScoring.correctCell +
       awardedUnits.fold(0, (total, unit) {
-        if (unit < 9) return total + GameScoring.completedRow;
-        if (unit < 18) return total + GameScoring.completedColumn;
-        return total + GameScoring.completedBox;
+        final bonus = switch (SudokuUnit.fromId(unit).type) {
+          SudokuUnitType.row => GameScoring.completedRow,
+          SudokuUnitType.column => GameScoring.completedColumn,
+          SudokuUnitType.box => GameScoring.completedBox,
+        };
+        return total + bonus;
       });
 
   int get finalPoints =>
@@ -106,8 +111,8 @@ final class GameSession({
 
   bool isDigitAvailable(int digit) =>
       digit >= 1 &&
-      digit <= 9 &&
-      values.where((value) => value == digit).length < 9;
+      digit <= sudokuSideLength &&
+      values.where((value) => value == digit).length < sudokuSideLength;
 
   GameSession enter(
     int cell,
@@ -116,87 +121,31 @@ final class GameSession({
     bool cleanNotes = true,
   }) {
     if (cell < 0 ||
-        cell >= 81 ||
+        cell >= sudokuCellCount ||
         digit < 0 ||
-        digit > 9 ||
+        digit > sudokuSideLength ||
         (digit != 0 && !isDigitAvailable(digit)) ||
         puzzle.givens[cell] != 0 ||
         complete) {
       return this;
     }
-    final nextValues = [...values], nextNotes = [...notes];
-    if (pencil && digit != 0) {
-      if (values[cell] != 0) return this;
-      nextNotes[cell] ^= 1 << digit;
-    } else {
-      nextValues[cell] = digit;
-      nextNotes[cell] = 0;
-      if (cleanNotes && digit != 0) {
-        for (final peer in peers(cell)) {
-          nextNotes[peer] &= ~(1 << digit);
-        }
-      }
-      final emptyCells = [
-        for (var index = 0; index < 81; index++)
-          if (nextValues[index] == 0) index,
-      ];
-      if (digit != 0 &&
-          nextValues[cell] != values[cell] &&
-          emptyCells.isNotEmpty &&
-          emptyCells.every(
-            (emptyCell) =>
-                puzzle.solution[emptyCell] == puzzle.solution[emptyCells.first],
-          ) &&
-          List.generate(
-            81,
-            (index) =>
-                nextValues[index] == 0 ||
-                nextValues[index] == puzzle.solution[index],
-          ).every((matches) => matches)) {
-        final lastDigit = puzzle.solution[emptyCells.first];
-        for (final emptyCell in emptyCells) {
-          nextValues[emptyCell] = lastDigit;
-          nextNotes[emptyCell] = 0;
-          if (cleanNotes) {
-            for (final peer in peers(emptyCell)) {
-              nextNotes[peer] &= ~(1 << lastDigit);
-            }
-          }
-        }
-      }
-    }
-    final changes = [
-      for (var i = 0; i < 81; i++)
-        if (nextValues[i] != values[i] || nextNotes[i] != notes[i])
-          CellEdit(i, values[i], nextValues[i], notes[i], nextNotes[i]),
-    ];
+    final edited = _editBoard(
+      cell,
+      digit,
+      pencil: pencil,
+      cleanNotes: cleanNotes,
+    );
+    if (edited == null) return this;
+    final (:nextValues, :nextNotes) = edited;
+    final changes = _changesTo(nextValues, nextNotes);
     if (changes.isEmpty) return this;
-    final nextAwardedCells = {...awardedCells};
-    final nextAwardedUnits = {...awardedUnits};
-    var nextMistakes = mistakes;
-    if (!pencil && digit != 0) {
-      if (digit == puzzle.solution[cell]) {
-        final candidateUnits = <int>{};
-        for (final edit in changes) {
-          if (edit.beforeValue == edit.afterValue ||
-              edit.afterValue != puzzle.solution[edit.cell]) {
-            continue;
-          }
-          nextAwardedCells.add(edit.cell);
-          final row = edit.cell ~/ 9, column = edit.cell % 9;
-          candidateUnits.addAll({
-            row,
-            9 + column,
-            18 + row ~/ 3 * 3 + column ~/ 3,
-          });
-        }
-        for (final unit in candidateUnits) {
-          if (_unitIsCorrect(nextValues, unit)) nextAwardedUnits.add(unit);
-        }
-      } else {
-        nextMistakes++;
-      }
-    }
+    final score = _scoreEdit(
+      cell,
+      digit,
+      pencil: pencil,
+      changes: changes,
+      nextValues: nextValues,
+    );
     return GameSession(
       puzzle: puzzle,
       values: nextValues,
@@ -204,22 +153,130 @@ final class GameSession({
       history: [...history.take(cursor), changes],
       cursor: cursor + 1,
       elapsedSeconds: elapsedSeconds,
-      awardedCells: nextAwardedCells,
-      awardedUnits: nextAwardedUnits,
-      mistakes: nextMistakes,
+      awardedCells: score.cells,
+      awardedUnits: score.units,
+      mistakes: score.mistakes,
     );
   }
 
+  ({List<int> nextValues, List<int> nextNotes})? _editBoard(
+    int cell,
+    int digit, {
+    required bool pencil,
+    required bool cleanNotes,
+  }) {
+    final nextValues = [...values], nextNotes = [...notes];
+    if (pencil && digit != 0) {
+      if (values[cell] != 0) return null;
+      nextNotes[cell] ^= 1 << digit;
+      return (nextValues: nextValues, nextNotes: nextNotes);
+    }
+
+    nextValues[cell] = digit;
+    nextNotes[cell] = 0;
+    if (cleanNotes && digit != 0) {
+      _removePeerNotes(nextNotes, cell, digit);
+    }
+    _completeFinalDigit(
+      previousValues: values,
+      values: nextValues,
+      notes: nextNotes,
+      enteredCell: cell,
+      enteredDigit: digit,
+      cleanNotes: cleanNotes,
+    );
+    return (nextValues: nextValues, nextNotes: nextNotes);
+  }
+
+  void _removePeerNotes(List<int> notes, int cell, int digit) {
+    for (final peer in peers(cell)) {
+      notes[peer] &= ~(1 << digit);
+    }
+  }
+
+  void _completeFinalDigit({
+    required List<int> previousValues,
+    required List<int> values,
+    required List<int> notes,
+    required int enteredCell,
+    required int enteredDigit,
+    required bool cleanNotes,
+  }) {
+    if (enteredDigit == 0 ||
+        values[enteredCell] == previousValues[enteredCell]) {
+      return;
+    }
+    final emptyCells = [
+      for (var index = 0; index < sudokuCellCount; index++)
+        if (values[index] == 0) index,
+    ];
+    if (emptyCells.isEmpty ||
+        emptyCells.any(
+          (cell) => puzzle.solution[cell] != puzzle.solution[emptyCells.first],
+        ) ||
+        List.generate(
+          sudokuCellCount,
+          (index) =>
+              values[index] == 0 || values[index] == puzzle.solution[index],
+        ).any((matches) => !matches)) {
+      return;
+    }
+
+    final finalDigit = puzzle.solution[emptyCells.first];
+    for (final emptyCell in emptyCells) {
+      values[emptyCell] = finalDigit;
+      notes[emptyCell] = 0;
+      if (cleanNotes) _removePeerNotes(notes, emptyCell, finalDigit);
+    }
+  }
+
+  List<CellEdit> _changesTo(List<int> nextValues, List<int> nextNotes) => [
+    for (var cell = 0; cell < sudokuCellCount; cell++)
+      if (nextValues[cell] != values[cell] || nextNotes[cell] != notes[cell])
+        CellEdit(
+          cell,
+          values[cell],
+          nextValues[cell],
+          notes[cell],
+          nextNotes[cell],
+        ),
+  ];
+
+  ({Set<int> cells, Set<int> units, int mistakes}) _scoreEdit(
+    int cell,
+    int digit, {
+    required bool pencil,
+    required List<CellEdit> changes,
+    required List<int> nextValues,
+  }) {
+    final cells = {...awardedCells};
+    final units = {...awardedUnits};
+    if (pencil || digit == 0) {
+      return (cells: cells, units: units, mistakes: mistakes);
+    }
+    if (digit != puzzle.solution[cell]) {
+      return (cells: cells, units: units, mistakes: mistakes + 1);
+    }
+
+    final candidateUnits = <int>{};
+    for (final edit in changes) {
+      if (edit.beforeValue == edit.afterValue ||
+          edit.afterValue != puzzle.solution[edit.cell]) {
+        continue;
+      }
+      cells.add(edit.cell);
+      candidateUnits.addAll(
+        SudokuUnit.containing(edit.cell).map((unit) => unit.id),
+      );
+    }
+    for (final unit in candidateUnits) {
+      if (_unitIsCorrect(nextValues, unit)) units.add(unit);
+    }
+    return (cells: cells, units: units, mistakes: mistakes);
+  }
+
   bool _unitIsCorrect(List<int> board, int unit) {
-    for (var offset = 0; offset < 9; offset++) {
-      final cell = switch (unit) {
-        < 9 => unit * 9 + offset,
-        < 18 => offset * 9 + unit - 9,
-        _ =>
-          ((unit - 18) ~/ 3 * 3 + offset ~/ 3) * 9 +
-              (unit - 18) % 3 * 3 +
-              offset % 3,
-      };
+    for (final cell in SudokuUnit.fromId(unit).cells) {
       if (board[cell] != puzzle.solution[cell]) return false;
     }
     return true;
@@ -285,15 +342,21 @@ final class GameSession({
   factory fromJson(Map<String, Object?> json) {
     final puzzle = Puzzle.fromJson(json['puzzle'] as Map<String, Object?>);
     final values = readCells(json['values']),
-        notes = readCells(json['notes'], max: 1022);
+        notes = readCells(json['notes'], max: sudokuCandidateMask);
     final history = (json['history'] as List<Object?>)
         .map((move) => (move as List<Object?>).map(CellEdit.fromJson).toList())
         .toList();
     final cursor = json['cursor'] as int,
         seconds = json['elapsedSeconds'] as int,
         mistakes = json['mistakes'] as int;
-    final awardedCells = _readUniqueIndexes(json['awardedCells'], 81);
-    final awardedUnits = _readUniqueIndexes(json['awardedUnits'], 27);
+    final awardedCells = _readUniqueIndexes(
+      json['awardedCells'],
+      sudokuCellCount,
+    );
+    final awardedUnits = _readUniqueIndexes(
+      json['awardedUnits'],
+      sudokuUnitCount,
+    );
     if (cursor < 0 ||
         cursor > history.length ||
         seconds < 0 ||
@@ -302,9 +365,10 @@ final class GameSession({
       throw const FormatException('Invalid session');
     }
     // Replay all moves to verify both undo/redo and the saved board agree.
-    final replay = [...puzzle.givens], replayNotes = List.filled(81, 0);
+    final replay = [...puzzle.givens],
+        replayNotes = List.filled(sudokuCellCount, 0);
     void verifyBoard() {
-      for (var i = 0; i < 81; i++) {
+      for (var i = 0; i < sudokuCellCount; i++) {
         if (replay[i] != values[i] || replayNotes[i] != notes[i]) {
           throw const FormatException('Inconsistent saved board');
         }

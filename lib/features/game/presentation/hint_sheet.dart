@@ -8,6 +8,7 @@ import '../../../common/presentation/ui.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../domain/difficulty_rating.dart';
 import '../domain/logical_solver.dart';
+import '../domain/sudoku_grid.dart';
 
 Future<void> showHintExplanation(
   BuildContext context, {
@@ -76,12 +77,12 @@ String techniqueLabel(AppLocalizations l, SolveTechnique technique) =>
     };
 
 String hintCellLabel(AppLocalizations l, int cell) =>
-    l.hintCell(cell ~/ 9 + 1, cell % 9 + 1);
+    l.hintCell(rowOf(cell) + 1, columnOf(cell) + 1);
 
 String explainStep(AppLocalizations l, LogicalStep step) {
   String cell(int c) => hintCellLabel(l, c);
   String digits(int mask) => [
-    for (var d = 1; d <= 9; d++)
+    for (var d = 1; d <= sudokuSideLength; d++)
       if (mask & (1 << d) != 0) d,
   ].join(', ');
   final places = step.cells.map(cell).join('; ');

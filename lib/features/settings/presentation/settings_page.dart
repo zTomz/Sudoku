@@ -257,11 +257,11 @@ final class const SettingsContent({
 }
 
 final class const _SettingValue(final String value) extends StatelessWidget {
+  static const _maximumWidth = 170.0;
+
   @override
   Widget build(BuildContext context) => ConstrainedBox(
-    constraints: BoxConstraints(
-      maxWidth: MediaQuery.sizeOf(context).width < 400 ? 120 : 170,
-    ),
+    constraints: const BoxConstraints(maxWidth: _maximumWidth),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [

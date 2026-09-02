@@ -110,6 +110,19 @@ void main() {
     expect(SavedGames.decode(store.value!).free, isNotNull);
     controllerHarness.dispose();
   });
+  test('leaving stores the session and clears the active game', () async {
+    final controllerHarness = ControllerHarness(GameRepository(MemoryStore()));
+    final controller = controllerHarness.controller;
+    await controller.initialize();
+    await controller.startFree(Difficulty.easy);
+
+    controller.leaveGame();
+
+    expect(controller.playing, isFalse);
+    expect(controller.game, isNull);
+    expect(controller.free, isNotNull);
+    controllerHarness.dispose();
+  });
   test('writes are serialized even when completion is delayed', () async {
     final events = <String>[];
     final first = Completer<void>();

@@ -21,6 +21,7 @@ final class SudokuState({
   SudokuState copyWith({
     SavedGames? saved,
     GameSession? game,
+    bool clearGame = false,
     bool? ready,
     bool? loadFailed,
     bool? saveFailed,
@@ -36,7 +37,7 @@ final class SudokuState({
     int? scoreAwardCell,
   }) => SudokuState(
     saved: saved ?? this.saved,
-    game: game ?? this.game,
+    game: clearGame ? null : game ?? this.game,
     ready: ready ?? this.ready,
     loadFailed: loadFailed ?? this.loadFailed,
     saveFailed: saveFailed ?? this.saveFailed,

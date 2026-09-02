@@ -1,4 +1,7 @@
 import 'difficulty_rating.dart';
+import 'sudoku_grid.dart';
+
+export 'sudoku_grid.dart';
 
 enum Difficulty() {
   easy,
@@ -33,7 +36,7 @@ final class Puzzle({
   factory fromJson(Map<String, Object?> json) {
     final givens = readCells(json['givens']);
     final solution = readCells(json['solution'], min: 1);
-    for (var i = 0; i < 81; i++) {
+    for (var i = 0; i < sudokuCellCount; i++) {
       if (givens[i] != 0 && givens[i] != solution[i]) {
         throw const FormatException('Invalid puzzle clues');
       }
@@ -52,9 +55,9 @@ final class Puzzle({
   }
 }
 
-List<int> readCells(Object? value, {int min = 0, int max = 9}) {
-  if (value is! List<Object?> || value.length != 81) {
-    throw const FormatException('Expected 81 cells');
+List<int> readCells(Object? value, {int min = 0, int max = sudokuSideLength}) {
+  if (value is! List<Object?> || value.length != sudokuCellCount) {
+    throw FormatException('Expected $sudokuCellCount cells');
   }
   return value.map((cell) {
     if (cell is! int || cell < min || cell > max) {
@@ -62,18 +65,6 @@ List<int> readCells(Object? value, {int min = 0, int max = 9}) {
     }
     return cell;
   }).toList();
-}
-
-Iterable<int> peers(int cell) sync* {
-  final row = cell ~/ 9, col = cell % 9;
-  for (var i = 0; i < 81; i++) {
-    if (i != cell &&
-        (i ~/ 9 == row ||
-            i % 9 == col ||
-            (i ~/ 27 == row ~/ 3 && i % 9 ~/ 3 == col ~/ 3))) {
-      yield i;
-    }
-  }
 }
 
 String dateKey(DateTime date) =>

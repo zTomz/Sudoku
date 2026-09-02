@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sudoku/app/hint_provider.dart';
+import 'package:sudoku/features/game/presentation/providers/game_hint_provider.dart';
 import 'package:sudoku/app/sudoku_controller.dart';
 import 'package:sudoku/features/game/data/game_repository.dart';
 import 'package:sudoku/features/game/data/puzzle_generator.dart';

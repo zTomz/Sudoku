@@ -12,7 +12,6 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:reel_text/reel_text.dart';
 import 'package:rudi_ui/rudi_ui.dart';
 import 'package:sudoku/app/app_theme.dart';
-import 'package:sudoku/app/hint_provider.dart';
 import 'package:sudoku/app/sudoku_app.dart';
 import 'package:sudoku/app/sudoku_controller.dart';
 import 'package:sudoku/features/daily/presentation/daily_page.dart';
@@ -24,7 +23,10 @@ import 'package:sudoku/features/game/domain/sudoku_engine.dart';
 import 'package:sudoku/features/game/presentation/board_palette.dart';
 import 'package:sudoku/features/game/presentation/game_page.dart';
 import 'package:sudoku/features/game/presentation/hint_sheet.dart';
+import 'package:sudoku/features/game/presentation/providers/game_hint_provider.dart';
 import 'package:sudoku/features/game/presentation/sudoku_board.dart';
+import 'package:sudoku/features/game/presentation/widgets/score_popup.dart';
+import 'package:sudoku/features/game/presentation/widgets/game_board_viewport.dart';
 import 'package:sudoku/features/home/presentation/home_page.dart';
 import 'package:sudoku/features/settings/domain/app_settings.dart';
 import 'package:sudoku/l10n/generated/app_localizations.dart';
@@ -46,6 +48,36 @@ void main() {
     hardPuzzle = await SudokuEngine().generate(
       seed: 4,
       difficulty: Difficulty.hard,
+    );
+  });
+
+  test('score popup stays inside the board at horizontal edges', () {
+    const boardSize = Size.square(320);
+    final firstCell = scorePopupRect(boardSize: boardSize, cell: 0);
+    final lastCell = scorePopupRect(boardSize: boardSize, cell: 8);
+    final centerCell = scorePopupRect(boardSize: boardSize, cell: 40);
+
+    expect(firstCell.left, 0);
+    expect(lastCell.right, boardSize.width);
+    expect(centerCell.center.dx, boardSize.width / 2);
+  });
+
+  test('board extent follows constraints without viewport breakpoints', () {
+    expect(
+      gameBoardExtent(const BoxConstraints.tightFor(width: 800, height: 700)),
+      560,
+    );
+    expect(
+      gameBoardExtent(const BoxConstraints.tightFor(width: 400, height: 380)),
+      380,
+    );
+    expect(
+      gameBoardExtent(const BoxConstraints.tightFor(width: 700, height: 200)),
+      324,
+    );
+    expect(
+      gameBoardExtent(const BoxConstraints.tightFor(width: 280, height: 200)),
+      280,
     );
   });
   test('completion flash targets a newly completed digit', () {
@@ -667,10 +699,10 @@ void main() {
     final enteredCell = tester.getRect(
       find.byKey(ValueKey('cell-${controller.scoreAwardCell}')),
     );
-    expect(
-      popup.center.dx,
-      moreOrLessEquals(enteredCell.center.dx, epsilon: .1),
-    );
+    final board = tester.getRect(find.byKey(const ValueKey('game-puzzle')));
+    expect(popup.left, greaterThanOrEqualTo(board.left));
+    expect(popup.right, lessThanOrEqualTo(board.right));
+    expect(popup.overlaps(enteredCell), isTrue);
     expect(popup.top, lessThan(enteredCell.top));
     expect(find.byKey(const ValueKey('game-score')), findsOneWidget);
     expect(find.byType(ReelText), findsOneWidget);
@@ -681,6 +713,8 @@ void main() {
     final reelText = tester.widget<ReelText>(find.byType(ReelText));
     expect(reelText.text, '${controller.game!.points}');
     expect(reelText.options.direction, ReelTextDirection.down);
+    await tester.pump(const Duration(milliseconds: 1500));
+    expect(find.byKey(const ValueKey('score-popup')), findsNothing);
     controller.suspend();
   });
   for (final size in [
