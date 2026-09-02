@@ -88,6 +88,7 @@ enum AppSymbol() {
   check,
   chevron,
   info,
+  shield,
   close,
 }
 
@@ -126,6 +127,7 @@ final class const AppIcon(
       AppSymbol.check => SolarIconsOutline.checkCircle,
       AppSymbol.chevron => SolarIconsOutline.altArrowRight,
       AppSymbol.info => SolarIconsOutline.infoCircle,
+      AppSymbol.shield => SolarIconsOutline.shieldCheck,
       AppSymbol.close => SolarIconsOutline.closeCircle,
     },
     size: size,

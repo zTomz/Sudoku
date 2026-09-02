@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
+import 'package:go_router/go_router.dart';
 import 'package:rudi_ui/rudi_ui.dart';
 
 import '../../../app/sudoku_controller.dart';
 import '../../../common/presentation/app_sheet.dart';
 import '../../../common/presentation/ui.dart';
 import '../../game/presentation/board_palette.dart';
+import '../../privacy/presentation/privacy_policy_page.dart';
 import '../domain/app_settings.dart';
 
 String boardThemeLabel(BuildContext context, BoardTheme theme) =>
@@ -102,6 +104,20 @@ final class const SettingsPage({
       children: [
         PageHeading(context.l10n.settings),
         SettingsContent(controller: controller),
+        const SizedBox(height: 28),
+        RudiSettingsGroup(
+          title: context.l10n.legal,
+          children: [
+            RudiSettingsTile(
+              key: const ValueKey('setting-privacy-policy'),
+              title: context.l10n.privacyPolicy,
+              leading: const AppIcon(AppSymbol.shield),
+              trailing: const AppIcon(AppSymbol.chevron),
+              onPressed: () =>
+                  context.go(PrivacyPolicyPage.path, extra: '/settings'),
+            ),
+          ],
+        ),
         const SizedBox(height: 28),
         RudiSettingsTile(
           title: context.l10n.about,

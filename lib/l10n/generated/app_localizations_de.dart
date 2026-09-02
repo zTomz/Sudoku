@@ -28,6 +28,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settings => 'Einstellungen';
 
   @override
+  String get legal => 'Rechtliches';
+
+  @override
+  String get privacyPolicy => 'Datenschutzerklärung';
+
+  @override
   String get newGame => 'Neues Spiel';
 
   @override

@@ -19,6 +19,7 @@
   <a href="#get-sudoku">Get Sudoku</a> &nbsp;·&nbsp;
   <a href="#features">Features</a> &nbsp;·&nbsp;
   <a href="#platforms">Platforms</a> &nbsp;·&nbsp;
+  <a href="https://ztomz.github.io/Sudoku/#/privacy-policy">Privacy</a> &nbsp;·&nbsp;
   <a href="#run-from-source">Run from source</a> &nbsp;·&nbsp;
   <a href="CONTRIBUTING.md">Contributing</a>
 </p>
@@ -54,6 +55,7 @@ The [v0.1.0 release](https://github.com/zTomz/Sudoku/releases/tag/v0.1.0) is the
 | **Make it yours** | Light, dark and system appearance, four board themes, optional haptics and an optional timer. |
 | **See your progress** | Earn points for correct entries and completed rows, columns and 3×3 boxes, with rolling score feedback plus completion and accuracy bonuses. Completed puzzle counts, mistakes, total play time and personal bests are tracked by difficulty. |
 | **Touch or keyboard** | Responsive layouts, keyboard controls, and English and German translations. |
+| **Privacy built in** | Read the same Privacy Policy in Settings or directly on the public Web app. |
 
 ## Platforms
 
@@ -67,7 +69,7 @@ The `Publish GitHub Pages` workflow automatically tests, builds and deploys the 
 
 No account, ads, analytics or cloud game service. Puzzles are generated on your device, and your settings and progress are stored locally.
 
-The Web version needs an initial online visit to cache the app before it can work offline. Clearing app data or browser storage removes saved games; cloud sync and backup/export are not available yet. See [data and privacy](docs/DATA.md) for details.
+The Web version needs an initial online visit to cache the app before it can work offline. Clearing app data or browser storage removes saved games; cloud sync and backup/export are not available yet. Read the public [Privacy Policy](https://ztomz.github.io/Sudoku/#/privacy-policy) or see the supporting [technical data inventory](docs/DATA.md).
 
 ## Run from source
 
@@ -129,6 +131,7 @@ Free-play and daily puzzles use the same technique-graded generator; no legacy g
 - **[Cue](https://pub.dev/packages/cue)** for transitions.
 - **[Reel Text](https://pub.dev/packages/reel_text)** for rolling score updates.
 - **[Riverpod](https://riverpod.dev/)** with code generation for application state and testable dependencies.
+- **[go_router](https://pub.dev/packages/go_router)** for URL-based navigation and Web deep links.
 - **[Solar Icons](https://solar-icons.vercel.app/)** through the `solar_icons` Flutter package.
 - **Google Sans** for typography, bundled with the app.
 

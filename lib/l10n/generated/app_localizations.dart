@@ -134,6 +134,18 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settings;
 
+  /// No description provided for @legal.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal'**
+  String get legal;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
   /// No description provided for @newGame.
   ///
   /// In en, this message translates to:

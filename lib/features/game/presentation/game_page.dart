@@ -262,7 +262,6 @@ final class _GamePageState() extends ConsumerState<GamePage> {
                                   board: SudokuBoard(
                                     controller: controller,
                                     game: game,
-                                    obscured: controller.paused,
                                     hint: _hintVisual,
                                   ),
                                   overlay:

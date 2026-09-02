@@ -269,8 +269,7 @@ class SudokuController() extends _$SudokuController {
       _paused = false;
       _startClock();
     } else {
-      _stopClock();
-      _paused = true;
+      _pause();
     }
     unawaited(persist());
   }
@@ -278,8 +277,7 @@ class SudokuController() extends _$SudokuController {
   void suspend() {
     _suspended = true;
     if (playing && !paused && _game?.complete == false) {
-      _stopClock();
-      _paused = true;
+      _pause();
     }
     if (ready) unawaited(persist());
   }
@@ -310,6 +308,15 @@ class SudokuController() extends _$SudokuController {
   void _stopClock() {
     _clock.stop();
     _remember();
+  }
+
+  void _pause() {
+    _stopClock();
+    state = state.copyWith(
+      paused: true,
+      scoreAwardPoints: 0,
+      scoreAwardCell: -1,
+    );
   }
 
   void _remember() {

@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'controller_harness.dart';
 
@@ -28,6 +29,7 @@ import 'package:sudoku/features/game/presentation/sudoku_board.dart';
 import 'package:sudoku/features/game/presentation/widgets/score_popup.dart';
 import 'package:sudoku/features/game/presentation/widgets/game_board_viewport.dart';
 import 'package:sudoku/features/home/presentation/home_page.dart';
+import 'package:sudoku/features/privacy/presentation/privacy_policy_page.dart';
 import 'package:sudoku/features/settings/domain/app_settings.dart';
 import 'package:sudoku/l10n/generated/app_localizations.dart';
 
@@ -715,6 +717,14 @@ void main() {
     expect(reelText.options.direction, ReelTextDirection.down);
     await tester.pump(const Duration(milliseconds: 1500));
     expect(find.byKey(const ValueKey('score-popup')), findsNothing);
+
+    controller.togglePause();
+    await tester.pump();
+    expect(find.byKey(const ValueKey('pause-dialog')), findsOneWidget);
+    controller.togglePause();
+    await tester.pump(const Duration(milliseconds: 16));
+    expect(find.byKey(const ValueKey('score-popup')), findsNothing);
+
     controller.suspend();
   });
   for (final size in [
@@ -761,6 +771,12 @@ void main() {
       final boardRect = tester.getRect(
         find.byKey(const ValueKey('board-grid')),
       );
+      final givenCell = puzzle.givens.indexWhere((value) => value != 0);
+      final givenFinder = find.descendant(
+        of: find.byKey(ValueKey('cell-$givenCell')),
+        matching: find.text('${puzzle.givens[givenCell]}'),
+      );
+      expect(givenFinder, findsOneWidget);
       controller.togglePause();
       await tester.pumpAndSettle();
       expect(find.text('Pause'), findsOneWidget);
@@ -776,13 +792,7 @@ void main() {
         tester.getRect(find.byKey(const ValueKey('board-grid'))),
         boardRect,
       );
-      expect(
-        find.descendant(
-          of: find.byKey(const ValueKey('board-grid')),
-          matching: find.byType(Text),
-        ),
-        findsNothing,
-      );
+      expect(givenFinder, findsOneWidget);
       final pausedValues = controller.game!.values.toList();
       controller.chooseDigit(9);
       expect(controller.game!.values, pausedValues);
@@ -820,9 +830,20 @@ void main() {
       find.byType(RudiFloatingNavigationBar),
     );
     expect(navigationRect.top, lessThan(tester.getRect(homeList).bottom));
-    for (final index in [1, 2, 0, 3]) {
+    const paths = ['/daily', '/statistics', '/', '/settings'];
+    for (var step = 0; step < paths.length; step++) {
+      final index = [1, 2, 0, 3][step];
       await tester.tap(find.byKey(ValueKey('nav-$index')));
       await tester.pump(const Duration(milliseconds: 60));
+      final navigation = find.byType(RudiFloatingNavigationBar);
+      expect(
+        tester.widget<RudiFloatingNavigationBar>(navigation).selectedIndex,
+        index,
+      );
+      expect(
+        GoRouter.of(tester.element(navigation)).state.uri.path,
+        paths[step],
+      );
     }
     await tester.pumpAndSettle();
     final setting = find.byKey(const ValueKey('setting-board'));
@@ -835,6 +856,120 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
+
+  testWidgets('settings opens the privacy policy and back returns', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 844);
+    addTearDown(tester.view.reset);
+    final controllerHarness = ControllerHarness(GameRepository(MemoryStore()));
+    addTearDown(controllerHarness.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: controllerHarness.container,
+        child: const SudokuApp(
+          locale: Locale('en'),
+          initialLocation: '/settings',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final privacySetting = find.byKey(const ValueKey('setting-privacy-policy'));
+    await tester.ensureVisible(privacySetting);
+    await tester.tap(privacySetting);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(PrivacyPolicyPage), findsOneWidget);
+    expect(find.text('Privacy Policy'), findsWidgets);
+    expect(
+      GoRouter.of(tester.element(find.byType(PrivacyPolicyPage)))
+          .state
+          .uri
+          .path,
+      PrivacyPolicyPage.path,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('privacy-back')));
+    await tester.pumpAndSettle();
+    expect(find.byType(PrivacyPolicyPage), findsNothing);
+    expect(privacySetting, findsOneWidget);
+
+    await tester.tap(privacySetting);
+    await tester.pumpAndSettle();
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byType(PrivacyPolicyPage), findsNothing);
+    expect(privacySetting, findsOneWidget);
+  });
+
+  testWidgets('direct privacy route does not require game initialization', (
+    tester,
+  ) async {
+    final store = MemoryStore()..failRead = true;
+    final controllerHarness = ControllerHarness(GameRepository(store));
+    addTearDown(controllerHarness.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: controllerHarness.container,
+        child: const SudokuApp(
+          locale: Locale('de'),
+          initialLocation: PrivacyPolicyPage.path,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(controllerHarness.controller.ready, isFalse);
+    expect(controllerHarness.controller.loadFailed, isTrue);
+    expect(find.byType(PrivacyPolicyPage), findsOneWidget);
+    expect(find.text('Privacy Policy'), findsOneWidget);
+    expect(
+      find.text('Effective and last updated: September 2, 2026'),
+      findsOneWidget,
+    );
+    expect(privacyDeveloperName, 'Tom Vogel');
+    expect(privacyContactEmail, 'tom.vogel.dev@gmail.com');
+    expect(privacyContactEmail, isNot(contains('TODO')));
+    expect(
+      find.byKey(const ValueKey('privacy-policy-content')),
+      findsOneWidget,
+    );
+    expect(find.textContaining('could not be loaded'), findsNothing);
+  });
+
+  for (final size in [const Size(320, 568), const Size(1200, 900)]) {
+    testWidgets('privacy policy is readable at $size', (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = size;
+      addTearDown(tester.view.reset);
+      final controllerHarness = ControllerHarness(
+        GameRepository(MemoryStore()),
+      );
+      addTearDown(controllerHarness.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: controllerHarness.container,
+          child: const SudokuApp(
+            locale: Locale('en'),
+            initialLocation: PrivacyPolicyPage.path,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PrivacyPolicyPage), findsOneWidget);
+      expect(find.byType(SelectableRegion), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      expect(
+        tester
+            .getSize(find.byKey(const ValueKey('privacy-policy-content')))
+            .width,
+        lessThanOrEqualTo(760),
+      );
+    });
+  }
 
   testWidgets('daily calendar swipes between months with full day targets', (
     tester,

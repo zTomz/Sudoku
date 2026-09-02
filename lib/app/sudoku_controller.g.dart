@@ -41,7 +41,7 @@ final class SudokuControllerProvider
   }
 }
 
-String _$sudokuControllerHash() => r'00e4f2fbe61e4ce88b6fb8f552d6e49fca41c2d3';
+String _$sudokuControllerHash() => r'adcb896c786e424a30b9a466dbad4eeb15b73040';
 
 abstract class _$SudokuController extends $Notifier<SudokuState> {
   SudokuState build();

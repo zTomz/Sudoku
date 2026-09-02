@@ -5,12 +5,12 @@ Flutter 3.47 / Dart 3.13. New application code uses primary constructors, declar
 - `lib/app`: composition, lifecycle, session coordination and theme.
 - `lib/features/game/domain`: pure Dart puzzle generator, independent uniqueness and logical solvers, immutable game state and reversible moves.
 - `lib/features/game/data`: versioned JSON snapshots and a small storage boundary.
-- `lib/features/*/presentation`: Rudi views for play, calendar, statistics and preferences.
+- `lib/features/*/presentation`: Rudi views for play, calendar, statistics, preferences and privacy.
 - `lib/features/settings/domain`: immutable settings.
 - `lib/common/presentation`: shared labels, layout, accent colors and the Solar icon adapter.
 - `lib/l10n`: English/German ARB sources and generated localization classes.
 
-Application state uses Riverpod's generated Notifier with immutable `SudokuState` snapshots. `SudokuController`, repository and generator providers are intentionally kept alive for the application scope; disposal stops timers and physically cancels pending generation. Widgets observe provider state and invoke notifier commands. Transient navigation state stays local. The hint provider auto-disposes with the sheet and only recalculates when puzzle identity or board values change, not on timer ticks or note edits. All project-owned providers use `@riverpod` or `@Riverpod`; run `dart run build_runner build` after changing their inputs. Business rules live outside widgets; persistence and generation are overridden independently in tests.
+Application state uses Riverpod's generated Notifier with immutable `SudokuState` snapshots. `SudokuController`, repository and generator providers are intentionally kept alive for the application scope; disposal stops timers and physically cancels pending generation. Widgets observe provider state and invoke notifier commands. `go_router` owns URL-based main navigation through persistent indexed-stack branches; sheets, dialogs and the active-game presentation remain transient UI state. The hint provider auto-disposes with the sheet and only recalculates when puzzle identity or board values change, not on timer ticks or note edits. All project-owned providers use `@riverpod` or `@Riverpod`; run `dart run build_runner build` after changing their inputs. Business rules live outside widgets; persistence and generation are overridden independently in tests.
 
 ## Puzzle IDs and difficulty
 
