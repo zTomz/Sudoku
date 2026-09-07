@@ -97,7 +97,7 @@
   "version": "Version 0.1.0",
   "storageDescription": "Browser data can be cleared by your browser. There is no cloud backup or device sync.",
   "noStatistics": "Your first puzzle is waiting.",
-  "noStatisticsDescription": "Completed puzzles and your best times will appear here.",
+  "noStatisticsDescription": "Your statistics will appear once you solve a puzzle.",
   "solved": "Solved",
   "bestTime": "Best time",
   "totalTime": "Time played",

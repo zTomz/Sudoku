@@ -515,7 +515,7 @@ abstract class AppLocalizations {
   /// No description provided for @noStatisticsDescription.
   ///
   /// In en, this message translates to:
-  /// **'Completed puzzles and your best times will appear here.'**
+  /// **'Your statistics will appear once you solve a puzzle.'**
   String get noStatisticsDescription;
 
   /// No description provided for @solved.

@@ -90,7 +90,7 @@
   "version": "Version 0.1.0",
   "storageDescription": "Browserdaten können vom Browser gelöscht werden. Es gibt kein Cloud-Backup und keine Gerätesynchronisierung.",
   "noStatistics": "Dein erstes Rätsel wartet.",
-  "noStatisticsDescription": "Hier erscheinen deine gelösten Rätsel und Bestzeiten.",
+  "noStatisticsDescription": "Deine Statistik erscheint, sobald du ein Rätsel gelöst hast.",
   "solved": "Gelöst",
   "bestTime": "Bestzeit",
   "totalTime": "Gespielte Zeit",

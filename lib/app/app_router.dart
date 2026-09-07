@@ -103,8 +103,9 @@ final class const _AppShell({
     ref.watch(sudokuControllerProvider);
     final controller = ref.read(sudokuControllerProvider.notifier);
     final l = context.l10n;
+    Widget? overlay;
     if (!controller.ready || controller.busy) {
-      return RudiPage(
+      overlay = RudiPage(
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -131,19 +132,38 @@ final class const _AppShell({
       );
     }
 
-    Widget content = controller.playing
-        ? GamePage(controller: controller)
-        : RudiPage(
-            padding: EdgeInsets.zero,
-            navigation: AppNavigation(
-              selectedIndex: navigationShell.currentIndex,
-              onSelected: (index) => navigationShell.goBranch(index),
+    final hideNavigation = overlay != null || controller.playing;
+    // Keep branch navigators mounted so system back reaches the game's
+    // PopScope and destination state survives entering and leaving a game.
+    Widget content = Stack(
+      fit: StackFit.expand,
+      children: [
+        Offstage(
+          offstage: hideNavigation,
+          child: TickerMode(
+            enabled: !hideNavigation,
+            child: ExcludeFocus(
+              excluding: hideNavigation,
+              child: RudiPage(
+                padding: EdgeInsets.zero,
+                navigation: AppNavigation(
+                  selectedIndex: navigationShell.currentIndex,
+                  onSelected: (index) => navigationShell.goBranch(index),
+                ),
+                child: DestinationTransition(
+                  value: navigationShell.currentIndex,
+                  child: navigationShell,
+                ),
+              ),
             ),
-            child: DestinationTransition(
-              value: navigationShell.currentIndex,
-              child: navigationShell,
-            ),
-          );
+          ),
+        ),
+        if (overlay != null)
+          overlay
+        else if (controller.playing)
+          GamePage(controller: controller),
+      ],
+    );
     if (controller.saveFailed || controller.generationFailed) {
       content = Column(
         children: [

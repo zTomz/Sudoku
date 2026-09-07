@@ -31,6 +31,7 @@ import 'package:sudoku/features/game/presentation/widgets/game_board_viewport.da
 import 'package:sudoku/features/home/presentation/home_page.dart';
 import 'package:sudoku/features/privacy/presentation/privacy_policy_page.dart';
 import 'package:sudoku/features/settings/domain/app_settings.dart';
+import 'package:sudoku/features/statistics/presentation/statistics_page.dart';
 import 'package:sudoku/l10n/generated/app_localizations.dart';
 
 import 'storage_controller_test.dart' show MemoryStore;
@@ -856,6 +857,109 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
+
+  for (final path in ['/', '/daily', '/statistics', '/settings']) {
+    testWidgets('system back preserves the game from $path', (tester) async {
+      final session = GameSession.start(puzzle);
+      final harness = ControllerHarness(
+        GameRepository(
+          MemoryStore()..value = SavedGames(free: session).encode(),
+        ),
+      );
+      addTearDown(harness.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: harness.container,
+          child: SudokuApp(locale: const Locale('en'), initialLocation: path),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final controller = harness.controller;
+      controller.resumeFree();
+      await tester.pumpAndSettle();
+      final router = GoRouter.of(tester.element(find.byType(GamePage)));
+
+      await tester.tap(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is RudiIconButton && widget.semanticLabel == 'Settings',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(await router.routerDelegate.popRoute(), isTrue);
+      await tester.pumpAndSettle();
+      expect(controller.playing, isTrue);
+      expect(controller.paused, isFalse);
+
+      controller.togglePause();
+      await tester.pumpAndSettle();
+      expect(await router.routerDelegate.popRoute(), isTrue);
+      await tester.pumpAndSettle();
+      expect(controller.playing, isTrue);
+      expect(controller.paused, isFalse);
+
+      expect(await router.routerDelegate.popRoute(), isTrue);
+      await tester.pumpAndSettle();
+      expect(controller.playing, isFalse);
+      expect(find.byType(GamePage), findsNothing);
+      expect(router.state.uri.path, path);
+      controller.resumeFree();
+      await tester.pumpAndSettle();
+      expect(controller.game!.puzzle.id, puzzle.id);
+      expect(controller.game!.values, session.values);
+      expect(tester.takeException(), isNull);
+      controller.suspend();
+      await tester.pumpWidget(const SizedBox());
+    });
+  }
+
+  for (final width in [320.0, 1200.0]) {
+    testWidgets('statistics remain readable with large text at $width', (
+      tester,
+    ) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = Size(width, 900);
+      addTearDown(tester.view.reset);
+      final harness = ControllerHarness(
+        GameRepository(
+          MemoryStore()
+            ..value = SavedGames(
+              results: const {
+                'one': GameResult('one', Difficulty.easy, 120, null, 500, 1),
+                'two': GameResult('two', Difficulty.easy, 90, null, 700, 2),
+              },
+            ).encode(),
+        ),
+      );
+      addTearDown(harness.dispose);
+      await harness.controller.initialize();
+      await tester.pumpWidget(
+        RudiApp(
+          theme: sudokuTheme(Brightness.light, harness.controller.settings),
+          locale: const Locale('de'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(2)),
+            child: child!,
+          ),
+          home: StatisticsPage(controller: harness.controller),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('1200'), findsOneWidget);
+      expect(find.text('03:30'), findsOneWidget);
+      expect(find.text('01:30'), findsOneWidget);
+      expect(find.text('3 Fehler'), findsOneWidget);
+      await tester.ensureVisible(find.text('Schwer'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets('settings opens the privacy policy and back returns', (
     tester,

@@ -239,7 +239,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get noStatisticsDescription =>
-      'Hier erscheinen deine gelösten Rätsel und Bestzeiten.';
+      'Deine Statistik erscheint, sobald du ein Rätsel gelöst hast.';
 
   @override
   String get solved => 'Gelöst';

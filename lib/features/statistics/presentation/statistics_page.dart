@@ -13,62 +13,82 @@ final class const StatisticsPage({
   Widget build(BuildContext context) {
     final l = context.l10n, theme = context.rudiTheme;
     final results = controller.results.toList();
+    if (results.isEmpty) return const _EmptyStatistics();
     return ContentPage(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           PageHeading(l.statistics),
-          if (results.isEmpty) ...[
-            const SizedBox(height: 32),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: AppIcon(AppSymbol.chart, size: 48),
-            ),
-            const SizedBox(height: 24),
-            Text(l.noStatistics, style: theme.text.headline),
-            const SizedBox(height: 12),
-            Text(l.noStatisticsDescription),
-          ] else ...[
-            Text(
-              '${results.length}',
-              style: theme.text.display.copyWith(
-                fontSize: 80,
-                color: theme.colors.accent,
+
+          _Statistic(
+            label: l.solved,
+            value: '${results.length}',
+            prominent: true,
+          ),
+          const SizedBox(height: 24),
+          Wrap(
+            spacing: 48,
+            runSpacing: 24,
+            children: [
+              _Statistic(
+                label: l.pointsLabel,
+                value: '${controller.totalPoints}',
               ),
-            ),
-            Text(l.solved, style: theme.text.title),
-            const SizedBox(height: 8),
-            Text(
-              l.pointsValue(controller.totalPoints),
-              style: theme.text.headline.copyWith(color: theme.colors.accent),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              '${l.totalTime}: ${durationLabel(results.fold(0, (total, result) => total + result.seconds))}',
-            ),
-          ],
+              _Statistic(
+                label: l.totalTime,
+                value: durationLabel(
+                  results.fold(0, (total, result) => total + result.seconds),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 40),
-          for (final difficulty in Difficulty.values) ...[
-            Container(height: 1, color: theme.colors.outline),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Builder(
-                builder: (context) {
-                  final matching =
-                      results
-                          .where((result) => result.difficulty == difficulty)
-                          .toList()
-                        ..sort((a, b) => a.seconds.compareTo(b.seconds));
-                  return Wrap(
-                    spacing: 24,
-                    runSpacing: 8,
-                    alignment: WrapAlignment.spaceBetween,
+          Text(l.difficulty, style: theme.text.headline),
+          const SizedBox(height: 8),
+          for (final difficulty in Difficulty.values)
+            Builder(
+              builder: (context) {
+                final matching = results
+                    .where((result) => result.difficulty == difficulty)
+                    .toList();
+                final best = matching.isEmpty
+                    ? null
+                    : matching
+                          .map((result) => result.seconds)
+                          .reduce((a, b) => a < b ? a : b);
+                return Container(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: theme.colors.outline),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
                         difficultyLabel(context, difficulty),
                         style: theme.text.title,
                       ),
-                      Text('${matching.length} ${l.solved.toLowerCase()}'),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 40,
+                        runSpacing: 20,
+                        children: [
+                          SizedBox(
+                            width: 112,
+                            child: _Statistic(
+                              label: l.solved,
+                              value: '${matching.length}',
+                            ),
+                          ),
+                          _Statistic(
+                            label: l.bestTime,
+                            value: best == null ? '—' : durationLabel(best),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
                       Text(
                         l.mistakesValue(
                           matching.fold(
@@ -76,21 +96,118 @@ final class const StatisticsPage({
                             (total, result) => total + result.mistakes,
                           ),
                         ),
-                      ),
-                      Text(
-                        matching.isEmpty
-                            ? '—'
-                            : durationLabel(matching.first.seconds),
-                        semanticsLabel:
-                            '${l.bestTime}: ${matching.isEmpty ? '—' : durationLabel(matching.first.seconds)}',
-                        style: theme.text.title,
+                        style: theme.text.body.copyWith(
+                          color: theme.colors.mutedForeground,
+                        ),
                       ),
                     ],
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
-          ],
+        ],
+      ),
+    );
+  }
+}
+
+final class const _EmptyStatistics() extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.rudiTheme;
+    final inset = MediaQuery.sizeOf(context).width < 600 ? 16.0 : 40.0;
+    return RudiPage(
+      padding: EdgeInsets.zero,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 960),
+          child: CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(inset, inset, inset, 128),
+                sliver: SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      PageHeading(context.l10n.statistics),
+                      Expanded(
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 24),
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 400),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Image.asset(
+                                    'assets/statistics_empty.png',
+                                    fit: BoxFit.contain,
+                                    excludeFromSemantics: true,
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    child: Text(
+                                      context.l10n.noStatisticsDescription,
+                                      textAlign: TextAlign.center,
+                                      style: theme.text.body.copyWith(
+                                        color: theme.colors.mutedForeground,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+final class const _Statistic({
+  required final String label,
+  required final String value,
+  final bool prominent = false,
+}) extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.rudiTheme;
+    return Semantics(
+      label: '$label: $value',
+      excludeSemantics: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: theme.text.body.copyWith(
+              color: theme.colors.mutedForeground,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: (prominent ? theme.text.display : theme.text.headline)
+                .copyWith(
+                  fontSize: prominent ? 64 : null,
+                  color: prominent
+                      ? theme.colors.accent
+                      : theme.colors.foreground,
+                ),
+          ),
         ],
       ),
     );

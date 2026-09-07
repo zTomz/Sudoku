@@ -243,7 +243,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noStatisticsDescription =>
-      'Completed puzzles and your best times will appear here.';
+      'Your statistics will appear once you solve a puzzle.';
 
   @override
   String get solved => 'Solved';

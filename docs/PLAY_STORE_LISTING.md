@@ -1,0 +1,477 @@
+# Play Store listing translations
+
+Twelve localized store listings for the current Sudoku Android app, prepared on 6 September 2026. Each includes an app name, short description and full description.
+
+## Import
+
+Upload [play-store-translations.csv](play-store-translations.csv) using **Import translations with AI → Import file** in Play Console. The file uses UTF-8 with a BOM, comma separators, quoted fields and real paragraph breaks inside the full-description field. Each row identifies its language by name and Play Console locale code.
+
+Google documents structured CSV uploads for AI-assisted listing localization, but does not specify a mandatory column schema in the announcement. These explicit headers are intended for the AI importer, not the Publishing API. Review the language and field mapping in the import preview before applying it. If the console treats the default language separately, use the corresponding text below.
+
+### Missing graphics can appear as a language error
+
+On 7 September 2026, the imported listing was inspected in Play Console. All twelve locales appeared in the language selector, and the English title, short description and full description were populated. Only the default English listing had an error marker. Selecting **Next** revealed three missing visual requirements: an app icon, a feature graphic and at least two phone or tablet screenshots. No text-field validation errors were displayed for English, and the other locales had no error markers.
+
+To resolve this specific “Some languages have errors” message, add the required visuals to the default English listing: a 512 × 512 PNG or JPEG app icon, a 1024 × 500 feature graphic, and at least two actual phone or tablet screenshots. Translations without their own localized graphics use the default-language graphics. A text CSV cannot supply these image assets, so reimporting or changing the translations does not resolve these missing fields. No listing was published during this inspection.
+
+## Editorial approach
+
+The titles combine Sudoku with offline puzzles in natural local wording. Short descriptions highlight ad-free play, daily challenges and useful hints. Full descriptions explain verified features without keyword stuffing, ranking claims, unverified search volumes or promises of increased downloads. Actual performance should be measured after publication.
+
+Only the store listing is translated. The application interface currently supports English and German; other listings explicitly disclose this. These are AI-authored translations, without external native-speaker review. No app code or interface translations were changed.
+
+Feature basis: the project README, dependencies and localization strings. No pricing claims, cloud sync, additional Sudoku variants or unsupported language availability are advertised.
+
+## Character counts
+
+Limits: app name 30, short description 80, full description 4,000. Counts include spaces and paragraph breaks. All entries also pass the limits when counted as UTF-16 code units.
+
+| Locale | App name | Short description | Full description |
+| --- | ---: | ---: | ---: |
+| de-DE | 23 | 77 | 1407 |
+| en-US | 24 | 77 | 1247 |
+| fr-FR | 27 | 71 | 1465 |
+| es-ES | 28 | 71 | 1402 |
+| it-IT | 26 | 80 | 1418 |
+| pt-BR | 25 | 75 | 1382 |
+| nl-NL | 24 | 76 | 1351 |
+| pl-PL | 27 | 80 | 1344 |
+| tr-TR | 27 | 79 | 1246 |
+| ja-JP | 16 | 36 | 590 |
+| ko-KR | 17 | 44 | 669 |
+| zh-TW | 13 | 39 | 448 |
+
+## Sources
+
+- CSV-based AI import: https://developer.android.com/blog/posts/i-o-2026-what-s-new-in-google-play
+- Field limits: https://support.google.com/googleplay/android-developer/answer/9859152
+- Supported locale codes: https://support.google.com/googleplay/android-developer/answer/9844778
+- Metadata policy: https://support.google.com/googleplay/android-developer/answer/9898842
+
+## Store copy
+
+### Deutsch (de-DE)
+
+**App name**
+
+Sudoku – Offline-Rätsel
+
+**Short description**
+
+Sudoku ohne Werbung: tägliche Rätsel, drei Stufen und verständliche Hinweise.
+
+**Full description**
+
+Dein Sudoku für eine kleine Denkpause. Löse klassische Zahlenrätsel offline und ohne Werbung – unterwegs, zu Hause oder zwischendurch. Wähle ein neues Rätsel oder setze dein gespeichertes Spiel fort. Ein Konto brauchst du nicht.
+
+JEDEN TAG EIN NEUES RÄTSEL
+Entdecke die tägliche Herausforderung und hole frühere Rätsel im Kalender nach. Oder starte ein neues Sudoku in Leicht, Mittel oder Schwer. Jedes erzeugte Rätsel hat genau eine Lösung und lässt sich mit Logik lösen, ohne zu raten.
+
+HINWEISE, DIE DEN NÄCHSTEN SCHRITT ERKLÄREN
+Du kommst nicht weiter? Hinweise zeigen dir zuerst den relevanten Bereich und erklären dann die passende Schlussfolgerung. Eine Zahl wird erst auf deinen Wunsch aufgedeckt. Nutze Notizen, automatische Notizbereinigung und die einstellbare Fehlerprüfung, um den Überblick zu behalten.
+
+SPIELE IN DEINEM TEMPO
+• Züge rückgängig machen, wiederholen und Zahlen löschen.
+• Fortschritt automatisch auf deinem Gerät speichern.
+• Den Timer ausblenden und jederzeit pausieren.
+• Helles oder dunkles Design und vier Spielfeld-Themes wählen.
+• Gelöste Rätsel, Spielzeit und persönliche Bestzeiten verfolgen.
+
+OHNE WERBUNG UND OHNE KONTO
+Die Rätsel entstehen auf deinem Gerät. Spielstände und Einstellungen bleiben lokal, ohne Analyse-Tracking oder Cloud-Synchronisierung. Die App ist auf Deutsch und Englisch verfügbar.
+
+Starte dein nächstes Sudoku und finde die Lösung, Zahl für Zahl.
+
+---
+
+### English (United States) (en-US)
+
+**App name**
+
+Sudoku – Offline Puzzles
+
+**Short description**
+
+Ad-free Sudoku with daily puzzles, three difficulty levels and helpful hints.
+
+**Full description**
+
+Make room for a little focus with Sudoku. Enjoy classic number puzzles offline and without ads, whether you are traveling, taking a break or unwinding at home. Start a fresh grid or return to your saved game. No account needed.
+
+A NEW PUZZLE EVERY DAY
+Take on the daily challenge and revisit earlier puzzles in the calendar. Or start a new Sudoku on easy, medium or hard. Every generated puzzle has one unique solution and can be solved with logic, without guessing.
+
+HINTS THAT EXPLAIN THE NEXT STEP
+Feeling stuck? Hints first highlight the relevant area, then explain the deduction. Reveal a number only when you choose to. Pencil notes, automatic note cleanup and adjustable error checking help you keep track of your options.
+
+PLAY AT YOUR OWN PACE
+• Undo and redo moves, or erase a number.
+• Save progress automatically on your device.
+• Hide the timer and pause whenever you like.
+• Choose light or dark mode and four board themes.
+• Track completed puzzles, play time and personal bests.
+
+NO ADS, NO ACCOUNT
+Puzzles are generated on your device. Games and settings stay local, with no analytics tracking or cloud sync. The app interface is available in English and German.
+
+Pick your next Sudoku and find the solution, one number at a time.
+
+---
+
+### Français (France) (fr-FR)
+
+**App name**
+
+Sudoku – Grilles hors ligne
+
+**Short description**
+
+Sudoku sans pub : défis quotidiens, trois niveaux et indices expliqués.
+
+**Full description**
+
+Accordez-vous une pause avec Sudoku. Retrouvez le plaisir des grilles classiques, hors ligne et sans publicité, dans les transports ou au calme chez vous. Commencez une nouvelle grille ou reprenez votre partie sauvegardée, sans créer de compte.
+
+UNE NOUVELLE GRILLE CHAQUE JOUR
+Relevez le défi du jour et retrouvez les grilles précédentes dans le calendrier. Vous pouvez aussi lancer un sudoku facile, moyen ou difficile. Chaque grille générée possède une solution unique et se résout par la logique, sans deviner.
+
+DES INDICES POUR COMPRENDRE
+Vous bloquez ? Les indices vous montrent d'abord la zone à observer, puis expliquent le raisonnement. Un chiffre n'est révélé qu'à votre demande. Les notes, leur nettoyage automatique et la vérification des erreurs réglable vous aident à avancer.
+
+JOUEZ À VOTRE RYTHME
+• Annulez ou rétablissez un coup, effacez un chiffre.
+• Retrouvez votre progression sauvegardée sur votre appareil.
+• Masquez le chronomètre et faites une pause quand vous voulez.
+• Choisissez le mode clair ou sombre et parmi quatre thèmes de grille.
+• Consultez vos grilles terminées, votre temps de jeu et vos records.
+
+SANS PUBLICITÉ NI COMPTE
+Les grilles sont générées sur votre appareil. Les parties et les réglages restent en local, sans suivi analytique ni synchronisation cloud.
+
+L'interface de l'application est actuellement disponible en anglais et en allemand.
+
+Choisissez votre prochain sudoku et trouvez la solution, chiffre après chiffre.
+
+---
+
+### Español (España) (es-ES)
+
+**App name**
+
+Sudoku – Puzles sin conexión
+
+**Short description**
+
+Sudoku sin anuncios: retos diarios, tres niveles y pistas que te guían.
+
+**Full description**
+
+Dedica un momento a pensar con Sudoku. Disfruta de los clásicos puzles de números sin conexión y sin anuncios, tanto en casa como durante un viaje. Empieza una nueva cuadrícula o continúa tu partida guardada. No necesitas una cuenta.
+
+UN NUEVO RETO CADA DÍA
+Resuelve el sudoku del día y recupera los de fechas anteriores en el calendario. También puedes empezar una partida fácil, media o difícil. Cada puzle generado tiene una única solución y se puede resolver con lógica, sin adivinar.
+
+PISTAS QUE EXPLICAN EL SIGUIENTE PASO
+¿Te has atascado? Las pistas señalan primero la zona relevante y después explican el razonamiento. Solo se revela un número si lo pides. Usa las notas, su limpieza automática y la comprobación de errores configurable para organizar tus opciones.
+
+JUEGA A TU RITMO
+• Deshaz y rehace movimientos o borra un número.
+• Guarda tu progreso automáticamente en el dispositivo.
+• Oculta el temporizador y pausa cuando quieras.
+• Elige el modo claro u oscuro y entre cuatro temas de tablero.
+• Consulta los puzles completados, el tiempo de juego y tus mejores marcas.
+
+SIN ANUNCIOS NI CUENTAS
+Los puzles se generan en tu dispositivo. Las partidas y los ajustes se guardan localmente, sin seguimiento analítico ni sincronización en la nube.
+
+La interfaz de la aplicación está disponible actualmente en inglés y alemán.
+
+Elige tu próximo sudoku y encuentra la solución, número a número.
+
+---
+
+### Italiano (it-IT)
+
+**App name**
+
+Sudoku – Rompicapi offline
+
+**Short description**
+
+Sudoku senza pubblicità: sfide giornaliere, tre livelli e aiuti con spiegazioni.
+
+**Full description**
+
+Concediti una pausa con Sudoku. Risolvi i classici rompicapi numerici offline e senza pubblicità, in viaggio o nella tranquillità di casa. Inizia una nuova griglia o riprendi la partita salvata. Non serve un account.
+
+UNA NUOVA SFIDA OGNI GIORNO
+Affronta il sudoku del giorno e ritrova quelli precedenti nel calendario. Oppure inizia una partita facile, media o difficile. Ogni griglia generata ha una sola soluzione e si risolve con la logica, senza tirare a indovinare.
+
+AIUTI CHE SPIEGANO IL PASSO SUCCESSIVO
+Non sai come proseguire? Gli aiuti indicano prima l'area da osservare e poi spiegano il ragionamento. Un numero viene rivelato solo quando lo chiedi. Usa le note, la loro pulizia automatica e il controllo degli errori regolabile per tenere in ordine le possibilità.
+
+GIOCA CON I TUOI TEMPI
+• Annulla e ripeti le mosse o cancella un numero.
+• Salva automaticamente i progressi sul dispositivo.
+• Nascondi il timer e metti in pausa quando vuoi.
+• Scegli la modalità chiara o scura e fra quattro temi per la griglia.
+• Consulta le griglie completate, il tempo di gioco e i tuoi record.
+
+SENZA PUBBLICITÀ E SENZA ACCOUNT
+Le griglie vengono generate sul dispositivo. Partite e impostazioni restano in locale, senza tracciamento analitico né sincronizzazione cloud.
+
+L'interfaccia dell'app è attualmente disponibile in inglese e tedesco.
+
+Scegli il tuo prossimo sudoku e trova la soluzione, un numero alla volta.
+
+---
+
+### Português (Brasil) (pt-BR)
+
+**App name**
+
+Sudoku – Desafios offline
+
+**Short description**
+
+Sudoku sem anúncios: desafios diários, três níveis e dicas com explicações.
+
+**Full description**
+
+Faça uma pausa com Sudoku. Resolva os clássicos quebra-cabeças de números offline e sem anúncios, em casa ou durante uma viagem. Comece um novo jogo ou continue a partida salva. Não é preciso criar uma conta.
+
+UM NOVO DESAFIO TODOS OS DIAS
+Resolva o sudoku do dia e encontre os desafios anteriores no calendário. Ou comece uma partida no nível fácil, médio ou difícil. Cada quebra-cabeça gerado tem uma única solução e pode ser resolvido com lógica, sem adivinhação.
+
+DICAS QUE EXPLICAM O PRÓXIMO PASSO
+Não sabe como continuar? As dicas mostram primeiro a área relevante e depois explicam o raciocínio. Um número só é revelado quando você pede. Use anotações, limpeza automática de anotações e verificação de erros ajustável para organizar suas possibilidades.
+
+JOGUE NO SEU RITMO
+• Desfaça e refaça jogadas ou apague um número.
+• Salve seu progresso automaticamente no dispositivo.
+• Oculte o cronômetro e pause quando quiser.
+• Escolha o modo claro ou escuro e entre quatro temas de tabuleiro.
+• Acompanhe jogos concluídos, tempo de jogo e recordes pessoais.
+
+SEM ANÚNCIOS E SEM CONTA
+Os desafios são gerados no seu dispositivo. Partidas e configurações ficam salvas localmente, sem rastreamento analítico nem sincronização na nuvem.
+
+A interface do aplicativo está disponível atualmente em inglês e alemão.
+
+Escolha seu próximo sudoku e encontre a solução, um número de cada vez.
+
+---
+
+### Nederlands (nl-NL)
+
+**App name**
+
+Sudoku – Offline puzzels
+
+**Short description**
+
+Sudoku zonder reclame: dagelijkse puzzels, drie niveaus en hints met uitleg.
+
+**Full description**
+
+Neem een moment voor jezelf met Sudoku. Los klassieke cijferpuzzels offline en zonder reclame op, onderweg of thuis. Begin aan een nieuw rooster of ga verder met je opgeslagen spel. Je hebt geen account nodig.
+
+ELKE DAG EEN NIEUWE PUZZEL
+Speel de dagelijkse uitdaging en vind eerdere puzzels terug in de kalender. Of begin een sudoku op makkelijk, gemiddeld of moeilijk niveau. Elke gegenereerde puzzel heeft precies één oplossing en is logisch op te lossen, zonder te gokken.
+
+HINTS DIE JE VERDER HELPEN
+Loop je vast? Hints wijzen eerst het relevante gebied aan en leggen daarna de redenering uit. Een cijfer wordt alleen onthuld als jij dat wilt. Met notities, het automatisch opschonen daarvan en instelbare foutcontrole houd je overzicht.
+
+SPEEL IN JE EIGEN TEMPO
+• Maak zetten ongedaan, voer ze opnieuw uit of wis een cijfer.
+• Bewaar je voortgang automatisch op je apparaat.
+• Verberg de timer en pauzeer wanneer je wilt.
+• Kies de lichte of donkere modus en uit vier bordthema's.
+• Bekijk voltooide puzzels, speeltijd en persoonlijke records.
+
+ZONDER RECLAME OF ACCOUNT
+Puzzels worden op je apparaat gemaakt. Je spellen en instellingen blijven lokaal, zonder analytische tracking of cloudsynchronisatie.
+
+De interface van de app is momenteel beschikbaar in het Engels en Duits.
+
+Kies je volgende sudoku en vind de oplossing, cijfer voor cijfer.
+
+---
+
+### Polski (pl-PL)
+
+**App name**
+
+Sudoku – Łamigłówki offline
+
+**Short description**
+
+Sudoku bez reklam: codzienne wyzwania, trzy poziomy i wskazówki z wyjaśnieniami.
+
+**Full description**
+
+Zrób sobie chwilę przerwy z Sudoku. Rozwiązuj klasyczne łamigłówki liczbowe offline i bez reklam, w domu lub w podróży. Zacznij nową planszę albo wróć do zapisanej gry. Nie musisz zakładać konta.
+
+NOWE WYZWANIE KAŻDEGO DNIA
+Rozwiąż dzisiejsze sudoku i wróć do wcześniejszych zadań w kalendarzu. Możesz też rozpocząć grę na poziomie łatwym, średnim lub trudnym. Każda wygenerowana łamigłówka ma dokładnie jedno rozwiązanie i można ją rozwiązać logicznie, bez zgadywania.
+
+WSKAZÓWKI Z WYJAŚNIENIAMI
+Nie wiesz, co dalej? Wskazówki najpierw pokazują odpowiedni obszar, a potem wyjaśniają tok rozumowania. Liczba zostanie ujawniona tylko na Twoje życzenie. Korzystaj z notatek, ich automatycznego porządkowania i konfigurowalnego sprawdzania błędów.
+
+GRAJ WE WŁASNYM TEMPIE
+• Cofaj i ponawiaj ruchy lub usuwaj liczby.
+• Automatycznie zapisuj postępy na urządzeniu.
+• Ukryj zegar i zrób przerwę w dowolnym momencie.
+• Wybierz jasny lub ciemny wygląd oraz jeden z czterech motywów planszy.
+• Sprawdzaj ukończone łamigłówki, czas gry i rekordy.
+
+BEZ REKLAM I BEZ KONTA
+Łamigłówki powstają na Twoim urządzeniu. Gry i ustawienia pozostają zapisane lokalnie, bez śledzenia analitycznego i synchronizacji z chmurą.
+
+Interfejs aplikacji jest obecnie dostępny w języku angielskim i niemieckim.
+
+Wybierz kolejne sudoku i znajdź rozwiązanie, liczba po liczbie.
+
+---
+
+### Türkçe (tr-TR)
+
+**App name**
+
+Sudoku – Çevrimdışı Bulmaca
+
+**Short description**
+
+Reklamsız Sudoku: günlük bulmacalar, üç zorluk seviyesi ve açıklamalı ipuçları.
+
+**Full description**
+
+Sudoku ile kısa bir düşünme molası ver. Klasik sayı bulmacalarını evde veya yolda, internetsiz ve reklamsız çöz. Yeni bir oyun başlat ya da kaydettiğin oyuna devam et. Hesap oluşturman gerekmez.
+
+HER GÜN YENİ BİR BULMACA
+Günün sudokusunu çöz, önceki günlerin bulmacalarına takvimden dön. İstersen kolay, orta veya zor seviyede yeni bir oyun başlat. Oluşturulan her bulmacanın tek bir çözümü vardır ve tahmin yürütmeden, mantıkla çözülebilir.
+
+SONRAKİ ADIMI AÇIKLAYAN İPUÇLARI
+Takıldın mı? İpuçları önce ilgili alanı gösterir, ardından mantığını açıklar. Bir sayı yalnızca sen istediğinde gösterilir. Notlar, otomatik not temizliği ve ayarlanabilir hata kontrolüyle seçeneklerini takip et.
+
+KENDİ HIZINDA OYNA
+• Hamleleri geri al, yinele veya bir sayıyı sil.
+• İlerlemeni otomatik olarak cihazına kaydet.
+• Zamanlayıcıyı gizle ve istediğin zaman duraklat.
+• Açık veya koyu görünümü ve dört tahta temasından birini seç.
+• Tamamladığın bulmacaları, oyun süreni ve en iyi sürelerini takip et.
+
+REKLAM YOK, HESAP YOK
+Bulmacalar cihazında oluşturulur. Oyunlar ve ayarlar yerel olarak saklanır. Analitik takip ve bulut eşitleme yoktur.
+
+Uygulama arayüzü şu anda İngilizce ve Almanca olarak sunulmaktadır.
+
+Sıradaki sudokunu seç ve çözüme adım adım ulaş.
+
+---
+
+### 日本語 (ja-JP)
+
+**App name**
+
+Sudoku – オフライン数独
+
+**Short description**
+
+広告なしで楽しむ数独。毎日の問題、3段階の難易度、考え方がわかるヒント。
+
+**Full description**
+
+Sudokuで、ひと息つきながら数字のパズルを楽しみませんか。定番の数独をオフラインで、広告に邪魔されずに遊べます。新しい問題を始めるのも、保存した続きから遊ぶのも自由。アカウント登録は不要です。
+
+毎日、新しい問題に挑戦
+デイリーチャレンジに挑戦したり、カレンダーから過去の問題を選んだりできます。自由に遊ぶときは、かんたん・ふつう・むずかしいの3段階から選択。生成される問題の答えは必ず1つで、当てずっぽうではなく論理で解けます。
+
+次の一手の理由がわかるヒント
+行き詰まったら、まず注目する場所を確認し、次に考え方の説明を読めます。数字を表示するのは、あなたが選んだときだけ。メモ、不要なメモの自動削除、設定を変えられるエラーチェックも役立ちます。
+
+自分のペースで遊べる機能
+• 操作の取り消し、やり直し、数字の消去。
+• 進み具合を端末に自動保存。
+• タイマーの非表示と一時停止。
+• ライト・ダーク表示と4種類の盤面テーマ。
+• クリアした問題数、プレイ時間、自己ベストの確認。
+
+広告なし、アカウント登録なし
+問題は端末上で生成されます。ゲームと設定は端末内に保存され、利用状況の追跡やクラウド同期はありません。
+
+アプリの画面表示は現在、英語とドイツ語に対応しています。日本語の画面表示には対応していません。
+
+次の数独を選んで、ひとつずつ答えを見つけましょう。
+
+---
+
+### 한국어 (ko-KR)
+
+**App name**
+
+Sudoku – 오프라인 스도쿠
+
+**Short description**
+
+광고 없는 스도쿠. 매일 새로운 퍼즐, 세 가지 난이도와 풀이를 설명하는 힌트.
+
+**Full description**
+
+Sudoku와 함께 잠시 숫자 퍼즐에 집중해 보세요. 집에서도 이동 중에도 광고 없이 오프라인으로 클래식 스도쿠를 즐길 수 있습니다. 새 퍼즐을 시작하거나 저장한 게임을 이어서 플레이하세요. 계정을 만들 필요가 없습니다.
+
+매일 새로운 퍼즐
+오늘의 도전에 참여하고 달력에서 지난 날짜의 퍼즐을 다시 찾아보세요. 자유롭게 플레이할 때는 쉬움, 보통, 어려움 중에서 선택할 수 있습니다. 생성되는 모든 퍼즐은 정답이 하나이며 추측 없이 논리로 풀 수 있습니다.
+
+다음 수의 이유를 알려 주는 힌트
+막혔나요? 힌트는 먼저 살펴볼 영역을 보여 준 다음 풀이 과정을 설명합니다. 숫자는 직접 요청할 때만 공개됩니다. 메모, 자동 메모 정리, 설정 가능한 오류 확인 기능으로 후보 숫자를 관리하세요.
+
+나만의 속도로 플레이
+• 실행 취소, 다시 실행, 숫자 지우기.
+• 기기에 진행 상황 자동 저장.
+• 타이머 숨기기와 일시 정지.
+• 라이트 또는 다크 모드와 네 가지 보드 테마.
+• 완료한 퍼즐, 플레이 시간, 개인 최고 기록 확인.
+
+광고도 계정도 없이
+퍼즐은 기기에서 생성됩니다. 게임과 설정은 기기에 저장되며, 사용 분석을 위한 추적이나 클라우드 동기화는 없습니다.
+
+앱 화면은 현재 영어와 독일어로 제공됩니다. 한국어 화면은 지원하지 않습니다.
+
+다음 스도쿠를 골라 숫자 하나씩 답을 찾아보세요.
+
+---
+
+### 繁體中文 (zh-TW)
+
+**App name**
+
+Sudoku – 離線數獨
+
+**Short description**
+
+無廣告數獨，每日新題、三種難度，還有解說推理步驟的提示。隨時離線享受解題樂趣。
+
+**Full description**
+
+用 Sudoku 享受片刻專注。無論在家休息或搭車通勤，都能離線暢玩經典數獨，不受廣告打擾。開始一道新題，或接著完成已儲存的進度，不必註冊帳號。
+
+每天一道新挑戰
+挑戰每日數獨，也能從日曆回顧之前的題目。想自由遊玩時，可選擇簡單、中等或困難。每道產生的題目都只有一個解答，能透過邏輯推理完成，不必猜測。
+
+看懂下一步的提示
+遇到瓶頸時，提示會先標示值得留意的區域，再解釋推理方式。只有在你主動要求時，才會揭示數字。搭配筆記、自動清理筆記與可調整的錯誤檢查，整理你的候選數字。
+
+按照自己的步調遊玩
+• 復原、重做步驟，或清除數字。
+• 自動將遊戲進度儲存在裝置上。
+• 隱藏計時器，隨時暫停。
+• 選擇淺色或深色模式，以及四種棋盤主題。
+• 查看已完成題目、遊玩時間與個人最佳紀錄。
+
+沒有廣告，不必登入
+題目直接在你的裝置上產生。遊戲與設定儲存在本機，沒有使用行為分析追蹤，也不會同步到雲端。
+
+目前應用程式介面僅提供英文與德文，尚未提供中文介面。
+
+選一道數獨，從一個數字開始，逐步找出答案。

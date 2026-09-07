@@ -36,6 +36,7 @@ dev_dependencies:
 flutter:
   generate: true
   assets:
+    - assets/statistics_empty.png
     - assets/fonts/OFL.txt
     - assets/licenses/solar-icons.txt
   fonts:
