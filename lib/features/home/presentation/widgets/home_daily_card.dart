@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:rudi_ui/rudi_ui.dart';
+import 'package:solar_icons/solar_icons.dart';
 
 import '../../../../app/sudoku_controller.dart';
 import '../../../../common/presentation/ui.dart';
@@ -64,8 +65,8 @@ final class const DailyCard({
                           children: [
                             IconTheme(
                               data: IconThemeData(color: theme.colors.onAccent),
-                              child: const AppIcon(
-                                AppSymbol.calendar,
+                              child: const Icon(
+                                SolarIconsOutline.calendarDate,
                                 size: 24,
                               ),
                             ),
@@ -103,10 +104,10 @@ final class const DailyCard({
                                 ),
                               ),
                             ),
-                            AppIcon(
+                            Icon(
                               daily?.complete == true
-                                  ? AppSymbol.check
-                                  : AppSymbol.chevron,
+                                  ? SolarIconsOutline.checkCircle
+                                  : SolarIconsOutline.altArrowRight,
                               color: theme.colors.onAccent,
                               size: 20,
                             ),
@@ -200,8 +201,8 @@ final class const _WeekDay({
                         : null,
                   ),
                   child: done
-                      ? AppIcon(
-                          AppSymbol.check,
+                      ? Icon(
+                          SolarIconsOutline.checkCircle,
                           color: theme.colors.accent,
                           size: 18,
                         )

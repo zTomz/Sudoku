@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rudi_ui/rudi_ui.dart';
+import 'package:solar_icons/solar_icons.dart';
 
 import '../common/presentation/app_navigation.dart';
 import '../common/presentation/destination_transition.dart';
@@ -112,7 +113,7 @@ final class const _AppShell({
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const AppIcon(AppSymbol.grid, size: 48),
+                const Icon(SolarIconsOutline.widget_5, size: 48),
                 const SizedBox(height: 24),
                 Text(
                   controller.loadFailed ? l.loadFailed : l.loading,

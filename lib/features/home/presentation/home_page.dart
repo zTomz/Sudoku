@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:rudi_ui/rudi_ui.dart';
+import 'package:solar_icons/solar_icons.dart';
 
 import '../../../app/sudoku_controller.dart';
 import '../../../common/presentation/ui.dart';
@@ -68,7 +69,7 @@ final class const HomePage({
                 children: [
                   IconTheme(
                     data: IconThemeData(color: theme.colors.accent),
-                    child: const AppIcon(AppSymbol.grid, size: 28),
+                    child: const Icon(SolarIconsOutline.widget_5, size: 28),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -93,7 +94,7 @@ final class const HomePage({
                 children: [
                   IconTheme(
                     data: IconThemeData(color: theme.colors.accent),
-                    child: const AppIcon(AppSymbol.check, size: 18),
+                    child: const Icon(SolarIconsOutline.checkCircle, size: 18),
                   ),
                   const SizedBox(width: 8),
                   Expanded(

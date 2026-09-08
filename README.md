@@ -132,7 +132,7 @@ Free-play and daily puzzles use the same technique-graded generator; no legacy g
 - **[Reel Text](https://pub.dev/packages/reel_text)** for rolling score updates.
 - **[Riverpod](https://riverpod.dev/)** with code generation for application state and testable dependencies.
 - **[go_router](https://pub.dev/packages/go_router)** for URL-based navigation and Web deep links.
-- **[Solar Icons](https://solar-icons.vercel.app/)** through the `solar_icons` Flutter package.
+- **[Solar Icons](https://solar-icons.vercel.app/)** through the `solar_icons` Flutter package, plus Flutter’s Material language icon.
 - **[url_launcher](https://pub.dev/packages/url_launcher)** for opening external links and **[package_info_plus](https://pub.dev/packages/package_info_plus)** for installed version information.
 - **Google Sans** for typography, bundled with the app.
 

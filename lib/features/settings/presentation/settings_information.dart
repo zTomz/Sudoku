@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rudi_ui/rudi_ui.dart';
+import 'package:solar_icons/solar_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../common/presentation/app_sheet.dart';
@@ -62,22 +63,22 @@ final class _SettingsInformationState() extends State<SettingsInformation> {
           RudiSettingsTile(
             key: const ValueKey('setting-report-bug'),
             title: context.l10n.reportBug,
-            leading: const AppIcon(AppSymbol.bug),
-            trailing: const AppIcon(AppSymbol.external),
+            leading: const Icon(SolarIconsOutline.bugMinimalistic, size: 24),
+            trailing: const Icon(SolarIconsOutline.arrowRightUp, size: 24),
             onPressed: () => openSettingsLink(context, reportBugUrl),
           ),
           RudiSettingsTile(
             key: const ValueKey('setting-feature-request'),
             title: context.l10n.featureRequest,
-            leading: const AppIcon(AppSymbol.idea),
-            trailing: const AppIcon(AppSymbol.external),
+            leading: const Icon(SolarIconsOutline.lightbulb, size: 24),
+            trailing: const Icon(SolarIconsOutline.arrowRightUp, size: 24),
             onPressed: () => openSettingsLink(context, featureRequestUrl),
           ),
           RudiSettingsTile(
             key: const ValueKey('setting-repository'),
             title: context.l10n.repository,
-            leading: const AppIcon(AppSymbol.code),
-            trailing: const AppIcon(AppSymbol.external),
+            leading: const Icon(SolarIconsOutline.code, size: 24),
+            trailing: const Icon(SolarIconsOutline.arrowRightUp, size: 24),
             onPressed: () => openSettingsLink(context, repositoryUrl),
           ),
         ],
@@ -89,16 +90,16 @@ final class _SettingsInformationState() extends State<SettingsInformation> {
           RudiSettingsTile(
             key: const ValueKey('setting-privacy-policy'),
             title: context.l10n.privacyPolicy,
-            leading: const AppIcon(AppSymbol.shield),
-            trailing: const AppIcon(AppSymbol.chevron),
+            leading: const Icon(SolarIconsOutline.shieldCheck, size: 24),
+            trailing: const Icon(SolarIconsOutline.altArrowRight, size: 24),
             onPressed: () =>
                 context.go(PrivacyPolicyPage.path, extra: '/settings'),
           ),
           RudiSettingsTile(
             key: const ValueKey('setting-licenses'),
             title: context.l10n.licenses,
-            leading: const AppIcon(AppSymbol.document),
-            trailing: const AppIcon(AppSymbol.chevron),
+            leading: const Icon(SolarIconsOutline.documentText, size: 24),
+            trailing: const Icon(SolarIconsOutline.altArrowRight, size: 24),
             onPressed: () => showAppSheet<void>(
               context: context,
               title: context.l10n.licenses,
@@ -171,7 +172,7 @@ final class _LicensesState() extends State<_Licenses> {
           for (final entry in snapshot.data!)
             RudiSettingsTile(
               title: entry.packages.join(', '),
-              trailing: const AppIcon(AppSymbol.chevron),
+              trailing: const Icon(SolarIconsOutline.altArrowRight, size: 24),
               onPressed: () => showAppSheet<void>(
                 context: context,
                 title: entry.packages.join(', '),

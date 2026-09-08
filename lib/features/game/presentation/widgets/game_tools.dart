@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:rudi_ui/rudi_ui.dart';
+import 'package:solar_icons/solar_icons.dart';
 
 import '../../../../app/sudoku_controller.dart';
 import '../../../../common/presentation/ui.dart';
@@ -29,29 +30,29 @@ final class const GameTools({
           children: [
             _Tool(
               label: l.undo,
-              symbol: AppSymbol.undo,
+              icon: SolarIconsOutline.undoLeftRound,
               onPressed: enabled && game.canUndo ? controller.undo : null,
             ),
             _Tool(
               label: l.redo,
-              symbol: AppSymbol.redo,
+              icon: SolarIconsOutline.undoRightRound,
               onPressed: enabled && game.canRedo ? controller.redo : null,
             ),
             _Tool(
               label: l.erase,
-              symbol: AppSymbol.erase,
+              icon: SolarIconsOutline.eraser,
               onPressed: enabled ? () => controller.enter(0) : null,
             ),
             _Tool(
               label: l.notes,
-              symbol: AppSymbol.pencil,
+              icon: SolarIconsOutline.pen2,
               selected: controller.pencil,
               onPressed: enabled ? controller.togglePencil : null,
             ),
             _Tool(
               key: const ValueKey('show-hint'),
               label: l.hint,
-              symbol: AppSymbol.info,
+              icon: SolarIconsOutline.infoCircle,
               onPressed: enabled ? onShowHint : null,
             ),
           ],
@@ -63,7 +64,7 @@ final class const GameTools({
 
 final class const _Tool({
   required final String label,
-  required final AppSymbol symbol,
+  required final IconData icon,
   required final VoidCallback? onPressed,
   final bool selected = false,
   super.key,
@@ -100,7 +101,7 @@ final class const _Tool({
                         ? theme.colors.accent
                         : theme.colors.mutedForeground,
                   ),
-                  child: AppIcon(symbol, size: 24),
+                  child: Icon(icon, size: 24),
                 ),
                 const SizedBox(height: 6),
                 Text(

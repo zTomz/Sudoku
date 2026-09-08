@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:rudi_ui/rudi_ui.dart';
+import 'package:solar_icons/solar_icons.dart';
 
 import '../../../../app/sudoku_controller.dart';
 import '../../../../common/presentation/destination_transition.dart';
@@ -25,10 +26,10 @@ final class const GamePauseDialog({
           child: RudiDialog(
             key: const ValueKey('pause-dialog'),
             title: Text(l.paused),
-            icon: AppIcon(
-              AppSymbol.pause,
-              filled: true,
+            icon: Icon(
+              SolarIconsBold.pause,
               color: theme.colors.foreground,
+              size: 24,
             ),
             content: Column(
               mainAxisSize: .min,

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:rudi_ui/rudi_ui.dart';
+import 'package:solar_icons/solar_icons.dart';
 
 import '../../../app/sudoku_controller.dart';
 import '../../../common/presentation/ui.dart';
@@ -83,8 +84,8 @@ final class _DailyPageState() extends State<DailyPage> {
                 ),
                 child: Padding(
                   padding: const .all(7),
-                  child: AppIcon(
-                    AppSymbol.check,
+                  child: Icon(
+                    SolarIconsOutline.checkCircle,
                     size: 16,
                     color: context.rudiTheme.colors.accent,
                   ),
@@ -102,7 +103,7 @@ final class _DailyPageState() extends State<DailyPage> {
           const SizedBox(height: 24),
           RudiButton(
             label: l.playDaily,
-            leading: const AppIcon(AppSymbol.play),
+            leading: const Icon(SolarIconsBold.play, size: 24),
             expand: true,
             onPressed: () => unawaited(widget.controller.startDaily(today)),
           ),

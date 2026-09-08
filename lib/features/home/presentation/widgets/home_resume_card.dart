@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:rudi_ui/rudi_ui.dart';
+import 'package:solar_icons/solar_icons.dart';
 
 import '../../../../app/sudoku_controller.dart';
 import '../../../../common/presentation/ui.dart';
@@ -35,12 +36,12 @@ final class const ResumeCard({
               children: [
                 IconTheme(
                   data: IconThemeData(color: theme.colors.accent),
-                  child: const AppIcon(AppSymbol.play, size: 24, filled: true),
+                  child: const Icon(SolarIconsBold.play, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(child: Text(l.continueGame, style: theme.text.title)),
-                AppIcon(
-                  AppSymbol.chevron,
+                Icon(
+                  SolarIconsOutline.altArrowRight,
                   color: theme.colors.mutedForeground,
                   size: 18,
                 ),

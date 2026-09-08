@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart' show Icons;
+
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:rudi_ui/rudi_ui.dart';
+import 'package:solar_icons/solar_icons.dart';
 
 import '../../../app/sudoku_controller.dart';
 import '../../../common/presentation/app_sheet.dart';
@@ -62,7 +65,7 @@ Future<T?> _choose<T>(
               subtitle: subtitle?.call(option.$1),
               selected: option.$1 == selected,
               trailing: option.$1 == selected
-                  ? const AppIcon(AppSymbol.check, filled: true)
+                  ? const Icon(SolarIconsBold.checkCircle, size: 24)
                   : const SizedBox(width: 24),
               onPressed: () => Navigator.of(sheetContext).pop(option.$1),
             ),
@@ -129,7 +132,7 @@ final class const SettingsContent({
           children: [
             RudiSwitchTile(
               title: l.showTimer,
-              leading: const AppIcon(AppSymbol.timer),
+              leading: const Icon(SolarIconsOutline.stopwatch, size: 24),
               value: settings.showTimer,
               onChanged: (value) => controller.changeSettings(
                 controller.settings.copyWith(showTimer: value),
@@ -137,7 +140,7 @@ final class const SettingsContent({
             ),
             RudiSwitchTile(
               title: l.cleanNotes,
-              leading: const AppIcon(AppSymbol.pencil),
+              leading: const Icon(SolarIconsOutline.pen2, size: 24),
               value: settings.cleanNotes,
               onChanged: (value) => controller.changeSettings(
                 controller.settings.copyWith(cleanNotes: value),
@@ -145,7 +148,7 @@ final class const SettingsContent({
             ),
             RudiSwitchTile(
               title: l.numberFirst,
-              leading: const AppIcon(AppSymbol.grid),
+              leading: const Icon(SolarIconsOutline.widget_5, size: 24),
               value: settings.numberFirst,
               onChanged: (value) => controller.changeSettings(
                 controller.settings.copyWith(numberFirst: value),
@@ -153,7 +156,10 @@ final class const SettingsContent({
             ),
             RudiSwitchTile(
               title: l.haptics,
-              leading: const AppIcon(AppSymbol.haptics),
+              leading: const Icon(
+                SolarIconsOutline.smartphoneVibration,
+                size: 24,
+              ),
               value: settings.haptics,
               onChanged: (value) => controller.changeSettings(
                 controller.settings.copyWith(haptics: value),
@@ -168,7 +174,7 @@ final class const SettingsContent({
             RudiSettingsTile(
               key: const ValueKey('setting-language'),
               title: l.language,
-              leading: const AppIcon(AppSymbol.language),
+              leading: const Icon(Icons.language, size: 24),
               trailing: _SettingValue(
                 switch (settings.language) {
                   AppLanguage.system => l.system,
@@ -188,7 +194,7 @@ final class const SettingsContent({
                     (
                       AppLanguage.system,
                       l.systemLanguage,
-                      const AppIcon(AppSymbol.language),
+                      const Icon(Icons.language, size: 24),
                     ),
                     (
                       AppLanguage.en,
@@ -212,7 +218,7 @@ final class const SettingsContent({
             RudiSettingsTile(
               key: const ValueKey('setting-appearance'),
               title: l.appearance,
-              leading: const AppIcon(AppSymbol.moon),
+              leading: const Icon(SolarIconsOutline.moon, size: 24),
               trailing: _SettingValue(
                 appearanceLabel(context, settings.appearance),
               ),
@@ -231,11 +237,11 @@ final class const SettingsContent({
                       (
                         mode,
                         appearanceLabel(context, mode),
-                        AppIcon(switch (mode) {
-                          AppAppearance.system => AppSymbol.device,
-                          AppAppearance.light => AppSymbol.sun,
-                          AppAppearance.dark => AppSymbol.moon,
-                        }),
+                        Icon(switch (mode) {
+                          AppAppearance.system => SolarIconsOutline.smartphone,
+                          AppAppearance.light => SolarIconsOutline.sun,
+                          AppAppearance.dark => SolarIconsOutline.moon,
+                        }, size: 24),
                       ),
                   ],
                 );
@@ -249,7 +255,7 @@ final class const SettingsContent({
             RudiSettingsTile(
               key: const ValueKey('setting-board'),
               title: l.boardTheme,
-              leading: const AppIcon(AppSymbol.palette),
+              leading: const Icon(SolarIconsOutline.paletteRound, size: 24),
               trailing: _SettingValue(
                 boardThemeLabel(context, settings.boardTheme),
               ),
@@ -258,7 +264,7 @@ final class const SettingsContent({
             RudiSettingsTile(
               key: const ValueKey('setting-errors'),
               title: l.errorCheck,
-              leading: const AppIcon(AppSymbol.check),
+              leading: const Icon(SolarIconsOutline.checkCircle, size: 24),
               trailing: _SettingValue(errorLabel(context, settings.errorCheck)),
               onPressed: () async {
                 final value = await _choose(
@@ -309,8 +315,8 @@ final class const _SettingValue(final String value, {final Widget? leading})
           ),
         ),
         const SizedBox(width: 8),
-        AppIcon(
-          AppSymbol.chevron,
+        Icon(
+          SolarIconsOutline.altArrowRight,
           size: 18,
           color: context.rudiTheme.colors.mutedForeground,
         ),
@@ -351,11 +357,17 @@ final class const _LanguageFlag(final AppLanguage language)
     extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
-    child: Image.asset(
-      'assets/flags/${language.name}.png',
+    child: SizedBox(
       width: 26,
-      height: 20,
-      fit: BoxFit.contain,
+      child: Text(
+        switch (language) {
+          AppLanguage.en => '🇬🇧',
+          AppLanguage.de => '🇩🇪',
+          AppLanguage.system => '',
+        },
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 20, height: 1),
+      ),
     ),
   );
 }

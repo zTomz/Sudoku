@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:rudi_ui/rudi_ui.dart';
+import 'package:solar_icons/solar_icons.dart';
 
 import '../../../../common/presentation/ui.dart';
 import '../../domain/game_hint.dart';
@@ -113,13 +114,13 @@ final class const GameHintCoach({
                   if (step != null && coach.phase == HintPhase.answer)
                     RudiIconButton(
                       key: const ValueKey('hint-explanation'),
-                      icon: const AppIcon(AppSymbol.info),
+                      icon: const Icon(SolarIconsOutline.infoCircle, size: 24),
                       semanticLabel: l.hintExplanation,
                       onPressed: onExplain,
                     ),
                   RudiIconButton(
                     key: const ValueKey('hint-close'),
-                    icon: const AppIcon(AppSymbol.close),
+                    icon: const Icon(SolarIconsOutline.closeCircle, size: 24),
                     semanticLabel: l.close,
                     onPressed: onClose,
                   ),

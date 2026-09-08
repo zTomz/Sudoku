@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rudi_ui/rudi_ui.dart';
+import 'package:solar_icons/solar_icons.dart';
 
 import '../../../common/presentation/ui.dart';
 
@@ -52,7 +53,7 @@ final class _PrivacyPolicyPageState() extends State<PrivacyPolicyPage> {
                     key: const ValueKey('privacy-back'),
                     icon: const RotatedBox(
                       quarterTurns: 2,
-                      child: AppIcon(AppSymbol.chevron),
+                      child: Icon(SolarIconsOutline.altArrowRight, size: 24),
                     ),
                     semanticLabel: context.l10n.back,
                     onPressed: () => _goBack(context),

@@ -55,15 +55,8 @@ void main() {
     await tester.tap(languageTile);
     await tester.pumpAndSettle();
     expect(find.text('System language'), findsOneWidget);
-    expect(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is Image &&
-            widget.image is AssetImage &&
-            (widget.image as AssetImage).assetName == 'assets/flags/de.png',
-      ),
-      findsOneWidget,
-    );
+    expect(find.text('🇬🇧'), findsOneWidget);
+    expect(find.text('🇩🇪'), findsOneWidget);
     await tester.tap(find.text('Deutsch'));
     await tester.pumpAndSettle();
     expect(find.text('Sprache'), findsOneWidget);

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:rudi_ui/rudi_ui.dart';
+import 'package:solar_icons/solar_icons.dart';
 
 import '../../../../app/sudoku_controller.dart';
 import '../../../../common/presentation/ui.dart';
@@ -22,7 +23,7 @@ final class const GameHeader({
           RudiIconButton(
             icon: const RotatedBox(
               quarterTurns: 2,
-              child: AppIcon(AppSymbol.chevron),
+              child: Icon(SolarIconsOutline.altArrowRight, size: 24),
             ),
             semanticLabel: l.back,
             onPressed: controller.leaveGame,
@@ -37,18 +38,18 @@ final class const GameHeader({
             ),
           ),
           RudiIconButton(
-            icon: const AppIcon(AppSymbol.palette),
+            icon: const Icon(SolarIconsOutline.paletteRound, size: 24),
             semanticLabel: l.boardTheme,
             onPressed: onOpenBoardTheme,
           ),
           RudiIconButton(
-            icon: const AppIcon(AppSymbol.settings),
+            icon: const Icon(SolarIconsOutline.settings, size: 24),
             semanticLabel: l.settings,
             onPressed: onOpenSettings,
           ),
           if (!controller.game!.complete)
             RudiIconButton(
-              icon: const AppIcon(AppSymbol.pause),
+              icon: const Icon(SolarIconsOutline.pause, size: 24),
               semanticLabel: controller.paused ? l.resume : l.pause,
               onPressed: controller.togglePause,
             ),
