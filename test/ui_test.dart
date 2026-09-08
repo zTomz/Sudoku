@@ -982,6 +982,7 @@ void main() {
 
     final privacySetting = find.byKey(const ValueKey('setting-privacy-policy'));
     await tester.ensureVisible(privacySetting);
+    await tester.pumpAndSettle();
     await tester.tap(privacySetting);
     await tester.pumpAndSettle();
 
@@ -1000,6 +1001,8 @@ void main() {
     expect(find.byType(PrivacyPolicyPage), findsNothing);
     expect(privacySetting, findsOneWidget);
 
+    await tester.ensureVisible(privacySetting);
+    await tester.pumpAndSettle();
     await tester.tap(privacySetting);
     await tester.pumpAndSettle();
     await tester.binding.handlePopRoute();

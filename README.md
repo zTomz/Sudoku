@@ -52,10 +52,10 @@ The [v0.1.0 release](https://github.com/zTomz/Sudoku/releases/tag/v0.1.0) is the
 | **Tools for solving** | Pencil notes, automatic note cleanup, undo, redo and erasing. Hints first point to the relevant area, then explain the reasoning, and reveal the number only when explicitly requested. Choose a cell first or select a number first. |
 | **Just enough guidance** | Solution checking marks only incorrect entries; correct digits and clues stay unmarked. Optional conflict-only checking or no checking. Mistakes are still counted when visible checking is disabled. After nine placements, a digit becomes a disabled checkmark; erasing or undoing a placement makes it available again. Once every remaining empty cell belongs to the same digit, those final entries are filled with a staggered animation. Completing a digit, row, column or 3×3 box triggers a smooth accent animation; a full board carries the wave across every cell. Subtle haptics follow the wave and respect the reduced-motion and haptic settings. |
 | **Pick up where you left off** | Automatic local saves, separate daily and free-play progress, and a pause dialog that conceals the board. System back returns from a game to the previous app page without losing progress; when paused, it resumes the game first. |
-| **Make it yours** | Light, dark and system appearance, four board themes, optional haptics and an optional timer. |
+| **Make it yours** | Light, dark and system appearance, four board themes, optional haptics and an optional timer. Choose English, German or the system language in Settings. |
 | **See your progress** | Earn points for correct entries and completed rows, columns and 3×3 boxes, with rolling score feedback plus completion and accuracy bonuses. Statistics show an overview of solved puzzles, points and total play time, with clearly labeled completion counts, mistakes and best times for each difficulty. |
 | **Touch or keyboard** | Responsive layouts, keyboard controls, and English and German translations. |
-| **Privacy built in** | Read the same Privacy Policy in Settings or directly on the public Web app. |
+| **Privacy built in** | Read the same Privacy Policy in Settings or directly on the public Web app. Settings also provide offline open-source licenses, the installed version and build number, and links to the GitHub repository, bug reports and feature requests. External links open in your browser; no report is sent automatically. |
 
 ## Platforms
 
@@ -133,6 +133,7 @@ Free-play and daily puzzles use the same technique-graded generator; no legacy g
 - **[Riverpod](https://riverpod.dev/)** with code generation for application state and testable dependencies.
 - **[go_router](https://pub.dev/packages/go_router)** for URL-based navigation and Web deep links.
 - **[Solar Icons](https://solar-icons.vercel.app/)** through the `solar_icons` Flutter package.
+- **[url_launcher](https://pub.dev/packages/url_launcher)** for opening external links and **[package_info_plus](https://pub.dev/packages/package_info_plus)** for installed version information.
 - **Google Sans** for typography, bundled with the app.
 
 ## License

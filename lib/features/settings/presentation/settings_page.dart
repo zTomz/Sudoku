@@ -1,15 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:go_router/go_router.dart';
 import 'package:rudi_ui/rudi_ui.dart';
 
 import '../../../app/sudoku_controller.dart';
 import '../../../common/presentation/app_sheet.dart';
 import '../../../common/presentation/ui.dart';
 import '../../game/presentation/board_palette.dart';
-import '../../privacy/presentation/privacy_policy_page.dart';
 import '../domain/app_settings.dart';
+import 'settings_information.dart';
 
 String boardThemeLabel(BuildContext context, BoardTheme theme) =>
     switch (theme) {
@@ -36,9 +35,11 @@ Future<T?> _choose<T>(
   required T selected,
   required List<(T, String, Widget?)> options,
   String? description,
+  String Function(T)? subtitle,
 }) => showAppSheet<T>(
   context: context,
   title: title,
+  showCloseButton: true,
   builder: (sheetContext) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     mainAxisSize: MainAxisSize.min,
@@ -58,9 +59,10 @@ Future<T?> _choose<T>(
             RudiSettingsTile(
               title: option.$2,
               leading: option.$3,
+              subtitle: subtitle?.call(option.$1),
               selected: option.$1 == selected,
               trailing: option.$1 == selected
-                  ? const AppIcon(AppSymbol.check)
+                  ? const AppIcon(AppSymbol.check, filled: true)
                   : const SizedBox(width: 24),
               onPressed: () => Navigator.of(sheetContext).pop(option.$1),
             ),
@@ -105,45 +107,7 @@ final class const SettingsPage({
         PageHeading(context.l10n.settings),
         SettingsContent(controller: controller),
         const SizedBox(height: 28),
-        RudiSettingsGroup(
-          title: context.l10n.legal,
-          children: [
-            RudiSettingsTile(
-              key: const ValueKey('setting-privacy-policy'),
-              title: context.l10n.privacyPolicy,
-              leading: const AppIcon(AppSymbol.shield),
-              trailing: const AppIcon(AppSymbol.chevron),
-              onPressed: () =>
-                  context.go(PrivacyPolicyPage.path, extra: '/settings'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 28),
-        RudiSettingsTile(
-          title: context.l10n.about,
-          leading: const AppIcon(AppSymbol.info),
-          trailing: const AppIcon(AppSymbol.chevron),
-          onPressed: () => unawaited(
-            showAppSheet<void>(
-              context: context,
-              title: context.l10n.about,
-              builder: (context) => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(context.l10n.aboutDescription),
-                  const SizedBox(height: 16),
-                  Text(context.l10n.storageDescription),
-                  const SizedBox(height: 16),
-                  Text(context.l10n.difficultyNote),
-                  const SizedBox(height: 16),
-                  Text(context.l10n.licenseNote),
-                  const SizedBox(height: 24),
-                  Text(context.l10n.version),
-                ],
-              ),
-            ),
-          ),
-        ),
+        const SettingsInformation(),
       ],
     ),
   );
@@ -202,6 +166,50 @@ final class const SettingsContent({
           title: l.customization,
           children: [
             RudiSettingsTile(
+              key: const ValueKey('setting-language'),
+              title: l.language,
+              leading: const AppIcon(AppSymbol.language),
+              trailing: _SettingValue(
+                switch (settings.language) {
+                  AppLanguage.system => l.system,
+                  AppLanguage.en => l.languageEnglish,
+                  AppLanguage.de => l.languageGerman,
+                },
+                leading: settings.language == AppLanguage.system
+                    ? null
+                    : _LanguageFlag(settings.language),
+              ),
+              onPressed: () async {
+                final value = await _choose(
+                  context,
+                  title: l.language,
+                  selected: settings.language,
+                  options: [
+                    (
+                      AppLanguage.system,
+                      l.systemLanguage,
+                      const AppIcon(AppSymbol.language),
+                    ),
+                    (
+                      AppLanguage.en,
+                      l.languageEnglish,
+                      const _LanguageFlag(AppLanguage.en),
+                    ),
+                    (
+                      AppLanguage.de,
+                      l.languageGerman,
+                      const _LanguageFlag(AppLanguage.de),
+                    ),
+                  ],
+                );
+                if (value != null) {
+                  controller.changeSettings(
+                    controller.settings.copyWith(language: value),
+                  );
+                }
+              },
+            ),
+            RudiSettingsTile(
               key: const ValueKey('setting-appearance'),
               title: l.appearance,
               leading: const AppIcon(AppSymbol.moon),
@@ -213,16 +221,21 @@ final class const SettingsContent({
                   context,
                   title: l.appearance,
                   selected: settings.appearance,
+                  subtitle: (mode) => switch (mode) {
+                    AppAppearance.system => l.systemThemeDescription,
+                    AppAppearance.light => l.lightThemeDescription,
+                    AppAppearance.dark => l.darkThemeDescription,
+                  },
                   options: [
                     for (final mode in AppAppearance.values)
                       (
                         mode,
                         appearanceLabel(context, mode),
-                        AppIcon(
-                          mode == AppAppearance.light
-                              ? AppSymbol.sun
-                              : AppSymbol.moon,
-                        ),
+                        AppIcon(switch (mode) {
+                          AppAppearance.system => AppSymbol.device,
+                          AppAppearance.light => AppSymbol.sun,
+                          AppAppearance.dark => AppSymbol.moon,
+                        }),
                       ),
                   ],
                 );
@@ -272,7 +285,8 @@ final class const SettingsContent({
   }
 }
 
-final class const _SettingValue(final String value) extends StatelessWidget {
+final class const _SettingValue(final String value, {final Widget? leading})
+    extends StatelessWidget {
   static const _maximumWidth = 170.0;
 
   @override
@@ -281,6 +295,7 @@ final class const _SettingValue(final String value) extends StatelessWidget {
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (leading != null) ...[leading!, const SizedBox(width: 6)],
         Flexible(
           child: Text(
             value,
@@ -330,4 +345,17 @@ final class const BoardThemePreview({
       ),
     );
   }
+}
+
+final class const _LanguageFlag(final AppLanguage language)
+    extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => ExcludeSemantics(
+    child: Image.asset(
+      'assets/flags/${language.name}.png',
+      width: 26,
+      height: 20,
+      fit: BoxFit.contain,
+    ),
+  );
 }

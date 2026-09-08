@@ -1,3 +1,9 @@
+enum AppLanguage() {
+  system,
+  en,
+  de,
+}
+
 enum AppAppearance() {
   system,
   light,
@@ -18,6 +24,7 @@ enum BoardTheme() {
 }
 
 final class const AppSettings({
+  final AppLanguage language = AppLanguage.system,
   final AppAppearance appearance = AppAppearance.system,
   final ErrorCheck errorCheck = ErrorCheck.solution,
   final BoardTheme boardTheme = BoardTheme.classic,
@@ -27,6 +34,7 @@ final class const AppSettings({
   final bool numberFirst = false,
 }) {
   AppSettings copyWith({
+    AppLanguage? language,
     AppAppearance? appearance,
     ErrorCheck? errorCheck,
     BoardTheme? boardTheme,
@@ -35,6 +43,7 @@ final class const AppSettings({
     bool? haptics,
     bool? numberFirst,
   }) => AppSettings(
+    language: language ?? this.language,
     appearance: appearance ?? this.appearance,
     errorCheck: errorCheck ?? this.errorCheck,
     boardTheme: boardTheme ?? this.boardTheme,
@@ -44,6 +53,7 @@ final class const AppSettings({
     numberFirst: numberFirst ?? this.numberFirst,
   );
   Map<String, Object?> toJson() => {
+    'language': language.name,
     'appearance': appearance.name,
     'errorCheck': errorCheck.name,
     'boardTheme': boardTheme.name,
@@ -53,6 +63,9 @@ final class const AppSettings({
     'numberFirst': numberFirst,
   };
   factory fromJson(Map<String, Object?> json) => AppSettings(
+    language: json.containsKey('language')
+        ? AppLanguage.values.byName(json['language'] as String)
+        : AppLanguage.system,
     appearance: AppAppearance.values.byName(json['appearance'] as String),
     errorCheck: ErrorCheck.values.byName(json['errorCheck'] as String),
     boardTheme: BoardTheme.values.byName(json['boardTheme'] as String),

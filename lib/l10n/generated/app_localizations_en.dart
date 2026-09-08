@@ -523,4 +523,58 @@ class AppLocalizationsEn extends AppLocalizations {
   String hintRemoval(String digits, String cell) {
     return 'Remove $digits from $cell.';
   }
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languageGerman => 'Deutsch';
+
+  @override
+  String get support => 'Help & feedback';
+
+  @override
+  String get repository => 'GitHub repository';
+
+  @override
+  String get reportBug => 'Report a bug';
+
+  @override
+  String get linkOpenError =>
+      'Could not open the link. You can copy the address below.';
+
+  @override
+  String versionLabel(String version, String build) {
+    return 'Version $version ($build)';
+  }
+
+  @override
+  String get versionUnavailable => 'Version unavailable';
+
+  @override
+  String get licensesLoadError => 'Could not load licenses. Please try again.';
+
+  @override
+  String get copyLink => 'Copy link';
+
+  @override
+  String get licensesLoading => 'Loading licenses...';
+
+  @override
+  String get featureRequest => 'Request a feature';
+
+  @override
+  String get systemLanguage => 'System language';
+
+  @override
+  String get systemThemeDescription => 'Follow your device appearance';
+
+  @override
+  String get lightThemeDescription => 'Always use the light theme';
+
+  @override
+  String get darkThemeDescription => 'Always use the dark theme';
 }

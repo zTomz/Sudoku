@@ -519,4 +519,59 @@ class AppLocalizationsDe extends AppLocalizations {
   String hintRemoval(String digits, String cell) {
     return 'Streiche $digits aus $cell.';
   }
+
+  @override
+  String get language => 'Sprache';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languageGerman => 'Deutsch';
+
+  @override
+  String get support => 'Hilfe & Feedback';
+
+  @override
+  String get repository => 'GitHub-Repository';
+
+  @override
+  String get reportBug => 'Fehler melden';
+
+  @override
+  String get linkOpenError =>
+      'Der Link konnte nicht geöffnet werden. Du kannst die Adresse unten kopieren.';
+
+  @override
+  String versionLabel(String version, String build) {
+    return 'Version $version ($build)';
+  }
+
+  @override
+  String get versionUnavailable => 'Version nicht verfügbar';
+
+  @override
+  String get licensesLoadError =>
+      'Lizenzen konnten nicht geladen werden. Bitte versuche es erneut.';
+
+  @override
+  String get copyLink => 'Link kopieren';
+
+  @override
+  String get licensesLoading => 'Lizenzen werden geladen...';
+
+  @override
+  String get featureRequest => 'Feature vorschlagen';
+
+  @override
+  String get systemLanguage => 'Systemsprache';
+
+  @override
+  String get systemThemeDescription => 'Darstellung des Geräts verwenden';
+
+  @override
+  String get lightThemeDescription => 'Immer das helle Design verwenden';
+
+  @override
+  String get darkThemeDescription => 'Immer das dunkle Design verwenden';
 }

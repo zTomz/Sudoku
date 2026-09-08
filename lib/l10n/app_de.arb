@@ -326,5 +326,32 @@
         "type": "String"
       }
     }
-  }
+  },
+  "language": "Sprache",
+  "languageEnglish": "English",
+  "languageGerman": "Deutsch",
+  "support": "Hilfe & Feedback",
+  "repository": "GitHub-Repository",
+  "reportBug": "Fehler melden",
+  "linkOpenError": "Der Link konnte nicht geöffnet werden. Du kannst die Adresse unten kopieren.",
+  "versionLabel": "Version {version} ({build})",
+  "versionUnavailable": "Version nicht verfügbar",
+  "licensesLoadError": "Lizenzen konnten nicht geladen werden. Bitte versuche es erneut.",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "build": {
+        "type": "String"
+      }
+    }
+  },
+  "copyLink": "Link kopieren",
+  "licensesLoading": "Lizenzen werden geladen...",
+  "featureRequest": "Feature vorschlagen",
+  "systemLanguage": "Systemsprache",
+  "systemThemeDescription": "Darstellung des Geräts verwenden",
+  "lightThemeDescription": "Immer das helle Design verwenden",
+  "darkThemeDescription": "Immer das dunkle Design verwenden"
 }

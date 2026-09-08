@@ -70,7 +70,13 @@ final class _SudokuAppState()
       title: 'Sudoku',
       theme: _light,
       darkTheme: _dark,
-      locale: widget.locale,
+      locale:
+          widget.locale ??
+          switch (settings.language) {
+            AppLanguage.system => null,
+            AppLanguage.en => const Locale('en'),
+            AppLanguage.de => const Locale('de'),
+          },
       themeMode: switch (settings.appearance) {
         AppAppearance.system => RudiThemeMode.system,
         AppAppearance.light => RudiThemeMode.light,

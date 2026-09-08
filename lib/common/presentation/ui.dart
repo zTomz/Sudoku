@@ -89,6 +89,13 @@ enum AppSymbol() {
   chevron,
   info,
   shield,
+  language,
+  code,
+  bug,
+  external,
+  document,
+  device,
+  idea,
   close,
 }
 
@@ -100,40 +107,98 @@ final class const AppIcon(
   super.key,
 }) extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => Icon(
-    switch (symbol) {
-      AppSymbol.grid =>
-        filled ? SolarIconsBold.widget_5 : SolarIconsOutline.widget_5,
-      AppSymbol.calendar =>
-        filled ? SolarIconsBold.calendarDate : SolarIconsOutline.calendarDate,
-      AppSymbol.calendarSimple =>
-        filled ? SolarIconsBold.calendar : SolarIconsOutline.calendar,
-      AppSymbol.chart =>
-        filled ? SolarIconsBold.chart : SolarIconsOutline.chart,
-      AppSymbol.settings =>
-        filled ? SolarIconsBold.settings : SolarIconsOutline.settings,
-      AppSymbol.pencil => SolarIconsOutline.pen2,
-      AppSymbol.undo => SolarIconsOutline.undoLeftRound,
-      AppSymbol.redo => SolarIconsOutline.undoRightRound,
-      AppSymbol.erase => SolarIconsOutline.eraser,
-      AppSymbol.pause =>
-        filled ? SolarIconsBold.pause : SolarIconsOutline.pause,
-      AppSymbol.palette => SolarIconsOutline.paletteRound,
-      AppSymbol.timer => SolarIconsOutline.stopwatch,
-      AppSymbol.haptics => SolarIconsOutline.smartphoneVibration,
-      AppSymbol.sun => SolarIconsOutline.sun,
-      AppSymbol.moon => SolarIconsOutline.moon,
-      AppSymbol.play => SolarIconsBold.play,
-      AppSymbol.check => SolarIconsOutline.checkCircle,
-      AppSymbol.chevron => SolarIconsOutline.altArrowRight,
-      AppSymbol.info => SolarIconsOutline.infoCircle,
-      AppSymbol.shield => SolarIconsOutline.shieldCheck,
-      AppSymbol.close => SolarIconsOutline.closeCircle,
-    },
-    size: size,
-    color:
-        color ??
-        IconTheme.of(context).color ??
-        context.rudiTheme.colors.foreground,
-  );
+  Widget build(BuildContext context) => symbol == AppSymbol.language
+      ? SizedBox.square(
+          dimension: size,
+          child: CustomPaint(
+            painter: _LanguageIconPainter(
+              color ??
+                  IconTheme.of(context).color ??
+                  context.rudiTheme.colors.foreground,
+            ),
+          ),
+        )
+      : Icon(
+          switch (symbol) {
+            AppSymbol.grid =>
+              filled ? SolarIconsBold.widget_5 : SolarIconsOutline.widget_5,
+            AppSymbol.calendar =>
+              filled
+                  ? SolarIconsBold.calendarDate
+                  : SolarIconsOutline.calendarDate,
+            AppSymbol.calendarSimple =>
+              filled ? SolarIconsBold.calendar : SolarIconsOutline.calendar,
+            AppSymbol.chart =>
+              filled ? SolarIconsBold.chart : SolarIconsOutline.chart,
+            AppSymbol.settings =>
+              filled ? SolarIconsBold.settings : SolarIconsOutline.settings,
+            AppSymbol.pencil => SolarIconsOutline.pen2,
+            AppSymbol.undo => SolarIconsOutline.undoLeftRound,
+            AppSymbol.redo => SolarIconsOutline.undoRightRound,
+            AppSymbol.erase => SolarIconsOutline.eraser,
+            AppSymbol.pause =>
+              filled ? SolarIconsBold.pause : SolarIconsOutline.pause,
+            AppSymbol.palette => SolarIconsOutline.paletteRound,
+            AppSymbol.timer => SolarIconsOutline.stopwatch,
+            AppSymbol.haptics => SolarIconsOutline.smartphoneVibration,
+            AppSymbol.sun => SolarIconsOutline.sun,
+            AppSymbol.moon => SolarIconsOutline.moon,
+            AppSymbol.play => SolarIconsBold.play,
+            AppSymbol.check =>
+              filled
+                  ? SolarIconsBold.checkCircle
+                  : SolarIconsOutline.checkCircle,
+            AppSymbol.chevron => SolarIconsOutline.altArrowRight,
+            AppSymbol.info => SolarIconsOutline.infoCircle,
+            AppSymbol.shield => SolarIconsOutline.shieldCheck,
+            AppSymbol.language => SolarIconsOutline.translation,
+            AppSymbol.code => SolarIconsOutline.code,
+            AppSymbol.bug => SolarIconsOutline.bugMinimalistic,
+            AppSymbol.external => SolarIconsOutline.arrowRightUp,
+            AppSymbol.document => SolarIconsOutline.documentText,
+            AppSymbol.device => SolarIconsOutline.smartphone,
+            AppSymbol.idea => SolarIconsOutline.lightbulb,
+            AppSymbol.close => SolarIconsOutline.closeCircle,
+          },
+          size: size,
+          color:
+              color ??
+              IconTheme.of(context).color ??
+              context.rudiTheme.colors.foreground,
+        );
+}
+
+final class _LanguageIconPainter(final Color color) extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final bounds = Rect.fromLTWH(
+      size.width * .12,
+      size.height * .12,
+      size.width * .76,
+      size.height * .76,
+    );
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * .075
+      ..isAntiAlias = true;
+    canvas.drawOval(bounds, paint);
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: bounds.center,
+        width: bounds.width * .42,
+        height: bounds.height,
+      ),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(bounds.left, bounds.center.dy),
+      Offset(bounds.right, bounds.center.dy),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_LanguageIconPainter oldDelegate) =>
+      color != oldDelegate.color;
 }

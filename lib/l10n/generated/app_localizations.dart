@@ -967,6 +967,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove {digits} from {cell}.'**
   String hintRemoval(String digits, String cell);
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @languageGerman.
+  ///
+  /// In en, this message translates to:
+  /// **'Deutsch'**
+  String get languageGerman;
+
+  /// No description provided for @support.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & feedback'**
+  String get support;
+
+  /// No description provided for @repository.
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub repository'**
+  String get repository;
+
+  /// No description provided for @reportBug.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a bug'**
+  String get reportBug;
+
+  /// No description provided for @linkOpenError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the link. You can copy the address below.'**
+  String get linkOpenError;
+
+  /// No description provided for @versionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} ({build})'**
+  String versionLabel(String version, String build);
+
+  /// No description provided for @versionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Version unavailable'**
+  String get versionUnavailable;
+
+  /// No description provided for @licensesLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load licenses. Please try again.'**
+  String get licensesLoadError;
+
+  /// No description provided for @copyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get copyLink;
+
+  /// No description provided for @licensesLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading licenses...'**
+  String get licensesLoading;
+
+  /// No description provided for @featureRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Request a feature'**
+  String get featureRequest;
+
+  /// No description provided for @systemLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'System language'**
+  String get systemLanguage;
+
+  /// No description provided for @systemThemeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow your device appearance'**
+  String get systemThemeDescription;
+
+  /// No description provided for @lightThemeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Always use the light theme'**
+  String get lightThemeDescription;
+
+  /// No description provided for @darkThemeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Always use the dark theme'**
+  String get darkThemeDescription;
 }
 
 class _AppLocalizationsDelegate

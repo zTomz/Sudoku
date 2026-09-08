@@ -378,5 +378,32 @@
         "type": "String"
       }
     }
-  }
+  },
+  "language": "Language",
+  "languageEnglish": "English",
+  "languageGerman": "Deutsch",
+  "support": "Help & feedback",
+  "repository": "GitHub repository",
+  "reportBug": "Report a bug",
+  "linkOpenError": "Could not open the link. You can copy the address below.",
+  "versionLabel": "Version {version} ({build})",
+  "versionUnavailable": "Version unavailable",
+  "licensesLoadError": "Could not load licenses. Please try again.",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "build": {
+        "type": "String"
+      }
+    }
+  },
+  "copyLink": "Copy link",
+  "licensesLoading": "Loading licenses...",
+  "featureRequest": "Request a feature",
+  "systemLanguage": "System language",
+  "systemThemeDescription": "Follow your device appearance",
+  "lightThemeDescription": "Always use the light theme",
+  "darkThemeDescription": "Always use the dark theme"
 }
