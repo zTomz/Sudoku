@@ -123,170 +123,181 @@ final class const SettingsContent({
   @override
   Widget build(BuildContext context) {
     final l = context.l10n, settings = controller.settings;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
+    final gameSettings = RudiSettingsGroup(
+      key: const ValueKey('settings-gameplay'),
+      title: l.gameSettings,
       children: [
-        RudiSettingsGroup(
-          title: l.gameSettings,
-          children: [
-            RudiSwitchTile(
-              title: l.showTimer,
-              leading: const Icon(SolarIconsOutline.stopwatch, size: 24),
-              value: settings.showTimer,
-              onChanged: (value) => controller.changeSettings(
-                controller.settings.copyWith(showTimer: value),
-              ),
-            ),
-            RudiSwitchTile(
-              title: l.cleanNotes,
-              leading: const Icon(SolarIconsOutline.pen2, size: 24),
-              value: settings.cleanNotes,
-              onChanged: (value) => controller.changeSettings(
-                controller.settings.copyWith(cleanNotes: value),
-              ),
-            ),
-            RudiSwitchTile(
-              title: l.numberFirst,
-              leading: const Icon(SolarIconsOutline.widget_5, size: 24),
-              value: settings.numberFirst,
-              onChanged: (value) => controller.changeSettings(
-                controller.settings.copyWith(numberFirst: value),
-              ),
-            ),
-            RudiSwitchTile(
-              title: l.haptics,
-              leading: const Icon(
-                SolarIconsOutline.smartphoneVibration,
-                size: 24,
-              ),
-              value: settings.haptics,
-              onChanged: (value) => controller.changeSettings(
-                controller.settings.copyWith(haptics: value),
-              ),
-            ),
-          ],
+        RudiSwitchTile(
+          title: l.showTimer,
+          leading: const Icon(SolarIconsOutline.stopwatch, size: 24),
+          value: settings.showTimer,
+          onChanged: (value) => controller.changeSettings(
+            controller.settings.copyWith(showTimer: value),
+          ),
         ),
-        const SizedBox(height: 28),
-        RudiSettingsGroup(
-          title: l.customization,
-          children: [
-            RudiSettingsTile(
-              key: const ValueKey('setting-language'),
-              title: l.language,
-              leading: const Icon(Icons.language, size: 24),
-              trailing: _SettingValue(
-                switch (settings.language) {
-                  AppLanguage.system => l.system,
-                  AppLanguage.en => l.languageEnglish,
-                  AppLanguage.de => l.languageGerman,
-                },
-                leading: settings.language == AppLanguage.system
-                    ? null
-                    : _LanguageFlag(settings.language),
-              ),
-              onPressed: () async {
-                final value = await _choose(
-                  context,
-                  title: l.language,
-                  selected: settings.language,
-                  options: [
-                    (
-                      AppLanguage.system,
-                      l.systemLanguage,
-                      const Icon(Icons.language, size: 24),
-                    ),
-                    (
-                      AppLanguage.en,
-                      l.languageEnglish,
-                      const _LanguageFlag(AppLanguage.en),
-                    ),
-                    (
-                      AppLanguage.de,
-                      l.languageGerman,
-                      const _LanguageFlag(AppLanguage.de),
-                    ),
-                  ],
-                );
-                if (value != null) {
-                  controller.changeSettings(
-                    controller.settings.copyWith(language: value),
-                  );
-                }
-              },
-            ),
-            RudiSettingsTile(
-              key: const ValueKey('setting-appearance'),
-              title: l.appearance,
-              leading: const Icon(SolarIconsOutline.moon, size: 24),
-              trailing: _SettingValue(
-                appearanceLabel(context, settings.appearance),
-              ),
-              onPressed: () async {
-                final value = await _choose(
-                  context,
-                  title: l.appearance,
-                  selected: settings.appearance,
-                  subtitle: (mode) => switch (mode) {
-                    AppAppearance.system => l.systemThemeDescription,
-                    AppAppearance.light => l.lightThemeDescription,
-                    AppAppearance.dark => l.darkThemeDescription,
-                  },
-                  options: [
-                    for (final mode in AppAppearance.values)
-                      (
-                        mode,
-                        appearanceLabel(context, mode),
-                        Icon(switch (mode) {
-                          AppAppearance.system => SolarIconsOutline.smartphone,
-                          AppAppearance.light => SolarIconsOutline.sun,
-                          AppAppearance.dark => SolarIconsOutline.moon,
-                        }, size: 24),
-                      ),
-                  ],
-                );
-                if (value != null) {
-                  controller.changeSettings(
-                    controller.settings.copyWith(appearance: value),
-                  );
-                }
-              },
-            ),
-            RudiSettingsTile(
-              key: const ValueKey('setting-board'),
-              title: l.boardTheme,
-              leading: const Icon(SolarIconsOutline.paletteRound, size: 24),
-              trailing: _SettingValue(
-                boardThemeLabel(context, settings.boardTheme),
-              ),
-              onPressed: () => unawaited(chooseBoardTheme(context, controller)),
-            ),
-            RudiSettingsTile(
-              key: const ValueKey('setting-errors'),
-              title: l.errorCheck,
-              leading: const Icon(SolarIconsOutline.checkCircle, size: 24),
-              trailing: _SettingValue(errorLabel(context, settings.errorCheck)),
-              onPressed: () async {
-                final value = await _choose(
-                  context,
-                  title: l.errorCheck,
-                  description: l.errorDescription,
-                  selected: settings.errorCheck,
-                  options: [
-                    for (final mode in ErrorCheck.values)
-                      (mode, errorLabel(context, mode), null),
-                  ],
-                );
-                if (value != null) {
-                  controller.changeSettings(
-                    controller.settings.copyWith(errorCheck: value),
-                  );
-                }
-              },
-            ),
-          ],
+        RudiSwitchTile(
+          title: l.cleanNotes,
+          leading: const Icon(SolarIconsOutline.pen2, size: 24),
+          value: settings.cleanNotes,
+          onChanged: (value) => controller.changeSettings(
+            controller.settings.copyWith(cleanNotes: value),
+          ),
+        ),
+        RudiSwitchTile(
+          title: l.numberFirst,
+          leading: const Icon(SolarIconsOutline.widget_5, size: 24),
+          value: settings.numberFirst,
+          onChanged: (value) => controller.changeSettings(
+            controller.settings.copyWith(numberFirst: value),
+          ),
+        ),
+        RudiSwitchTile(
+          title: l.haptics,
+          leading: const Icon(SolarIconsOutline.smartphoneVibration, size: 24),
+          value: settings.haptics,
+          onChanged: (value) => controller.changeSettings(
+            controller.settings.copyWith(haptics: value),
+          ),
         ),
       ],
+    );
+    final customization = RudiSettingsGroup(
+      key: const ValueKey('settings-customization'),
+      title: l.customization,
+      children: [
+        RudiSettingsTile(
+          key: const ValueKey('setting-language'),
+          title: l.language,
+          leading: const Icon(Icons.language, size: 24),
+          trailing: _SettingValue(
+            switch (settings.language) {
+              AppLanguage.system => l.system,
+              AppLanguage.en => l.languageEnglish,
+              AppLanguage.de => l.languageGerman,
+            },
+            leading: settings.language == AppLanguage.system
+                ? null
+                : _LanguageFlag(settings.language),
+          ),
+          onPressed: () async {
+            final value = await _choose(
+              context,
+              title: l.language,
+              selected: settings.language,
+              options: [
+                (
+                  AppLanguage.system,
+                  l.systemLanguage,
+                  const Icon(Icons.language, size: 24),
+                ),
+                (
+                  AppLanguage.en,
+                  l.languageEnglish,
+                  const _LanguageFlag(AppLanguage.en),
+                ),
+                (
+                  AppLanguage.de,
+                  l.languageGerman,
+                  const _LanguageFlag(AppLanguage.de),
+                ),
+              ],
+            );
+            if (value != null) {
+              controller.changeSettings(
+                controller.settings.copyWith(language: value),
+              );
+            }
+          },
+        ),
+        RudiSettingsTile(
+          key: const ValueKey('setting-appearance'),
+          title: l.appearance,
+          leading: const Icon(SolarIconsOutline.moon, size: 24),
+          trailing: _SettingValue(
+            appearanceLabel(context, settings.appearance),
+          ),
+          onPressed: () async {
+            final value = await _choose(
+              context,
+              title: l.appearance,
+              selected: settings.appearance,
+              subtitle: (mode) => switch (mode) {
+                AppAppearance.system => l.systemThemeDescription,
+                AppAppearance.light => l.lightThemeDescription,
+                AppAppearance.dark => l.darkThemeDescription,
+              },
+              options: [
+                for (final mode in AppAppearance.values)
+                  (
+                    mode,
+                    appearanceLabel(context, mode),
+                    Icon(switch (mode) {
+                      AppAppearance.system => SolarIconsOutline.smartphone,
+                      AppAppearance.light => SolarIconsOutline.sun,
+                      AppAppearance.dark => SolarIconsOutline.moon,
+                    }, size: 24),
+                  ),
+              ],
+            );
+            if (value != null) {
+              controller.changeSettings(
+                controller.settings.copyWith(appearance: value),
+              );
+            }
+          },
+        ),
+        RudiSettingsTile(
+          key: const ValueKey('setting-board'),
+          title: l.boardTheme,
+          leading: const Icon(SolarIconsOutline.paletteRound, size: 24),
+          trailing: _SettingValue(
+            boardThemeLabel(context, settings.boardTheme),
+          ),
+          onPressed: () => unawaited(chooseBoardTheme(context, controller)),
+        ),
+        RudiSettingsTile(
+          key: const ValueKey('setting-errors'),
+          title: l.errorCheck,
+          leading: const Icon(SolarIconsOutline.checkCircle, size: 24),
+          trailing: _SettingValue(errorLabel(context, settings.errorCheck)),
+          onPressed: () async {
+            final value = await _choose(
+              context,
+              title: l.errorCheck,
+              description: l.errorDescription,
+              selected: settings.errorCheck,
+              options: [
+                for (final mode in ErrorCheck.values)
+                  (mode, errorLabel(context, mode), null),
+              ],
+            );
+            if (value != null) {
+              controller.changeSettings(
+                controller.settings.copyWith(errorCheck: value),
+              );
+            }
+          },
+        ),
+      ],
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth >= 720) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: gameSettings),
+              const SizedBox(width: 28),
+              Expanded(child: customization),
+            ],
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [gameSettings, const SizedBox(height: 28), customization],
+        );
+      },
     );
   }
 }

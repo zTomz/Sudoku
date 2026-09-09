@@ -10,7 +10,10 @@ const _minimumPlayableBoardExtent =
     sudokuSideLength * _minimumPlayableCellExtent;
 
 @visibleForTesting
-double gameBoardExtent(BoxConstraints constraints) {
+double gameBoardExtent(
+  BoxConstraints constraints, {
+  bool allowCompact = false,
+}) {
   final widthBoundedExtent = math.min(
     constraints.maxWidth,
     _maximumBoardExtent,
@@ -19,7 +22,7 @@ double gameBoardExtent(BoxConstraints constraints) {
       constraints.maxHeight >= widthBoundedExtent) {
     return widthBoundedExtent;
   }
-  if (constraints.maxHeight >= _minimumPlayableBoardExtent) {
+  if (allowCompact || constraints.maxHeight >= _minimumPlayableBoardExtent) {
     return constraints.maxHeight;
   }
   return math.min(widthBoundedExtent, _minimumPlayableBoardExtent);
@@ -28,12 +31,13 @@ double gameBoardExtent(BoxConstraints constraints) {
 final class const GameBoardViewport({
   required final Widget board,
   final Widget? overlay,
+  final bool allowCompact = false,
   super.key,
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
-      final extent = gameBoardExtent(constraints);
+      final extent = gameBoardExtent(constraints, allowCompact: allowCompact);
       return Center(
         child: SingleChildScrollView(
           child: SizedBox.square(

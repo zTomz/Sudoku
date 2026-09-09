@@ -235,70 +235,115 @@ final class _GamePageState() extends ConsumerState<GamePage> {
                   ignoring: controller.paused,
                   child: RudiPage(
                     padding: .zero,
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 760),
-                        child: Column(
-                          children: [
-                            GameHeader(
-                              controller: controller,
-                              onOpenBoardTheme: () => unawaited(
-                                _openSettings(context, boardOnly: true),
-                              ),
-                              onOpenSettings: () =>
-                                  unawaited(_openSettings(context)),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final useWideLayout =
+                            constraints.maxWidth >= 800 &&
+                            constraints.maxHeight < 640;
+                        final board = GameBoardViewport(
+                          allowCompact: useWideLayout,
+                          board: SudokuBoard(
+                            controller: controller,
+                            game: game,
+                            hint: _hintVisual,
+                          ),
+                          overlay:
+                              !controller.paused &&
+                                  controller.scoreAwardPoints > 0
+                              ? ScorePopup(
+                                  key: ValueKey(controller.scoreAwardSequence),
+                                  points: controller.scoreAwardPoints,
+                                  cell: controller.scoreAwardCell,
+                                )
+                              : null,
+                        );
+                        final controls = GameControls(
+                          controller: controller,
+                          coach: controller.paused ? null : _coach,
+                          onShowHint: _showHint,
+                          onAdvanceHint: _advanceHint,
+                          onExplainHint: () =>
+                              unawaited(_showHintExplanation(context)),
+                          onCloseHint: _closeHint,
+                        );
+                        return Center(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: useWideLayout ? 1040 : 760,
                             ),
-                            GameStatusBar(
-                              game: game,
-                              showTimer: controller.settings.showTimer,
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const .symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                child: GameBoardViewport(
-                                  board: SudokuBoard(
-                                    controller: controller,
-                                    game: game,
-                                    hint: _hintVisual,
-                                  ),
-                                  overlay:
-                                      !controller.paused &&
-                                          controller.scoreAwardPoints > 0
-                                      ? ScorePopup(
-                                          key: ValueKey(
-                                            controller.scoreAwardSequence,
-                                          ),
-                                          points: controller.scoreAwardPoints,
-                                          cell: controller.scoreAwardCell,
-                                        )
-                                      : null,
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              key: const ValueKey('game-toolbar'),
-                              padding: const .fromLTRB(12, 4, 12, 12),
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 600,
-                                ),
-                                child: GameControls(
+                            child: Column(
+                              children: [
+                                GameHeader(
                                   controller: controller,
-                                  coach: controller.paused ? null : _coach,
-                                  onShowHint: _showHint,
-                                  onAdvanceHint: _advanceHint,
-                                  onExplainHint: () =>
-                                      unawaited(_showHintExplanation(context)),
-                                  onCloseHint: _closeHint,
+                                  onOpenBoardTheme: () => unawaited(
+                                    _openSettings(context, boardOnly: true),
+                                  ),
+                                  onOpenSettings: () =>
+                                      unawaited(_openSettings(context)),
                                 ),
-                              ),
+                                GameStatusBar(
+                                  game: game,
+                                  showTimer: controller.settings.showTimer,
+                                ),
+                                if (useWideLayout)
+                                  Expanded(
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const .fromLTRB(
+                                              16,
+                                              4,
+                                              12,
+                                              12,
+                                            ),
+                                            child: board,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 360,
+                                          child: Padding(
+                                            key: const ValueKey('game-toolbar'),
+                                            padding: const .fromLTRB(
+                                              12,
+                                              4,
+                                              16,
+                                              12,
+                                            ),
+                                            child: Center(child: controls),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                else ...[
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const .symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
+                                      ),
+                                      child: board,
+                                    ),
+                                  ),
+                                  Padding(
+                                    key: const ValueKey('game-toolbar'),
+                                    padding: const .fromLTRB(12, 4, 12, 12),
+                                    child: ConstrainedBox(
+                                      constraints: const BoxConstraints(
+                                        maxWidth: 600,
+                                      ),
+                                      child: controls,
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),

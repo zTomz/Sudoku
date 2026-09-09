@@ -732,6 +732,7 @@ void main() {
     const Size(390, 844),
     const Size(320, 568),
     const Size(844, 390),
+    const Size(1280, 672),
     const Size(1200, 900),
   ]) {
     testWidgets('game anchors header and controls at $size', (tester) async {
@@ -772,6 +773,12 @@ void main() {
       final boardRect = tester.getRect(
         find.byKey(const ValueKey('board-grid')),
       );
+      if (size.width >= 800) {
+        expect(boardRect.left, greaterThanOrEqualTo(0));
+        expect(boardRect.top, greaterThanOrEqualTo(0));
+        expect(boardRect.right, lessThanOrEqualTo(size.width));
+        expect(boardRect.bottom, lessThanOrEqualTo(size.height));
+      }
       final givenCell = puzzle.givens.indexWhere((value) => value != 0);
       final givenFinder = find.descendant(
         of: find.byKey(ValueKey('cell-$givenCell')),
@@ -857,6 +864,120 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
+
+  testWidgets('tablet destinations use wide layouts above the navigation', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(960, 540);
+    addTearDown(tester.view.reset);
+    final controllerHarness = ControllerHarness(
+      GameRepository(
+        MemoryStore()
+          ..value = SavedGames(
+            results: const {
+              'easy': GameResult('easy', Difficulty.easy, 286, null, 260, 0),
+              'medium': GameResult(
+                'medium',
+                Difficulty.medium,
+                514,
+                null,
+                315,
+                1,
+              ),
+              'hard': GameResult('hard', Difficulty.hard, 842, null, 390, 2),
+            },
+          ).encode(),
+      ),
+    );
+    addTearDown(controllerHarness.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: controllerHarness.container,
+        child: const SudokuApp(locale: Locale('en')),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('new-game'))).dx,
+      greaterThan(
+        tester.getTopLeft(find.byKey(const ValueKey('daily-today'))).dx,
+      ),
+    );
+
+    await tester.tap(find.byKey(const ValueKey('nav-2')));
+    await tester.pumpAndSettle();
+    final navigationTop = tester
+        .getRect(find.byType(RudiFloatingNavigationBar))
+        .top;
+    final difficultyRects = [
+      for (final label in ['Easy', 'Medium', 'Hard'])
+        tester.getRect(find.text(label)),
+    ];
+    expect(difficultyRects.map((rect) => rect.top).toSet(), hasLength(1));
+    for (final difficulty in Difficulty.values) {
+      expect(
+        tester
+            .getRect(
+              find.byKey(ValueKey('statistics-difficulty-${difficulty.name}')),
+            )
+            .bottom,
+        lessThan(navigationTop),
+      );
+    }
+
+    await tester.tap(find.byKey(const ValueKey('nav-3')));
+    await tester.pumpAndSettle();
+    final gameplay = tester.getRect(
+      find.byKey(const ValueKey('settings-gameplay')),
+    );
+    final customization = tester.getRect(
+      find.byKey(const ValueKey('settings-customization')),
+    );
+    expect(customization.left, greaterThan(gameplay.left));
+    expect(customization.top, gameplay.top);
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final size in [const Size(390, 844), const Size(960, 540)]) {
+    testWidgets('empty statistics adapt above the navigation at $size', (
+      tester,
+    ) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = size;
+      addTearDown(tester.view.reset);
+      final harness = ControllerHarness(GameRepository(MemoryStore()));
+      addTearDown(harness.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: harness.container,
+          child: const SudokuApp(
+            locale: Locale('en'),
+            initialLocation: '/statistics',
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final emptyState = find.byKey(
+        ValueKey(
+          size.width >= 720
+              ? 'statistics-empty-wide'
+              : 'statistics-empty-compact',
+        ),
+      );
+      expect(emptyState, findsOneWidget);
+      expect(find.text('Your first puzzle is waiting.'), findsOneWidget);
+      expect(
+        tester.getRect(emptyState).bottom,
+        lessThanOrEqualTo(
+          tester.getRect(find.byType(RudiFloatingNavigationBar)).top,
+        ),
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   for (final path in ['/', '/daily', '/statistics', '/settings']) {
     testWidgets('system back preserves the game from $path', (tester) async {

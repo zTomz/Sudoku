@@ -5,8 +5,8 @@
 <h1 align="center">Sudoku</h1>
 
 <p align="center">
-  A little focus. One puzzle at a time.<br />
-  An open-source Sudoku app built with Flutter and Rudi UI.
+  A calm, straightforward Sudoku app for the daily puzzle and everything in between.<br />
+  Open source, built with Flutter, and free of accounts, ads and tracking.
 </p>
 
 <p align="center">
@@ -16,66 +16,62 @@
 </p>
 
 <p align="center">
-  <a href="#get-sudoku">Get Sudoku</a> &nbsp;·&nbsp;
+  <a href="https://ztomz.github.io/Sudoku/">Play online</a> &nbsp;·&nbsp;
+  <a href="#screenshots">Screenshots</a> &nbsp;·&nbsp;
   <a href="#features">Features</a> &nbsp;·&nbsp;
-  <a href="#platforms">Platforms</a> &nbsp;·&nbsp;
-  <a href="https://ztomz.github.io/Sudoku/#/privacy-policy">Privacy</a> &nbsp;·&nbsp;
   <a href="#run-from-source">Run from source</a> &nbsp;·&nbsp;
   <a href="CONTRIBUTING.md">Contributing</a>
 </p>
 
 ---
 
-Pick up your daily puzzle, return to an unfinished game, or start a fresh board. Sudoku keeps the experience simple: a clear grid, useful solving tools, and progress saved on your device.
+I built Sudoku because I wanted a puzzle app that feels polished without constantly asking for attention. Open it, solve a board, and put it away again. Your games stay on your device, and the app works without an account or a network connection.
+
+There is a fresh daily puzzle, locally generated free-play boards, and a small set of tools that help without solving the game for you.
+
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/home.png" alt="Sudoku home screen with the daily puzzle and difficulty choices" width="23%" />
+  <img src="docs/screenshots/notes.png" alt="A Sudoku game in progress with pencil notes" width="23%" />
+  <img src="docs/screenshots/hint.png" alt="A visual hint explaining the next logical step" width="23%" />
+  <img src="docs/screenshots/settings.png" alt="Sudoku settings and customization options" width="23%" />
+</p>
 
 ## Get Sudoku
 
-| Platform | Start here |
-| --- | --- |
-| **Web** | [Play Sudoku in your browser](https://ztomz.github.io/Sudoku/). After the first successful online visit, the app can work offline. |
-| **Android** | Download `app-release.apk` from the [latest release (v0.1.0)](https://github.com/zTomz/Sudoku/releases/tag/v0.1.0). |
-| **Windows** | Build the desktop app from source using the instructions below. |
-
-The [v0.1.0 release](https://github.com/zTomz/Sudoku/releases/tag/v0.1.0) is the first public version of Sudoku. GitHub also provides source archives on the release page.
-
-<!-- Screenshots: add real app captures here when available. Keep images in
-     docs/screenshots/ and use relative paths with descriptive alt text.
-     Suggested views: home, a game in progress, and board themes.
-     Do not add image tags until the corresponding files exist. -->
+- **Web:** [Play in your browser](https://ztomz.github.io/Sudoku/). Once it has loaded successfully, it is available offline too.
+- **Android:** Download `app-release.apk` from the [latest release](https://github.com/zTomz/Sudoku/releases/latest).
+- **Windows:** Build the desktop app from source using the instructions below.
 
 ## Features
 
-| | |
-| --- | --- |
-| **A puzzle every day** | Daily challenges with a swipeable calendar to revisit earlier days and keep track of completed puzzles. |
-| **Fresh boards, your pace** | Locally generated, unique-solution puzzles with verified no-guess logical paths in easy, medium and hard levels. |
-| **Tools for solving** | Pencil notes, automatic note cleanup, undo, redo and erasing. Hints first point to the relevant area, then explain the reasoning, and reveal the number only when explicitly requested. Choose a cell first or select a number first. |
-| **Just enough guidance** | Solution checking marks only incorrect entries; correct digits and clues stay unmarked. Optional conflict-only checking or no checking. Mistakes are still counted when visible checking is disabled. After nine placements, a digit becomes a disabled checkmark; erasing or undoing a placement makes it available again. Once every remaining empty cell belongs to the same digit, those final entries are filled with a staggered animation. Completing a digit, row, column or 3×3 box triggers a smooth accent animation; a full board carries the wave across every cell. Subtle haptics follow the wave and respect the reduced-motion and haptic settings. |
-| **Pick up where you left off** | Automatic local saves, separate daily and free-play progress, and a pause dialog that conceals the board. System back returns from a game to the previous app page without losing progress; when paused, it resumes the game first. |
-| **Make it yours** | Light, dark and system appearance, four board themes, optional haptics and an optional timer. Choose English, German or the system language in Settings. |
-| **See your progress** | Earn points for correct entries and completed rows, columns and 3×3 boxes, with rolling score feedback plus completion and accuracy bonuses. Statistics show an overview of solved puzzles, points and total play time, with clearly labeled completion counts, mistakes and best times for each difficulty. |
-| **Touch or keyboard** | Responsive layouts, keyboard controls, and English and German translations. |
-| **Privacy built in** | Read the same Privacy Policy in Settings or directly on the public Web app. Settings also provide offline open-source licenses, the installed version and build number, and links to the GitHub repository, bug reports and feature requests. External links open in your browser; no report is sent automatically. |
+- A daily puzzle with a calendar for going back to earlier days
+- Fresh easy, medium and hard boards generated on your device
+- Pencil notes, undo and redo, number-first input, and keyboard controls
+- Step-by-step hints that explain the next logical move before offering the answer
+- Optional error checking, haptics and timer
+- Light and dark mode, four board themes, and English and German translations
+- Local progress, statistics, best times and scores
+- Responsive layouts for phones, tablets, Web and Windows
+
+The generator grades puzzles by the techniques needed to solve them, not just by clue count. Every generated board has a unique solution and a logical path that does not require guessing.
+
+## Private by default
+
+Sudoku has no account, ads, analytics or cloud game service. Puzzles are generated locally, and your games, statistics and settings stay on your device.
+
+The Web version needs one successful online visit before it can work offline. Clearing the app data or browser storage also clears saved games; cloud sync and backup/export are not available. See the [Privacy Policy](https://ztomz.github.io/Sudoku/#/privacy-policy) or the [technical data inventory](docs/DATA.md) for the details.
 
 ## Platforms
 
-The project currently includes **Android**, **Windows** and **Web** targets. The Web app is [available on GitHub Pages](https://ztomz.github.io/Sudoku/), and the [latest GitHub release](https://github.com/zTomz/Sudoku/releases/tag/v0.1.0) provides the Android APK. Windows can be built from source. iOS, macOS and Linux runners are not included yet.
+The repository contains **Android**, **Windows** and **Web** targets. The Web version is hosted on [GitHub Pages](https://ztomz.github.io/Sudoku/), and Android builds are published with [GitHub Releases](https://github.com/zTomz/Sudoku/releases). Windows can currently be built from source. iOS, macOS and Linux runners are not included.
 
-You can run the app from source using the steps below. Platform builds, signing and Web deployment are documented in the [release guide](docs/RELEASING.md).
-
-The `Publish GitHub Pages` workflow automatically tests, builds and deploys the hosted Web app on pushes to `main`, and can also be started manually on `main`. The workflow uses the configured Pages path and preserves offline support.
-
-## Your puzzles stay with you
-
-No account, ads, analytics or cloud game service. Puzzles are generated on your device, and your settings and progress are stored locally.
-
-The Web version needs an initial online visit to cache the app before it can work offline. Clearing app data or browser storage removes saved games; cloud sync and backup/export are not available yet. Read the public [Privacy Policy](https://ztomz.github.io/Sudoku/#/privacy-policy) or see the supporting [technical data inventory](docs/DATA.md).
+Builds, signing and the Web deployment are documented in the [release guide](docs/RELEASING.md).
 
 ## Run from source
 
-Use **Flutter 3.47.0 or newer** with **Dart 3.13.0 or newer** and the development tools for your target platform. Android needs the Android SDK and JDK; Windows needs Visual Studio with the C++ desktop workload.
-
-From the repository root:
+You need **Flutter 3.47.0 or newer** with **Dart 3.13.0 or newer**, plus the development tools for your target platform. Android requires the Android SDK and a JDK; Windows requires Visual Studio with the C++ desktop workload.
 
 ```sh
 flutter pub get --enforce-lockfile
@@ -84,17 +80,17 @@ flutter devices
 flutter run -d <device-id>
 ```
 
-For example, use `flutter run -d windows` for Windows or `flutter run -d chrome` for Web. For Android, use the ID of a connected device or emulator from `flutter devices`.
+For example, use `flutter run -d windows` for Windows or `flutter run -d chrome` for Web. For Android, choose a connected device or emulator from `flutter devices`.
 
-Before a Web debug run, compile the background worker (repeat after engine changes):
+Before a Web debug run, compile the background worker. Repeat this after changing the puzzle engine:
 
 ```sh
 dart compile js -O2 lib/features/game/data/puzzle_worker.dart -o web/sudoku_worker.js
 ```
 
-Native generation uses an isolate; Web generation uses a dedicated worker so searching does not block the interface. Web release preparation compiles and caches the worker automatically.
+Puzzle generation runs in an isolate on native platforms and in a dedicated worker on Web, so it does not block the interface. Release preparation compiles and caches the Web worker automatically.
 
-[Rudi UI](https://github.com/zTomz/rudi_ui) is fetched from the public Git revision pinned in `pubspec.yaml`. No separate Rudi checkout or local override is needed.
+[Rudi UI](https://github.com/zTomz/rudi_ui) is fetched from the public Git revision pinned in `pubspec.yaml`; a separate local checkout is not required.
 
 <details>
 <summary><strong>Development checks</strong></summary>
@@ -108,36 +104,29 @@ flutter test
 
 When changing translations, edit both ARB files in `lib/l10n/`, run `flutter gen-l10n`, and include the generated files. Do not edit generated Dart manually.
 
-Application state uses Riverpod with generator syntax. After editing providers, run `dart run build_runner build` and include the generated files. Repository and generator providers can be overridden in tests; no manual providers or ChangeNotifier adapters are used.
+Application state uses Riverpod with code generation. After editing providers, run `dart run build_runner build` and include the generated files.
 
-The test suite covers puzzle validity and uniqueness, reproducible daily challenges, undo/redo, persistence and UI behavior. Manual device testing complements these checks.
-
-For Web release builds, follow the [offline-cache preparation steps](docs/RELEASING.md#web--github-pages). A regular debug run does not prepare the release cache.
+For Web release builds, follow the [offline-cache preparation steps](docs/RELEASING.md#web--github-pages).
 
 </details>
 
 ## Contributing
 
-Bug reports, UI improvements, translations and code contributions are welcome. Start with the [contributing guide](CONTRIBUTING.md), and discuss substantial changes before opening a pull request.
+Bug reports, UI ideas, translations and pull requests are welcome. The [contributing guide](CONTRIBUTING.md) covers the basics. If you are planning a larger change, please open an issue first so we can make sure it fits the project.
 
-New free-play and daily puzzles are graded by logical solving techniques: singles for easy; locked candidates and pairs for medium; triples, X-Wing and XY-Wing additionally available for hard. Medium and hard puzzles must resist the simpler technique set. An additional effort score counts technique frequency and scarce immediate moves, allowing finer comparison within a tier; it is shown in the hint sheet. Generation prefers rotationally symmetric clues, but prioritizes the requested difficulty. Ratings are deterministic heuristics, not a universal measure of human difficulty.
-
-Free-play and daily puzzles use the same technique-graded generator; no legacy generator or save migrations are included. Generation is bounded and may offer a retry rather than substitute an incorrectly rated puzzle. Hints use the current board and ignore player notes. They visually explain the next deduction without changing notes or entering numbers automatically. Backup/export and additional Sudoku variants are not implemented yet.
+The puzzle generator, solver and grading system are all part of this repository. Easy boards use singles; medium boards can add locked candidates and pairs; hard boards can also use triples, X-Wing and XY-Wing. Generation prefers rotationally symmetric clues but always prioritizes the requested difficulty.
 
 ## Built with
 
-- **[Flutter & Dart](pubspec.yaml)** for the app and puzzle engine.
-- **[Rudi UI](https://github.com/zTomz/rudi_ui)** for components, themes and interaction patterns.
-- **[Cue](https://pub.dev/packages/cue)** for transitions.
-- **[Reel Text](https://pub.dev/packages/reel_text)** for rolling score updates.
-- **[Riverpod](https://riverpod.dev/)** with code generation for application state and testable dependencies.
-- **[go_router](https://pub.dev/packages/go_router)** for URL-based navigation and Web deep links.
-- **[Solar Icons](https://solar-icons.vercel.app/)** through the `solar_icons` Flutter package, plus Flutter’s Material language icon.
-- **[url_launcher](https://pub.dev/packages/url_launcher)** for opening external links and **[package_info_plus](https://pub.dev/packages/package_info_plus)** for installed version information.
-- **Google Sans** for typography, bundled with the app.
+- [Flutter & Dart](pubspec.yaml) for the app and puzzle engine
+- [Rudi UI](https://github.com/zTomz/rudi_ui) for components and themes
+- [Riverpod](https://riverpod.dev/) for application state
+- [Cue](https://pub.dev/packages/cue) and [Reel Text](https://pub.dev/packages/reel_text) for motion
+- [go_router](https://pub.dev/packages/go_router) for navigation and Web deep links
+- [Solar Icons](https://solar-icons.vercel.app/) and Google Sans for the visual language
 
 ## License
 
-Sudoku is created by **Tom Vogel** and released under the [MIT License](LICENSE).
+Sudoku is made by [Tom Vogel](https://github.com/zTomz) and released under the [MIT License](LICENSE).
 
-Third-party assets keep their own licenses: [Google Sans](assets/fonts/OFL.txt) uses the SIL Open Font License; [Solar Icons and its Flutter package](assets/licenses/solar-icons.txt) include CC BY 4.0 and BSD-3-Clause notices. Rudi UI is MIT-licensed. Other dependencies retain their respective licenses.
+Third-party assets keep their own licenses. Google Sans uses the [SIL Open Font License](assets/fonts/OFL.txt); Solar Icons and its Flutter package include [CC BY 4.0 and BSD-3-Clause notices](assets/licenses/solar-icons.txt). Rudi UI is MIT-licensed.

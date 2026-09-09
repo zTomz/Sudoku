@@ -56,80 +56,113 @@ final class const HomePage({
               true,
         )
         .length;
-    return RudiPage(
-      padding: .zero,
-      child: Align(
-        alignment: .topCenter,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 620),
-          child: ListView(
-            padding: const .fromLTRB(16, 16, 16, 128),
-            children: [
-              Row(
-                children: [
-                  IconTheme(
-                    data: IconThemeData(color: theme.colors.accent),
-                    child: const Icon(SolarIconsOutline.widget_5, size: 28),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      l.appTitle,
-                      style: theme.text.headline.copyWith(letterSpacing: -.7),
-                    ),
-                  ),
-                ],
+    final header = Column(
+      crossAxisAlignment: .stretch,
+      children: [
+        Row(
+          children: [
+            IconTheme(
+              data: IconThemeData(color: theme.colors.accent),
+              child: const Icon(SolarIconsOutline.widget_5, size: 28),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                l.appTitle,
+                style: theme.text.headline.copyWith(letterSpacing: -.7),
               ),
-              const SizedBox(height: 8),
-              Text(
-                l.homeSubtitle,
-                style: theme.text.body.copyWith(
-                  color: theme.colors.mutedForeground,
-                ),
-              ),
-              const SizedBox(height: 24),
-              DailyCard(controller: controller, today: today),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  IconTheme(
-                    data: IconThemeData(color: theme.colors.accent),
-                    child: const Icon(SolarIconsOutline.checkCircle, size: 18),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '${l.monthProgress(solvedThisMonth)} · ${l.pointsValue(controller.totalPoints)}',
-                      style: theme.text.caption.copyWith(
-                        color: theme.colors.mutedForeground,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              if (saved != null && !saved.complete) ...[
-                const SizedBox(height: 24),
-                ResumeCard(controller: controller),
-              ],
-              const SizedBox(height: 28),
-              Text(
-                l.newGame,
-                key: const ValueKey('new-game'),
-                style: theme.text.title,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                l.chooseDifficulty,
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          l.homeSubtitle,
+          style: theme.text.body.copyWith(color: theme.colors.mutedForeground),
+        ),
+      ],
+    );
+    final daily = Column(
+      crossAxisAlignment: .stretch,
+      children: [
+        DailyCard(controller: controller, today: today),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            IconTheme(
+              data: IconThemeData(color: theme.colors.accent),
+              child: const Icon(SolarIconsOutline.checkCircle, size: 18),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '${l.monthProgress(solvedThisMonth)} · ${l.pointsValue(controller.totalPoints)}',
                 style: theme.text.caption.copyWith(
                   color: theme.colors.mutedForeground,
                 ),
               ),
-              const SizedBox(height: 14),
-              DifficultySelector(
-                onSelected: (difficulty) =>
-                    unawaited(_newGame(context, difficulty)),
+            ),
+          ],
+        ),
+      ],
+    );
+    final newGame = Column(
+      crossAxisAlignment: .stretch,
+      children: [
+        if (saved != null && !saved.complete) ...[
+          ResumeCard(controller: controller),
+          const SizedBox(height: 28),
+        ],
+        Text(
+          l.newGame,
+          key: const ValueKey('new-game'),
+          style: theme.text.title,
+        ),
+        const SizedBox(height: 6),
+        Text(
+          l.chooseDifficulty,
+          style: theme.text.caption.copyWith(
+            color: theme.colors.mutedForeground,
+          ),
+        ),
+        const SizedBox(height: 14),
+        DifficultySelector(
+          onSelected: (difficulty) => unawaited(_newGame(context, difficulty)),
+        ),
+      ],
+    );
+    return RudiPage(
+      padding: .zero,
+      child: LayoutBuilder(
+        builder: (context, constraints) => Align(
+          alignment: .topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1040),
+            child: ListView(
+              padding: EdgeInsets.fromLTRB(
+                constraints.maxWidth < 600 ? 16 : 40,
+                constraints.maxWidth < 600 ? 16 : 32,
+                constraints.maxWidth < 600 ? 16 : 40,
+                128,
               ),
-            ],
+              children: [
+                header,
+                const SizedBox(height: 24),
+                if (constraints.maxWidth >= 760)
+                  Row(
+                    crossAxisAlignment: .start,
+                    children: [
+                      Expanded(flex: 5, child: daily),
+                      const SizedBox(width: 32),
+                      Expanded(flex: 4, child: newGame),
+                    ],
+                  )
+                else ...[
+                  daily,
+                  const SizedBox(height: 28),
+                  newGame,
+                ],
+              ],
+            ),
           ),
         ),
       ),
