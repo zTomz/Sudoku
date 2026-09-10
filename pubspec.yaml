@@ -1,7 +1,7 @@
 name: sudoku
 description: A quiet, offline Sudoku app built with Flutter and Rudi UI.
 publish_to: 'none'
-version: 0.1.1+2
+version: 0.2.0+3
 
 environment:
   sdk: ^3.13.0
