@@ -29,6 +29,30 @@ final class MemoryStore() implements SnapshotStore {
   }
 }
 
+final class RecoverableMemoryStore() implements RecoverableSnapshotStore {
+  String? value;
+  String? recovery;
+  int remainingReadFailures = 0;
+
+  @override
+  Future<String?> read() async {
+    if (remainingReadFailures > 0) {
+      remainingReadFailures--;
+      throw StateError('transient read failure');
+    }
+    return value;
+  }
+
+  @override
+  Future<String?> readRecovery() async => recovery;
+
+  @override
+  Future<void> write(String snapshot) async => value = snapshot;
+
+  @override
+  Future<void> writeRecovery(String snapshot) async => recovery = snapshot;
+}
+
 void main() {
   test('disposing during generation leaves the saved game untouched', () async {
     final puzzle = await SudokuEngine().generate(
@@ -95,6 +119,41 @@ void main() {
     await controller.initialize();
     expect(controller.ready, true);
     controllerHarness.dispose();
+  });
+  test('transient read failures are retried before showing an error', () async {
+    final expected = SavedGames(settings: const AppSettings(showTimer: false));
+    final store = RecoverableMemoryStore()
+      ..value = expected.encode()
+      ..remainingReadFailures = 2;
+
+    final loaded = await GameRepository(store).load();
+
+    expect(loaded.settings.showTimer, false);
+    expect(store.remainingReadFailures, 0);
+  });
+  test('a corrupt primary snapshot falls back to the recovery copy', () async {
+    final recovery = SavedGames(settings: const AppSettings(showTimer: false));
+    final store = RecoverableMemoryStore()
+      ..value = 'corrupt data'
+      ..recovery = recovery.encode();
+
+    final loaded = await GameRepository(store).load();
+
+    expect(loaded.settings.showTimer, false);
+    expect(store.value, 'corrupt data');
+  });
+  test('saving keeps the previous validated snapshot for recovery', () async {
+    final original = SavedGames();
+    final store = RecoverableMemoryStore()..value = original.encode();
+    final repository = GameRepository(store);
+    await repository.load();
+
+    await repository.save(
+      SavedGames(settings: const AppSettings(showTimer: false)),
+    );
+
+    expect(store.recovery, original.encode());
+    expect(SavedGames.decode(store.value!).settings.showTimer, false);
   });
   test('write failures are visible and retries recover', () async {
     final store = MemoryStore();

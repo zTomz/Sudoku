@@ -11,13 +11,24 @@ abstract interface class SnapshotStore() {
   Future<void> write(String value);
 }
 
+abstract interface class RecoverableSnapshotStore() implements SnapshotStore {
+  Future<String?> readRecovery();
+  Future<void> writeRecovery(String value);
+}
+
 final class PreferencesSnapshotStore(final SharedPreferencesAsync preferences)
-    implements SnapshotStore {
+    implements RecoverableSnapshotStore {
   static const key = 'sudoku.snapshot.v1';
+  static const recoveryKey = 'sudoku.snapshot.recovery.v1';
   @override
   Future<String?> read() => preferences.getString(key);
   @override
   Future<void> write(String value) => preferences.setString(key, value);
+  @override
+  Future<String?> readRecovery() => preferences.getString(recoveryKey);
+  @override
+  Future<void> writeRecovery(String value) =>
+      preferences.setString(recoveryKey, value);
 }
 
 final class const GameResult(
@@ -102,16 +113,65 @@ final class SavedGames({
 
 final class GameRepository(final SnapshotStore store) {
   Future<void> _pending = Future.value();
+  String? _lastKnownGood;
+
   Future<SavedGames> load() async {
-    final raw = await store.read();
-    return raw == null ? SavedGames() : SavedGames.decode(raw);
+    Object? primaryError;
+    StackTrace? primaryStackTrace;
+    try {
+      final raw = await _readWithRetry(store.read);
+      if (raw == null) return SavedGames();
+      final games = SavedGames.decode(raw);
+      _lastKnownGood = raw;
+      return games;
+    } catch (error, stackTrace) {
+      primaryError = error;
+      primaryStackTrace = stackTrace;
+    }
+
+    if (store case final RecoverableSnapshotStore recoverable) {
+      try {
+        final raw = await _readWithRetry(recoverable.readRecovery);
+        if (raw != null) {
+          final games = SavedGames.decode(raw);
+          _lastKnownGood = raw;
+          return games;
+        }
+      } catch (_) {
+        // Report the primary failure when neither validated copy can be loaded.
+      }
+    }
+    Error.throwWithStackTrace(primaryError, primaryStackTrace);
   }
 
   Future<void> save(SavedGames games) {
     final snapshot = games.encode();
     // Serialize writes. A failed write must not poison subsequent retries.
-    final result = _pending.then((_) => store.write(snapshot));
+    final result = _pending.then((_) async {
+      if (store case final RecoverableSnapshotStore recoverable) {
+        if (_lastKnownGood case final previous?) {
+          await recoverable.writeRecovery(previous);
+        }
+      }
+      await store.write(snapshot);
+      _lastKnownGood = snapshot;
+    });
     _pending = result.then<void>((_) {}, onError: (Object _, StackTrace _) {});
     return result;
+  }
+
+  static Future<String?> _readWithRetry(Future<String?> Function() read) async {
+    Object? lastError;
+    StackTrace? lastStackTrace;
+    for (var attempt = 0; attempt < 3; attempt++) {
+      try {
+        return await read();
+      } catch (error, stackTrace) {
+        lastError = error;
+        lastStackTrace = stackTrace;
+        if (attempt < 2) await Future<void>.delayed(Duration.zero);
+      }
+    }
+    Error.throwWithStackTrace(lastError!, lastStackTrace!);
   }
 }

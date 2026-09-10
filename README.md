@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/app_icon.png" alt="Sudoku app icon" width="112" height="112" />
+  <img src="assets/app_icon.png" alt="Sudoku app icon" width="112" height="112"/>
 </p>
 
 <h1 align="center">Sudoku</h1>
@@ -62,7 +62,7 @@ The generator grades puzzles by the techniques needed to solve them, not just by
 
 Sudoku has no account, ads, analytics or cloud game service. Puzzles are generated locally, and your games, statistics and settings stay on your device.
 
-The Web version needs one successful online visit before it can work offline. Clearing the app data or browser storage also clears saved games; cloud sync and backup/export are not available. See the [Privacy Policy](https://ztomz.github.io/Sudoku/#/privacy-policy) or the [technical data inventory](docs/DATA.md) for the details.
+The Web version needs one successful online visit before it can work offline. New releases activate automatically and may reload the page once after their offline files are ready. Saves are kept locally with a previous validated recovery snapshot, but clearing app data or browser storage removes both; cloud sync and backup/export are not available. See the [Privacy Policy](https://ztomz.github.io/Sudoku/#/privacy-policy) or the [technical data inventory](docs/DATA.md) for the details.
 
 ## Platforms
 

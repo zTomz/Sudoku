@@ -3,7 +3,7 @@
 This is a technical inventory, not a completed Store privacy policy.
 
 - No login, backend, analytics, advertising SDK, network game generation or cloud synchronization.
-- Games, notes, undo history, time, preferences and completion results are stored locally through shared_preferences.
+- Games, notes, undo history, time, preferences and completion results are stored locally through shared_preferences. The current validated snapshot and its previous validated recovery copy are retained so a damaged current value can fall back locally.
 - Android release has no Internet permission; automatic Android backup is disabled.
 - Windows uses the plugin's local/roaming application-data location.
 - Web uses browser local storage for saves and Cache Storage for the offline app.

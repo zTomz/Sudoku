@@ -37,10 +37,23 @@ Future<void> main(List<String> arguments) async {
   await File('${directory.path}/offline_bootstrap.js').writeAsString("""
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
+    const hadController = navigator.serviceWorker.controller !== null;
+    let refreshing = false;
+    try {
+      refreshing = sessionStorage.getItem('sudoku-sw-reload') === '1';
+      sessionStorage.removeItem('sudoku-sw-reload');
+    } catch (_) {}
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || refreshing) return;
+      refreshing = true;
+      try { sessionStorage.setItem('sudoku-sw-reload', '1'); } catch (_) {}
+      window.location.reload();
+    });
     navigator.serviceWorker.register(new URL('sudoku-sw.js', document.baseURI), {
       scope: new URL('.', document.baseURI).pathname,
       updateViaCache: 'none'
-    }).catch((error) => console.warn('Offline cache unavailable', error));
+    }).then(registration => registration.update())
+      .catch((error) => console.warn('Offline cache unavailable', error));
   });
 }
 """);
@@ -95,6 +108,7 @@ self.addEventListener('install', event => {
       await caches.delete(CACHE);
       throw error;
     }
+    await self.skipWaiting();
   })());
 });
 self.addEventListener('activate', event => {

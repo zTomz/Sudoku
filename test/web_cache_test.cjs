@@ -4,13 +4,17 @@ const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
 
-const root = path.resolve(__dirname, "../build/web");
+const root = path.resolve(
+  process.env.SUDOKU_WEB_ROOT || path.join(__dirname, "../build/web"));
 const source = fs.readFileSync(path.join(root, "sudoku-sw.js"), "utf8");
+const bootstrapSource = fs.readFileSync(
+  path.join(root, "offline_bootstrap.js"), "utf8");
 
 function harness(scope, failInstall = false) {
   const hooks = new Map();
   const stores = new Map();
   const requested = [];
+  let skippedWaiting = false;
   const prefix = "sudoku-" + encodeURIComponent(scope) + "-";
   stores.set(prefix + "previous", new Map());
   stores.set("another-app", new Map());
@@ -37,6 +41,7 @@ function harness(scope, failInstall = false) {
   };
   vm.runInNewContext(source, {
     self: { registration: { scope }, clients: { claim: async () => {} },
+      skipWaiting: async () => { skippedWaiting = true; },
       addEventListener: (name, callback) => hooks.set(name, callback) },
     caches, URL, Request,
     fetch: async (request) => ({ network: request.url }),
@@ -52,13 +57,15 @@ function harness(scope, failInstall = false) {
       respondWith: (promise) => { response = promise; } });
     return response ? await response : undefined;
   }
-  return { lifecycle, request, requested, stores, prefix };
+  return { lifecycle, request, requested, stores, prefix,
+    get skippedWaiting() { return skippedWaiting; } };
 }
 
 for (const scope of ["https://example.test/", "https://example.test/sudoku/"]) {
   test("offline asset and navigation routing at " + scope, async () => {
     const h = harness(scope);
     await h.lifecycle("install");
+    assert.equal(h.skippedWaiting, true);
     assert.ok(h.requested.includes("main.dart.js"));
     assert.ok(h.requested.includes("sudoku_worker.js"));
     for (const font of ["Regular", "Medium", "SemiBold", "Bold"]) {
@@ -81,5 +88,58 @@ for (const scope of ["https://example.test/", "https://example.test/sudoku/"]) {
 test("failed precache is not activated and leaves other caches alone", async () => {
   const h = harness("https://example.test/sudoku/", true);
   await assert.rejects(h.lifecycle("install"), /offline/);
+  assert.equal(h.skippedWaiting, false);
   assert.deepEqual([...h.stores.keys()], [h.prefix + "previous", "another-app"]);
+});
+
+async function bootstrapHarness({ controlled, reloadGuard = false }) {
+  const windowHooks = new Map();
+  const workerHooks = new Map();
+  const storage = new Map(reloadGuard ? [["sudoku-sw-reload", "1"]] : []);
+  let reloads = 0;
+  let updates = 0;
+  vm.runInNewContext(bootstrapSource, {
+    navigator: {
+      serviceWorker: {
+        controller: controlled ? {} : null,
+        addEventListener: (name, callback) => workerHooks.set(name, callback),
+        register: async () => ({ update: async () => { updates++; } }),
+      },
+    },
+    window: {
+      addEventListener: (name, callback) => windowHooks.set(name, callback),
+      location: { reload: () => { reloads++; } },
+    },
+    sessionStorage: {
+      getItem: (key) => storage.get(key) ?? null,
+      setItem: (key, value) => storage.set(key, value),
+      removeItem: (key) => storage.delete(key),
+    },
+    document: { baseURI: "https://example.test/sudoku/" },
+    console,
+    URL,
+  });
+  windowHooks.get("load")();
+  await new Promise((resolve) => setImmediate(resolve));
+  workerHooks.get("controllerchange")();
+  workerHooks.get("controllerchange")();
+  return { reloads, updates };
+}
+
+test("an activated update reloads an existing app exactly once", async () => {
+  assert.deepEqual(await bootstrapHarness({ controlled: true }), {
+    reloads: 1,
+    updates: 1,
+  });
+});
+
+test("first install and post-reload controller changes do not loop", async () => {
+  assert.deepEqual(await bootstrapHarness({ controlled: false }), {
+    reloads: 0,
+    updates: 1,
+  });
+  assert.deepEqual(
+    await bootstrapHarness({ controlled: true, reloadGuard: true }),
+    { reloads: 0, updates: 1 },
+  );
 });
