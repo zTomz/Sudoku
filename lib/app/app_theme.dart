@@ -9,16 +9,7 @@ RudiThemeData sudokuTheme(Brightness brightness, AppSettings settings) {
   final base = dark
       ? RudiThemeData.dark(accent: sudokuAccent(brightness))
       : RudiThemeData.light(accent: sudokuAccent(brightness));
-  final colors = base.colors.copyWith(
-    background: dark ? const Color(0xff141518) : const Color(0xfffafaf9),
-    foreground: dark ? const Color(0xfff5f5f7) : const Color(0xff16171b),
-    mutedForeground: dark ? const Color(0xffb3b8c2) : const Color(0xff646a76),
-    surface: dark ? const Color(0xff26272d) : const Color(0xffeeedef),
-    surfaceContainer: dark ? const Color(0xff202126) : const Color(0xfff2f2f4),
-    primary: base.colors.accent,
-    onPrimary: dark ? const Color(0xff0d2441) : const Color(0xffffffff),
-    outline: dark ? const Color(0xff555965) : const Color(0xffc7ced9),
-  );
+  final colors = base.colors;
   TextStyle font(TextStyle style) =>
       style.copyWith(fontFamily: 'GoogleSans', color: colors.foreground);
   return base.copyWith(

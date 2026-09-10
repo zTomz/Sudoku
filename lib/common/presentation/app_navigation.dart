@@ -13,10 +13,6 @@ final class const AppNavigation({
   Widget build(BuildContext context) => RudiFloatingNavigationBar(
     selectedIndex: selectedIndex,
     onDestinationSelected: onSelected,
-    backgroundColor: const Color(0xff16171b),
-    indicatorColor: const Color(0xfffafaf9),
-    unselectedColor: const Color(0xffffffff),
-    selectedColor: const Color(0xff16171b),
     destinations: [
       RudiNavigationDestination(
         icon: const Icon(SolarIconsOutline.widget_5, size: 24),
