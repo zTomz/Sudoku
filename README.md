@@ -41,7 +41,8 @@ There is a fresh daily puzzle, locally generated free-play boards, and a small s
 ## Get Sudoku
 
 - **Web:** [Play in your browser](https://ztomz.github.io/Sudoku/). Once it has loaded successfully, it is available offline too.
-- **Android:** Download `app-release.apk` from the [latest release](https://github.com/zTomz/Sudoku/releases/latest).
+- **Android (Google Play closed test):** [Join the tester group](https://groups.google.com/g/app-sudoku-testers), then [opt in on Google Play](https://play.google.com/apps/testing/com.tomvogel.sudoku). Access is limited to approved group members.
+- **Android (APK):** Download `app-release.apk` from the [latest release](https://github.com/zTomz/Sudoku/releases/latest).
 - **Windows:** Build the desktop app from source using the instructions below.
 
 ## Features
