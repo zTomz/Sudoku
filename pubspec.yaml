@@ -1,7 +1,7 @@
 name: sudoku
 description: A quiet, offline Sudoku app built with Flutter and Rudi UI.
 publish_to: 'none'
-version: 0.2.0+3
+version: 0.3.0+4
 
 environment:
   sdk: ^3.13.0
@@ -19,10 +19,7 @@ dependencies:
   web: ^1.1.1
   intl: any
   reel_text: ^0.5.0
-  rudi_ui:
-    git:
-      url: https://github.com/zTomz/rudi_ui.git
-      ref: aa4bfe178b137a20b1cf7efa5eaf5414ee667bce
+  rudi_ui: ^0.3.0
   shared_preferences: ^2.5.5
   solar_icons: ^0.1.0
   url_launcher: ^6.3.2
@@ -30,12 +27,27 @@ dependencies:
 
 dev_dependencies:
   build_runner: ^2.16.0
+  icons_launcher: ^3.1.0
   integration_test:
     sdk: flutter
   riverpod_generator: ^4.0.8
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+
+icons_launcher:
+  image_path: "assets/app_icon_desktop.png"
+
+  platforms:
+    web:
+      enable: true
+      image_path: "assets/app_icon_desktop.png"
+      maskable_image_path: "assets/app_icon_desktop.png"
+      favicon_path: "assets/app_icon_desktop.png"
+
+    windows:
+      enable: true
+      image_path: "assets/app_icon_desktop.png"
 
 flutter:
   uses-material-design: true

@@ -112,6 +112,7 @@ final class _SettingsInformationState() extends State<SettingsInformation> {
       FutureBuilder<PackageInfo>(
         future: _version,
         builder: (context, snapshot) => Text(
+          key: const ValueKey('settings-version'),
           snapshot.hasData
               ? context.l10n.versionLabel(
                   snapshot.data!.version,

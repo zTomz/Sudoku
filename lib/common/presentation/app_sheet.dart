@@ -10,8 +10,13 @@ Future<T?> showAppSheet<T>({
   bool showCloseButton = false,
 }) => showRudiBottomSheet<T>(
   context: context,
-  title: title,
   barrierLabel: context.l10n.close,
-  closeIcon: showCloseButton ? const RudiGlyph(RudiGlyphType.close) : null,
-  builder: builder,
+  useRootNavigator: true,
+  builder: (sheetContext) => RudiBottomSheet(
+    title: Text(title),
+    trailing: showCloseButton
+        ? RudiBottomSheetCloseButton(semanticLabel: context.l10n.close)
+        : null,
+    children: [builder(sheetContext)],
+  ),
 );

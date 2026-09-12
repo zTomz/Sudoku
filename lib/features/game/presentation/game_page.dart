@@ -201,6 +201,7 @@ final class _GamePageState() extends ConsumerState<GamePage> {
       await showAppSheet<void>(
         context: context,
         title: context.l10n.settings,
+        showCloseButton: true,
         builder: (context) => Consumer(
           builder: (context, ref, _) {
             ref.watch(sudokuControllerProvider);

@@ -193,7 +193,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cleanNotesDescription =>
-      'Remove a placed number from notes in its row, column and block.';
+      'Removes matching notes in its row, column and block.';
 
   @override
   String get haptics => 'Haptic feedback';
@@ -205,8 +205,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get numberFirst => 'Number-first input';
 
   @override
-  String get numberFirstDescription =>
-      'Choose a number, then tap cells to place it.';
+  String get numberFirstDescription => 'Choose a number, then tap the cells.';
 
   @override
   String get errorCheck => 'Error checking';
@@ -346,9 +345,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectDifficulty => 'Choose difficulty';
-
-  @override
-  String get boardThemeDescription => 'Choose the look of your puzzle.';
 
   @override
   String get boardClassic => 'Classic';

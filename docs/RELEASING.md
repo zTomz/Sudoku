@@ -2,7 +2,9 @@
 
 ## Dependencies
 
-Sudoku uses Rudi UI 0.2.0 from the pinned public Git commit `46057ebd56464e45b22080ae7447a04d63a208c5`. Release and CI builds need no local Rudi checkout. Run `flutter pub get --enforce-lockfile`; do not enable a development override for release verification. See FIRST_COMMIT.md for the verification checklist.
+Sudoku uses the compatible Rudi UI `0.2.x` release from pub.dev. Release and CI
+builds need no local Rudi checkout. Run `flutter pub get --enforce-lockfile`;
+do not enable a development override for release verification.
 
 Run `dart run build_runner build` after provider changes and `flutter gen-l10n` after translation changes. CI regenerates both and rejects out-of-sync checked-in output.
 

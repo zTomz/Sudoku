@@ -147,6 +147,7 @@ final class const _AppShell({
               excluding: hideNavigation,
               child: RudiPage(
                 padding: EdgeInsets.zero,
+                safeAreaBottom: false,
                 navigation: AppNavigation(
                   selectedIndex: navigationShell.currentIndex,
                   onSelected: (index) => navigationShell.goBranch(index),

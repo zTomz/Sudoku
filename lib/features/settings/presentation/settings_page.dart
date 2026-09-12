@@ -83,7 +83,6 @@ Future<void> chooseBoardTheme(
     context,
     title: context.l10n.boardTheme,
     selected: controller.settings.boardTheme,
-    description: context.l10n.boardThemeDescription,
     options: [
       for (final theme in BoardTheme.values)
         (
@@ -138,6 +137,11 @@ final class const SettingsContent({
         RudiSwitchTile(
           title: l.cleanNotes,
           leading: const Icon(SolarIconsOutline.pen2, size: 24),
+          supporting: RudiInfoTooltip(
+            key: const ValueKey('clean-notes-info'),
+            semanticLabel: l.cleanNotesDescription,
+            message: l.cleanNotesDescription,
+          ),
           value: settings.cleanNotes,
           onChanged: (value) => controller.changeSettings(
             controller.settings.copyWith(cleanNotes: value),
@@ -146,10 +150,38 @@ final class const SettingsContent({
         RudiSwitchTile(
           title: l.numberFirst,
           leading: const Icon(SolarIconsOutline.widget_5, size: 24),
+          supporting: RudiInfoTooltip(
+            key: const ValueKey('number-first-info'),
+            semanticLabel: l.numberFirstDescription,
+            message: l.numberFirstDescription,
+          ),
           value: settings.numberFirst,
           onChanged: (value) => controller.changeSettings(
             controller.settings.copyWith(numberFirst: value),
           ),
+        ),
+        RudiSettingsTile(
+          key: const ValueKey('setting-errors'),
+          title: l.errorCheck,
+          leading: const Icon(SolarIconsOutline.checkCircle, size: 24),
+          trailing: _SettingValue(errorLabel(context, settings.errorCheck)),
+          onPressed: () async {
+            final value = await _choose(
+              context,
+              title: l.errorCheck,
+              description: l.errorDescription,
+              selected: settings.errorCheck,
+              options: [
+                for (final mode in ErrorCheck.values)
+                  (mode, errorLabel(context, mode), null),
+              ],
+            );
+            if (value != null) {
+              controller.changeSettings(
+                controller.settings.copyWith(errorCheck: value),
+              );
+            }
+          },
         ),
         RudiSwitchTile(
           title: l.haptics,
@@ -254,29 +286,6 @@ final class const SettingsContent({
             boardThemeLabel(context, settings.boardTheme),
           ),
           onPressed: () => unawaited(chooseBoardTheme(context, controller)),
-        ),
-        RudiSettingsTile(
-          key: const ValueKey('setting-errors'),
-          title: l.errorCheck,
-          leading: const Icon(SolarIconsOutline.checkCircle, size: 24),
-          trailing: _SettingValue(errorLabel(context, settings.errorCheck)),
-          onPressed: () async {
-            final value = await _choose(
-              context,
-              title: l.errorCheck,
-              description: l.errorDescription,
-              selected: settings.errorCheck,
-              options: [
-                for (final mode in ErrorCheck.values)
-                  (mode, errorLabel(context, mode), null),
-              ],
-            );
-            if (value != null) {
-              controller.changeSettings(
-                controller.settings.copyWith(errorCheck: value),
-              );
-            }
-          },
         ),
       ],
     );

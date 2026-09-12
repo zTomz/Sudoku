@@ -4,6 +4,8 @@ import 'package:rudi_ui/rudi_ui.dart';
 import '../../features/game/domain/puzzle.dart';
 import '../../l10n/generated/app_localizations.dart';
 
+const appNavigationContentInset = 152.0;
+
 extension SudokuContext on BuildContext {
   AppLocalizations get l10n => AppLocalizations.of(this);
 }
@@ -50,6 +52,7 @@ final class const ContentPage({required final Widget child, super.key})
   @override
   Widget build(BuildContext context) => RudiPage(
     padding: EdgeInsets.zero,
+    safeAreaBottom: false,
     child: Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 960),
@@ -58,7 +61,7 @@ final class const ContentPage({required final Widget child, super.key})
             MediaQuery.sizeOf(context).width < 600 ? 16 : 40,
             MediaQuery.sizeOf(context).width < 600 ? 16 : 40,
             MediaQuery.sizeOf(context).width < 600 ? 16 : 40,
-            128,
+            appNavigationContentInset,
           ),
           children: [child],
         ),

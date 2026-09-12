@@ -295,6 +295,7 @@ final class const _EmptyStatistics() extends StatelessWidget {
   @override
   Widget build(BuildContext context) => RudiPage(
     padding: EdgeInsets.zero,
+    safeAreaBottom: false,
     child: LayoutBuilder(
       builder: (context, constraints) {
         final inset = constraints.maxWidth < 600 ? 16.0 : 40.0;
@@ -306,7 +307,12 @@ final class const _EmptyStatistics() extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 960),
             child: Padding(
-              padding: EdgeInsets.fromLTRB(inset, inset, inset, 128),
+              padding: EdgeInsets.fromLTRB(
+                inset,
+                inset,
+                inset,
+                appNavigationContentInset,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -379,12 +385,17 @@ final class const _CompactEmptyStatistics() extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: Image.asset(
-                'assets/statistics_empty.png',
-                fit: BoxFit.contain,
-                excludeFromSemantics: true,
+            Flexible(
+              fit: FlexFit.loose,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 280),
+                child: Image.asset(
+                  'assets/statistics_empty.png',
+                  fit: BoxFit.contain,
+                  excludeFromSemantics: true,
+                ),
               ),
             ),
             const SizedBox(height: 16),

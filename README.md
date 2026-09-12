@@ -91,7 +91,10 @@ dart compile js -O2 lib/features/game/data/puzzle_worker.dart -o web/sudoku_work
 
 Puzzle generation runs in an isolate on native platforms and in a dedicated worker on Web, so it does not block the interface. Release preparation compiles and caches the Web worker automatically.
 
-[Rudi UI](https://github.com/zTomz/rudi_ui) is fetched from the public Git revision pinned in `pubspec.yaml`; a separate local checkout is not required.
+[Rudi UI](https://github.com/zTomz/rudi_ui) is consumed from pub.dev with a
+compatible `0.2.x` constraint. An ignored local override can be used while
+developing both repositories together; release builds must resolve the hosted
+package and its lockfile without that override.
 
 <details>
 <summary><strong>Development checks</strong></summary>
@@ -106,6 +109,8 @@ flutter test
 When changing translations, edit both ARB files in `lib/l10n/`, run `flutter gen-l10n`, and include the generated files. Do not edit generated Dart manually.
 
 Application state uses Riverpod with code generation. After editing providers, run `dart run build_runner build` and include the generated files.
+
+Web and Windows launcher icons are generated from `assets/app_icon_desktop.png` with `dart run icons_launcher:create`. Android launcher icons are maintained separately and are not part of this generation step.
 
 For Web release builds, follow the [offline-cache preparation steps](docs/RELEASING.md#web--github-pages).
 

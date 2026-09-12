@@ -817,8 +817,10 @@ void main() {
   ) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(390, 844);
+    tester.view.padding = const FakeViewPadding(bottom: 24);
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetPadding);
     final controllerHarness = ControllerHarness(GameRepository(MemoryStore()));
     final controller = controllerHarness.controller;
     await tester.pumpWidget(
@@ -837,6 +839,7 @@ void main() {
     final navigationRect = tester.getRect(
       find.byType(RudiFloatingNavigationBar),
     );
+    expect(tester.getRect(homeList).bottom, 844);
     expect(navigationRect.top, lessThan(tester.getRect(homeList).bottom));
     const paths = ['/daily', '/statistics', '/', '/settings'];
     for (var step = 0; step < paths.length; step++) {
@@ -855,7 +858,8 @@ void main() {
     }
     await tester.pumpAndSettle();
     final setting = find.byKey(const ValueKey('setting-board'));
-    await tester.ensureVisible(setting);
+    await Scrollable.ensureVisible(tester.element(setting), alignment: 0.5);
+    await tester.pump();
     await tester.tap(setting);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Nacht'));
@@ -935,12 +939,30 @@ void main() {
     final customization = tester.getRect(
       find.byKey(const ValueKey('settings-customization')),
     );
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('settings-gameplay')),
+        matching: find.byKey(const ValueKey('setting-errors')),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('settings-customization')),
+        matching: find.byKey(const ValueKey('setting-errors')),
+      ),
+      findsNothing,
+    );
     expect(customization.left, greaterThan(gameplay.left));
     expect(customization.top, gameplay.top);
     expect(tester.takeException(), isNull);
   });
 
-  for (final size in [const Size(390, 844), const Size(960, 540)]) {
+  for (final size in [
+    const Size(390, 568),
+    const Size(390, 844),
+    const Size(960, 540),
+  ]) {
     testWidgets('empty statistics adapt above the navigation at $size', (
       tester,
     ) async {
@@ -969,12 +991,24 @@ void main() {
       );
       expect(emptyState, findsOneWidget);
       expect(find.text('Your first puzzle is waiting.'), findsOneWidget);
+      final navigationTop = tester
+          .getRect(find.byType(RudiFloatingNavigationBar))
+          .top;
       expect(
         tester.getRect(emptyState).bottom,
-        lessThanOrEqualTo(
-          tester.getRect(find.byType(RudiFloatingNavigationBar)).top,
-        ),
+        lessThanOrEqualTo(navigationTop),
       );
+      if (size.width < 720) {
+        final descriptionBottom = tester
+            .getRect(
+              find.text('Your statistics will appear once you solve a puzzle.'),
+            )
+            .bottom;
+        expect(
+          navigationTop - descriptionBottom,
+          greaterThanOrEqualTo(size.height >= 700 ? 48 : 16),
+        );
+      }
       expect(tester.takeException(), isNull);
     });
   }
@@ -1007,6 +1041,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      expect(find.byType(RudiBottomSheetCloseButton), findsOneWidget);
       expect(await router.routerDelegate.popRoute(), isTrue);
       await tester.pumpAndSettle();
       expect(controller.playing, isTrue);
@@ -1130,6 +1165,84 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(PrivacyPolicyPage), findsNothing);
     expect(privacySetting, findsOneWidget);
+  });
+
+  testWidgets('settings keeps the version clear of the navigation', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 568);
+    addTearDown(tester.view.reset);
+    final harness = ControllerHarness(GameRepository(MemoryStore()));
+    addTearDown(harness.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: harness.container,
+        child: const SudokuApp(
+          locale: Locale('en'),
+          initialLocation: '/settings',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final version = find.byKey(const ValueKey('settings-version'));
+    final scrollable = find.ancestor(
+      of: version,
+      matching: find.byType(Scrollable),
+    );
+    tester
+        .state<ScrollableState>(scrollable)
+        .position
+        .jumpTo(
+          tester.state<ScrollableState>(scrollable).position.maxScrollExtent,
+        );
+    await tester.pump();
+
+    final navigationTop = tester
+        .getRect(find.byType(RudiFloatingNavigationBar))
+        .top;
+    expect(
+      tester.getRect(version).bottom,
+      lessThanOrEqualTo(navigationTop - 16),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('settings explain note cleanup and number-first input inline', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 844);
+    addTearDown(tester.view.reset);
+    final harness = ControllerHarness(GameRepository(MemoryStore()));
+    addTearDown(harness.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: harness.container,
+        child: const SudokuApp(
+          locale: Locale('en'),
+          initialLocation: '/settings',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('clean-notes-info')));
+    await tester.pump();
+    expect(
+      find.text('Removes matching notes in its row, column and block.'),
+      findsOneWidget,
+    );
+    expect(harness.controller.settings.cleanNotes, true);
+
+    await tester.tapAt(const Offset(1, 1));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('number-first-info')));
+    await tester.pump();
+    expect(find.text('Choose a number, then tap the cells.'), findsOneWidget);
+    expect(harness.controller.settings.numberFirst, false);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('direct privacy route does not require game initialization', (

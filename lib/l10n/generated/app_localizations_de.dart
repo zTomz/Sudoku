@@ -188,7 +188,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get cleanNotesDescription =>
-      'Entfernt gesetzte Zahlen aus Notizen in Zeile, Spalte und Block.';
+      'Entfernt passende Notizen in Zeile, Spalte und Block.';
 
   @override
   String get haptics => 'Haptisches Feedback';
@@ -202,7 +202,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get numberFirstDescription =>
-      'Wähle eine Zahl und tippe dann auf die gewünschten Felder.';
+      'Wähle erst eine Zahl, dann die gewünschten Felder.';
 
   @override
   String get errorCheck => 'Fehlerprüfung';
@@ -342,9 +342,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get selectDifficulty => 'Schwierigkeit wählen';
-
-  @override
-  String get boardThemeDescription => 'Wähle die Darstellung deines Rätsels.';
 
   @override
   String get boardClassic => 'Klassisch';

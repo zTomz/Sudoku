@@ -425,7 +425,7 @@ abstract class AppLocalizations {
   /// No description provided for @cleanNotesDescription.
   ///
   /// In en, this message translates to:
-  /// **'Remove a placed number from notes in its row, column and block.'**
+  /// **'Removes matching notes in its row, column and block.'**
   String get cleanNotesDescription;
 
   /// No description provided for @haptics.
@@ -449,7 +449,7 @@ abstract class AppLocalizations {
   /// No description provided for @numberFirstDescription.
   ///
   /// In en, this message translates to:
-  /// **'Choose a number, then tap cells to place it.'**
+  /// **'Choose a number, then tap the cells.'**
   String get numberFirstDescription;
 
   /// No description provided for @errorCheck.
@@ -691,12 +691,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose difficulty'**
   String get selectDifficulty;
-
-  /// No description provided for @boardThemeDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose the look of your puzzle.'**
-  String get boardThemeDescription;
 
   /// No description provided for @boardClassic.
   ///

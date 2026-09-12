@@ -132,6 +132,7 @@ final class const HomePage({
     );
     return RudiPage(
       padding: .zero,
+      safeAreaBottom: false,
       child: LayoutBuilder(
         builder: (context, constraints) => Align(
           alignment: .topCenter,
@@ -142,7 +143,7 @@ final class const HomePage({
                 constraints.maxWidth < 600 ? 16 : 40,
                 constraints.maxWidth < 600 ? 16 : 32,
                 constraints.maxWidth < 600 ? 16 : 40,
-                128,
+                appNavigationContentInset,
               ),
               children: [
                 header,
