@@ -655,9 +655,11 @@ packages:
   rudi_ui:
     dependency: "direct main"
     description:
-      path: "../Packages/rudi_ui"
-      relative: true
-    source: path
+      path: "."
+      ref: bd5515ff95321ff8eeaa64f6bbe08df255dd2d97
+      resolved-ref: bd5515ff95321ff8eeaa64f6bbe08df255dd2d97
+      url: "https://github.com/zTomz/rudi_ui.git"
+    source: git
     version: "0.3.0"
   shared_preferences:
     dependency: "direct main"

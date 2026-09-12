@@ -48,8 +48,9 @@ shared_preferences is appropriate for this small first version but is not a tran
 
 RudiApp, RudiPage, navigation, buttons, pressables, dialogs, option/settings tiles, feedback, typography, motion and semantic colors come from rudi_ui. Sudoku owns its board and app-specific glyphs. There are no Material or Cupertino components.
 
-Rudi UI is consumed from pub.dev with a compatible `0.2.x` constraint; no
-local checkout is required for release builds. Its floating navigation,
+Rudi UI 0.3.0 is pinned to public Git commit
+`bd5515ff95321ff8eeaa64f6bbe08df255dd2d97`; no local checkout is required for
+release builds. Its floating navigation,
 grouped settings, switch rows, bottom-sheet route, stretch overscroll and
 system-bar styling live in the package. Cue 0.3.1 is an application dependency
 for scene transitions; Rudi retains its SDK-only dependency boundary.

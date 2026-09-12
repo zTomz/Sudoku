@@ -91,10 +91,10 @@ dart compile js -O2 lib/features/game/data/puzzle_worker.dart -o web/sudoku_work
 
 Puzzle generation runs in an isolate on native platforms and in a dedicated worker on Web, so it does not block the interface. Release preparation compiles and caches the Web worker automatically.
 
-[Rudi UI](https://github.com/zTomz/rudi_ui) is consumed from pub.dev with a
-compatible `0.2.x` constraint. An ignored local override can be used while
-developing both repositories together; release builds must resolve the hosted
-package and its lockfile without that override.
+[Rudi UI](https://github.com/zTomz/rudi_ui) 0.3.0 is fetched from the public Git
+revision pinned in `pubspec.yaml`. An ignored local override can be used while
+developing both repositories together; release builds must resolve the pinned
+revision and its lockfile without that override.
 
 <details>
 <summary><strong>Development checks</strong></summary>

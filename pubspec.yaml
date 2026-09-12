@@ -19,7 +19,10 @@ dependencies:
   web: ^1.1.1
   intl: any
   reel_text: ^0.5.0
-  rudi_ui: ^0.3.0
+  rudi_ui:
+    git:
+      url: https://github.com/zTomz/rudi_ui.git
+      ref: bd5515ff95321ff8eeaa64f6bbe08df255dd2d97
   shared_preferences: ^2.5.5
   solar_icons: ^0.1.0
   url_launcher: ^6.3.2
