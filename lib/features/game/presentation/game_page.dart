@@ -9,6 +9,7 @@ import '../../../app/sudoku_controller.dart';
 import '../../../common/presentation/ui.dart';
 import '../../../common/presentation/app_sheet.dart';
 import '../../settings/presentation/settings_page.dart';
+import '../../statistics/application/solve_time_prediction.dart';
 import '../domain/logical_solver.dart';
 import '../domain/puzzle.dart';
 import 'hint_sheet.dart';
@@ -60,6 +61,11 @@ final class _GamePageState() extends ConsumerState<GamePage> {
     _coach = null;
     _coachValues = null;
   });
+
+  void _selectCell(int cell) {
+    if (_coach != null) _closeHint();
+    controller.selectCell(cell);
+  }
 
   void _advanceHint() {
     final coach = _coach, step = coach?.step;
@@ -215,6 +221,10 @@ final class _GamePageState() extends ConsumerState<GamePage> {
   @override
   Widget build(BuildContext context) {
     final theme = context.rudiTheme, game = controller.game!;
+    final predictedSeconds = predictPuzzleSolveTime(
+      controller.results,
+      game.puzzle,
+    );
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -246,7 +256,9 @@ final class _GamePageState() extends ConsumerState<GamePage> {
                           board: SudokuBoard(
                             controller: controller,
                             game: game,
+                            onSelectCell: _selectCell,
                             hint: _hintVisual,
+                            showSelection: _coach == null,
                           ),
                           overlay:
                               !controller.paused &&
@@ -285,6 +297,7 @@ final class _GamePageState() extends ConsumerState<GamePage> {
                                 GameStatusBar(
                                   game: game,
                                   showTimer: controller.settings.showTimer,
+                                  predictedSeconds: predictedSeconds,
                                 ),
                                 if (useWideLayout)
                                   Expanded(

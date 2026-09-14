@@ -4,6 +4,7 @@ import 'package:solar_icons/solar_icons.dart';
 
 import '../../../../app/sudoku_controller.dart';
 import '../../../../common/presentation/ui.dart';
+import '../../../statistics/application/solve_time_prediction.dart';
 
 final class const ResumeCard({
   required final SudokuController controller,
@@ -12,6 +13,16 @@ final class const ResumeCard({
   @override
   Widget build(BuildContext context) {
     final l = context.l10n, theme = context.rudiTheme, game = controller.free!;
+    final predictedSeconds = predictPuzzleSolveTime(
+      controller.results,
+      game.puzzle,
+    );
+    final details = [
+      difficultyLabel(context, game.puzzle.difficulty),
+      if (controller.settings.showTimer) durationLabel(game.elapsedSeconds),
+      if (controller.settings.showTimer && predictedSeconds != null)
+        l.solveTimeEstimate(durationLabel(predictedSeconds)),
+    ].join(' · ');
     return RudiPressable(
       key: const ValueKey('continue-game'),
       onPressed: controller.resumeFree,
@@ -49,7 +60,8 @@ final class const ResumeCard({
             ),
             const SizedBox(height: 8),
             Text(
-              '${difficultyLabel(context, game.puzzle.difficulty)}${controller.settings.showTimer ? ' · ${durationLabel(game.elapsedSeconds)}' : ''}',
+              details,
+              key: const ValueKey('continue-game-details'),
               style: theme.text.caption.copyWith(
                 color: theme.colors.mutedForeground,
               ),

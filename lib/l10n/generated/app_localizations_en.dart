@@ -334,6 +334,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chooseDifficulty => 'Choose a difficulty to begin.';
 
   @override
+  String solveTimeEstimate(String time) {
+    return 'About $time';
+  }
+
+  @override
   String get licenses => 'Open-source licenses';
 
   @override

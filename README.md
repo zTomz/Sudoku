@@ -48,10 +48,10 @@ There is a fresh daily puzzle, locally generated free-play boards, and a small s
 ## Features
 
 - A daily puzzle with a calendar for going back to earlier days
-- Fresh easy, medium and hard boards generated on your device
+- Fresh easy, medium and hard boards generated on your device, with an in-game personal solve-time estimate refined by the current puzzle's logical effort score
 - Pencil notes, undo and redo, number-first input, and keyboard controls
 - Step-by-step hints that explain the next logical move before offering the answer
-- Optional error checking, haptics and timer
+- Optional error checking, haptics and timer; Web haptics use a shorter pulse because browsers cannot control vibration intensity
 - Light and dark mode, four board themes, and English and German translations
 - Local progress, statistics, best times and scores
 - Responsive layouts for phones, tablets, Web and Windows

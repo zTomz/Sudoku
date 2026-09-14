@@ -6,6 +6,7 @@ import 'package:sudoku/app/sudoku_controller.dart';
 import 'controller_harness.dart';
 
 import 'package:sudoku/features/game/data/game_repository.dart';
+import 'package:sudoku/features/game/domain/difficulty_rating.dart';
 import 'package:sudoku/features/game/domain/game_session.dart';
 import 'package:sudoku/features/game/domain/puzzle.dart';
 import 'package:sudoku/features/game/domain/sudoku_engine.dart';
@@ -181,6 +182,36 @@ void main() {
     expect(controller.game, isNull);
     expect(controller.free, isNotNull);
     controllerHarness.dispose();
+  });
+  test('completed results retain the puzzle effort score', () async {
+    final solution = List.generate(
+      81,
+      (cell) => (cell ~/ 9 * 3 + cell ~/ 27 + cell % 9) % 9 + 1,
+    );
+    final puzzle = Puzzle(
+      id: 'scored-result',
+      difficulty: Difficulty.easy,
+      givens: [...solution]..[0] = 0,
+      solution: solution,
+      rating: const DifficultyRating(techniqueCost: 123),
+    );
+    final store = MemoryStore()
+      ..value = SavedGames(free: GameSession.start(puzzle)).encode();
+    final harness = ControllerHarness(GameRepository(store));
+    addTearDown(harness.dispose);
+    final controller = harness.controller;
+    await controller.initialize();
+    controller.resumeFree();
+
+    controller.selectCell(0);
+    controller.enter(solution[0]);
+    await controller.persist();
+
+    expect(controller.results.single.effortScore, 123);
+    expect(
+      SavedGames.decode(store.value!).results['scored-result']!.effortScore,
+      123,
+    );
   });
   test('writes are serialized even when completion is delayed', () async {
     final events = <String>[];

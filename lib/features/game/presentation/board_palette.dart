@@ -112,3 +112,32 @@ final class SudokuGridPainter({
       oldDelegate.pixelRatio != pixelRatio ||
       oldDelegate.highContrast != highContrast;
 }
+
+/// Paints the current cell selection separately so it can fade independently
+/// from the grid while a hint is visible.
+final class SudokuSelectionPainter({
+  required final BoardPalette palette,
+  required final int selected,
+}) extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (selected < 0) return;
+    final rect = Rect.fromLTWH(
+      columnOf(selected) * size.width / sudokuSideLength,
+      rowOf(selected) * size.height / sudokuSideLength,
+      size.width / sudokuSideLength,
+      size.height / sudokuSideLength,
+    ).deflate(2.5);
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..color = palette.accent
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.3,
+    );
+  }
+
+  @override
+  bool shouldRepaint(SudokuSelectionPainter oldDelegate) =>
+      oldDelegate.palette != palette || oldDelegate.selected != selected;
+}

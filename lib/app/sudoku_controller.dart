@@ -246,6 +246,7 @@ class SudokuController() extends _$SudokuController {
             g.puzzle.dailyDate,
             g.finalPoints,
             g.mistakes,
+            effortScore: g.puzzle.rating.score,
           ),
         },
       );

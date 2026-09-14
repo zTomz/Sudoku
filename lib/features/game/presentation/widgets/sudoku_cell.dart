@@ -14,6 +14,7 @@ import 'sudoku_hint_visual.dart';
 final class const SudokuCell({
   required final SudokuController controller,
   required final GameSession game,
+  required final ValueChanged<int> onSelectCell,
   required final SudokuHintVisual? hint,
   required final BoardPalette palette,
   required final int row,
@@ -93,7 +94,7 @@ final class const SudokuCell({
       child: RudiPressable(
         key: ValueKey('cell-$cell'),
         semanticLabel: context.l10n.cellLabel(row + 1, col + 1),
-        onPressed: obscured ? null : () => controller.selectCell(cell),
+        onPressed: obscured ? null : () => onSelectCell(cell),
         builder: (context, state) => AnimatedContainer(
           duration: MediaQuery.disableAnimationsOf(context)
               ? Duration.zero

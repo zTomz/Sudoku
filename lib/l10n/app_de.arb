@@ -116,6 +116,14 @@
   "monthProgress": "{count} diesen Monat gelöst",
   "notesHelp": "Notiere mögliche Zahlen klein in einem leeren Feld.",
   "chooseDifficulty": "Wähle eine Schwierigkeit zum Starten.",
+  "solveTimeEstimate": "Etwa {time}",
+  "@solveTimeEstimate": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "licenses": "Open-Source-Lizenzen",
   "licenseNote": "Sudoku und Rudi UI stehen unter der MIT-Lizenz. Google Sans steht unter der SIL Open Font License. Solar Icons: 480 Design, CC BY 4.0 (solar-icons.vercel.app). Flutter-Paket solar_icons: Sebastine Odeh, BSD-3-Clause.",
   "boardMist": "Nebel",

@@ -668,6 +668,12 @@ abstract class AppLocalizations {
   /// **'Choose a difficulty to begin.'**
   String get chooseDifficulty;
 
+  /// No description provided for @solveTimeEstimate.
+  ///
+  /// In en, this message translates to:
+  /// **'About {time}'**
+  String solveTimeEstimate(String time);
+
   /// No description provided for @licenses.
   ///
   /// In en, this message translates to:

@@ -294,6 +294,45 @@ void main() {
       },
     );
   }
+  testWidgets('stylus hover highlights a number without selecting it', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final harness = ControllerHarness(
+      GameRepository(
+        MemoryStore()
+          ..value = SavedGames(
+            free: GameSession.start(puzzle),
+            settings: const AppSettings(numberFirst: true),
+          ).encode(),
+      ),
+    );
+    addTearDown(harness.dispose);
+    final controller = harness.controller;
+    await controller.initialize();
+    controller.resumeFree();
+    await tester.pumpWidget(
+      _GameHarness(controller: controller, container: harness.container),
+    );
+    await tester.pumpAndSettle();
+
+    final surface = find.byKey(const ValueKey('number-surface-5'));
+    final before = tester.widget<AnimatedContainer>(surface).decoration!;
+    expect((before as BoxDecoration).color, const Color(0x00000000));
+
+    final stylus = TestPointer(42, ui.PointerDeviceKind.stylus);
+    await tester.sendEventToBinding(stylus.addPointer());
+    await tester.sendEventToBinding(stylus.hover(tester.getCenter(surface)));
+    await tester.pump();
+
+    final hovered = tester.widget<AnimatedContainer>(surface).decoration!;
+    expect((hovered as BoxDecoration).color, isNot(const Color(0x00000000)));
+    expect(controller.selectedDigit, 0);
+    await tester.sendEventToBinding(stylus.removePointer());
+    controller.suspend();
+  });
   for (final language in ['de', 'en']) {
     testWidgets(
       'localized hints are read-only, responsive and hidden while paused ($language)',
@@ -428,6 +467,80 @@ void main() {
       },
     );
   }
+  testWidgets('tapping a cell closes the hint and selects that cell', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final history = GameResult(
+      'similar-puzzle',
+      puzzle.difficulty,
+      480,
+      null,
+      300,
+      0,
+      effortScore: puzzle.rating.score,
+    );
+    final harness = ControllerHarness(
+      GameRepository(
+        MemoryStore()
+          ..value = SavedGames(
+            free: GameSession.start(puzzle),
+            results: {'similar-puzzle': history},
+          ).encode(),
+      ),
+    );
+    addTearDown(harness.dispose);
+    final controller = harness.controller;
+    await controller.initialize();
+    controller.resumeFree();
+    await tester.pumpWidget(
+      _GameHarness(controller: controller, container: harness.container),
+    );
+    await tester.pumpAndSettle();
+
+    int selectedCellCount() => tester
+        .widgetList<Semantics>(
+          find.descendant(
+            of: find.byKey(const ValueKey('game-puzzle')),
+            matching: find.byType(Semantics),
+          ),
+        )
+        .where((semantics) => semantics.properties.selected == true)
+        .length;
+
+    final initialSelection = controller.selected;
+    expect(selectedCellCount(), 1);
+    expect(find.textContaining('Etwa 08:00'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('show-hint')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('selection-visibility')), findsOneWidget);
+    expect(selectedCellCount(), 0);
+    expect(controller.selected, initialSelection);
+
+    final nextSelection = List.generate(81, (cell) => cell).firstWhere(
+      (cell) => cell != initialSelection && puzzle.givens[cell] == 0,
+    );
+    await tester.tap(find.byKey(ValueKey('cell-$nextSelection')));
+    await tester.pump();
+    expect(find.byKey(const ValueKey('hint-coach')), findsOneWidget);
+    expect(controller.selected, nextSelection);
+    expect(selectedCellCount(), 1);
+    await tester.pump(const Duration(milliseconds: 80));
+    expect(find.byKey(const ValueKey('hint-coach')), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('hint-coach')), findsNothing);
+    expect(controller.selected, nextSelection);
+    controller.enter(puzzle.solution[nextSelection]);
+    expect(
+      controller.game!.values[nextSelection],
+      puzzle.solution[nextSelection],
+    );
+    expect(tester.takeException(), isNull);
+    controller.suspend();
+  });
   testWidgets(
     'hint coach visualizes elimination chains and reveals only the next placement',
     (tester) async {
@@ -482,7 +595,6 @@ void main() {
             ?.decoration,
         TextDecoration.lineThrough,
       );
-
       for (var index = 1; index < hint.steps.length; index++) {
         await tester.tap(find.byKey(const ValueKey('hint-advance')));
         await tester.pumpAndSettle();
@@ -869,6 +981,44 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  testWidgets('continue card shows the score-based solve-time estimate', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 844);
+    addTearDown(tester.view.reset);
+    final saved = GameSession.start(puzzle).withElapsed(464);
+    final result = GameResult(
+      'similar-medium',
+      Difficulty.medium,
+      600,
+      null,
+      0,
+      0,
+      effortScore: puzzle.rating.score,
+    );
+    final controllerHarness = ControllerHarness(
+      GameRepository(
+        MemoryStore()
+          ..value = SavedGames(
+            free: saved,
+            results: {'similar-medium': result},
+          ).encode(),
+      ),
+    );
+    addTearDown(controllerHarness.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: controllerHarness.container,
+        child: const SudokuApp(locale: Locale('en')),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Medium · 07:44 · About 10:00'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('tablet destinations use wide layouts above the navigation', (
     tester,
   ) async {
@@ -950,6 +1100,20 @@ void main() {
       find.descendant(
         of: find.byKey(const ValueKey('settings-customization')),
         matching: find.byKey(const ValueKey('setting-errors')),
+      ),
+      findsNothing,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('settings-customization')),
+        matching: find.byKey(const ValueKey('setting-haptics')),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('settings-gameplay')),
+        matching: find.byKey(const ValueKey('setting-haptics')),
       ),
       findsNothing,
     );

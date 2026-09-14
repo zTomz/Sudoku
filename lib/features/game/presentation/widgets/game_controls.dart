@@ -17,12 +17,40 @@ final class const GameControls({
   required final VoidCallback onExplainHint,
   required final VoidCallback onCloseHint,
   super.key,
-}) extends StatelessWidget {
+}) extends StatefulWidget {
+  @override
+  State<GameControls> createState() => _GameControlsState();
+}
+
+final class _GameControlsState() extends State<GameControls> {
+  HintCoachState? _visibleCoach;
+
+  @override
+  void initState() {
+    super.initState();
+    _visibleCoach = widget.coach;
+  }
+
+  @override
+  void didUpdateWidget(covariant GameControls oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.coach != null) _visibleCoach = widget.coach;
+  }
+
+  void _handleHintAnimationEnd(bool forward) {
+    if (!forward && widget.coach == null && _visibleCoach != null) {
+      setState(() => _visibleCoach = null);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final theme = context.rudiTheme;
+    final controller = widget.controller;
     final game = controller.game!;
+    final activeCoach = widget.coach;
+    final visibleCoach = _visibleCoach;
     if (game.complete) {
       return Column(
         mainAxisSize: .min,
@@ -65,37 +93,47 @@ final class const GameControls({
           alignment: .topCenter,
           children: [
             Visibility.maintain(
-              visible: coach == null,
+              visible: activeCoach == null,
               child: GameTools(
                 key: const ValueKey('game-tools'),
                 controller: controller,
                 enabled: enabled,
-                onShowHint: onShowHint,
+                onShowHint: widget.onShowHint,
               ),
             ),
-            if (coach != null)
-              AnimatedSwitcher(
-                duration: MediaQuery.disableAnimationsOf(context)
-                    ? Duration.zero
-                    : const Duration(milliseconds: 240),
-                switchInCurve: Curves.easeOutCubic,
-                switchOutCurve: Curves.easeInCubic,
-                child: Cue.onMount(
-                  key: ValueKey(
-                    'hint-${coach!.hint.status.name}-${coach!.stepIndex}-${coach!.phase.name}',
-                  ),
-                  motion: MediaQuery.disableAnimationsOf(context)
-                      ? CueMotion.none
-                      : .smooth(),
-                  acts: [.translateY(from: 6)],
-                  child: GameHintCoach(
-                    coach: coach!,
-                    onAdvance: onAdvanceHint,
-                    onExplain: onExplainHint,
-                    onClose: onCloseHint,
-                  ),
-                ),
+            IgnorePointer(
+              ignoring: activeCoach == null,
+              child: Cue.onToggle(
+                key: const ValueKey('hint-transition'),
+                toggled: activeCoach != null,
+                onEnd: _handleHintAnimationEnd,
+                motion: MediaQuery.disableAnimationsOf(context)
+                    ? CueMotion.none
+                    : .easeOut(const Duration(milliseconds: 240)),
+                reverseMotion: MediaQuery.disableAnimationsOf(context)
+                    ? CueMotion.none
+                    : .easeIn(const Duration(milliseconds: 240)),
+                acts: const [.opacity(from: 0, to: 1), .translateY(from: 6)],
+                child: visibleCoach == null
+                    ? const SizedBox(key: ValueKey('hint-hidden'))
+                    : AnimatedSwitcher(
+                        duration: MediaQuery.disableAnimationsOf(context)
+                            ? Duration.zero
+                            : const Duration(milliseconds: 240),
+                        switchInCurve: Curves.easeOutCubic,
+                        switchOutCurve: Curves.easeInCubic,
+                        child: GameHintCoach(
+                          key: ValueKey(
+                            'hint-${visibleCoach.hint.status.name}-${visibleCoach.stepIndex}-${visibleCoach.phase.name}',
+                          ),
+                          coach: visibleCoach,
+                          onAdvance: widget.onAdvanceHint,
+                          onExplain: widget.onExplainHint,
+                          onClose: widget.onCloseHint,
+                        ),
+                      ),
               ),
+            ),
           ],
         ),
         const SizedBox(height: 10),

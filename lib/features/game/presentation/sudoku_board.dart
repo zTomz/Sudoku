@@ -27,7 +27,9 @@ export 'widgets/sudoku_completion_effects.dart'
 final class const SudokuBoard({
   required final SudokuController controller,
   required final GameSession game,
+  final ValueChanged<int>? onSelectCell,
   final bool obscured = false,
+  final bool showSelection = true,
   final SudokuHintVisual? hint,
   super.key,
 }) extends StatefulWidget {
@@ -116,7 +118,8 @@ final class _SudokuBoardState()
         controller = widget.controller,
         obscured = widget.obscured,
         hint = obscured ? null : widget.hint,
-        selected = obscured ? -1 : controller.selected;
+        selectionVisible = !obscured && widget.showSelection,
+        selected = selectionVisible ? controller.selected : -1;
     final palette = BoardPalette.resolve(
       controller.settings.boardTheme,
       context.rudiTheme.brightness,
@@ -166,6 +169,9 @@ final class _SudokuBoardState()
                                       child: SudokuCell(
                                         controller: controller,
                                         game: game,
+                                        onSelectCell:
+                                            widget.onSelectCell ??
+                                            controller.selectCell,
                                         hint: hint,
                                         palette: palette,
                                         row: row,
@@ -196,12 +202,28 @@ final class _SudokuBoardState()
                   palette: palette,
                 ),
                 IgnorePointer(
+                  child: Cue.onToggle(
+                    key: const ValueKey('selection-visibility'),
+                    toggled: selectionVisible,
+                    motion: MediaQuery.disableAnimationsOf(context)
+                        ? CueMotion.none
+                        : .easeOut(const Duration(milliseconds: 240)),
+                    acts: const [.opacity(from: 0, to: 1)],
+                    child: CustomPaint(
+                      key: const ValueKey('board-selection'),
+                      foregroundPainter: SudokuSelectionPainter(
+                        palette: palette,
+                        selected: controller.selected,
+                      ),
+                    ),
+                  ),
+                ),
+                IgnorePointer(
                   child: CustomPaint(
                     key: const ValueKey('board-grid'),
                     foregroundPainter: SudokuGridPainter(
                       palette: palette,
                       pixelRatio: MediaQuery.devicePixelRatioOf(context),
-                      selected: selected,
                       highContrast: MediaQuery.highContrastOf(context),
                     ),
                   ),

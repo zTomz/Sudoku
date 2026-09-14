@@ -8,6 +8,7 @@ import '../../domain/game_session.dart';
 final class const GameStatusBar({
   required final GameSession game,
   required final bool showTimer,
+  final int? predictedSeconds,
   super.key,
 }) extends StatelessWidget {
   @override
@@ -20,6 +21,9 @@ final class const GameStatusBar({
     final visibleTimer = showTimer
         ? ' · ${durationLabel(game.elapsedSeconds)}'
         : '';
+    final prediction = showTimer && !game.complete && predictedSeconds != null
+        ? ' · ${l.solveTimeEstimate(durationLabel(predictedSeconds!))}'
+        : '';
     return Padding(
       padding: const .fromLTRB(20, 12, 20, 8),
       child: Row(
@@ -27,7 +31,8 @@ final class const GameStatusBar({
         children: [
           Expanded(
             child: Text(
-              '${game.puzzle.dailyDate == null ? l.freePlay : l.daily} · ${difficultyLabel(context, game.puzzle.difficulty)}',
+              '${game.puzzle.dailyDate == null ? l.freePlay : l.daily} · ${difficultyLabel(context, game.puzzle.difficulty)}$prediction',
+              key: const ValueKey('game-time-prediction'),
               style: theme.text.caption.copyWith(
                 color: theme.colors.mutedForeground,
               ),

@@ -183,14 +183,6 @@ final class const SettingsContent({
             }
           },
         ),
-        RudiSwitchTile(
-          title: l.haptics,
-          leading: const Icon(SolarIconsOutline.smartphoneVibration, size: 24),
-          value: settings.haptics,
-          onChanged: (value) => controller.changeSettings(
-            controller.settings.copyWith(haptics: value),
-          ),
-        ),
       ],
     );
     final customization = RudiSettingsGroup(
@@ -286,6 +278,15 @@ final class const SettingsContent({
             boardThemeLabel(context, settings.boardTheme),
           ),
           onPressed: () => unawaited(chooseBoardTheme(context, controller)),
+        ),
+        RudiSwitchTile(
+          key: const ValueKey('setting-haptics'),
+          title: l.haptics,
+          leading: const Icon(SolarIconsOutline.smartphoneVibration, size: 24),
+          value: settings.haptics,
+          onChanged: (value) => controller.changeSettings(
+            controller.settings.copyWith(haptics: value),
+          ),
         ),
       ],
     );

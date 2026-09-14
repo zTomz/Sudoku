@@ -168,6 +168,14 @@
   },
   "notesHelp": "Add small candidate numbers to an empty cell.",
   "chooseDifficulty": "Choose a difficulty to begin.",
+  "solveTimeEstimate": "About {time}",
+  "@solveTimeEstimate": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "licenses": "Open-source licenses",
   "licenseNote": "Sudoku is licensed under MIT. Rudi UI is MIT-licensed. Google Sans is licensed under the SIL Open Font License. Solar Icons: 480 Design, CC BY 4.0 (solar-icons.vercel.app). Flutter package solar_icons: Sebastine Odeh, BSD-3-Clause.",
   "boardMist": "Mist",
