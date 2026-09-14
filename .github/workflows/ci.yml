@@ -23,8 +23,8 @@ jobs:
           flutter-version: '3.47.2'
           channel: stable
           cache: true
-      - name: Resolve release dependencies without local overrides
-        run: flutter pub get --enforce-lockfile
+      - name: Resolve dependencies
+        run: flutter pub get
       - run: flutter gen-l10n
       - run: dart run build_runner build
       - run: git diff --exit-code -- lib/app
@@ -53,8 +53,8 @@ jobs:
           flutter-version: '3.47.2'
           channel: stable
           cache: true
-      - name: Resolve release dependencies without local overrides
-        run: flutter pub get --enforce-lockfile
+      - name: Resolve dependencies
+        run: flutter pub get
       - run: flutter build windows --release
       - uses: actions/upload-artifact@v4
         with:
@@ -75,8 +75,8 @@ jobs:
           flutter-version: '3.47.2'
           channel: stable
           cache: true
-      - name: Resolve release dependencies without local overrides
-        run: flutter pub get --enforce-lockfile
+      - name: Resolve dependencies
+        run: flutter pub get
       - run: flutter build appbundle --release
       - uses: actions/upload-artifact@v4
         with:
