@@ -356,6 +356,102 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1 {1 mistake} other {{count} mistakes}}'**
   String mistakesValue(int count);
 
+  /// No description provided for @hintsUsedValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1 {1 hint} other {{count} hints}}'**
+  String hintsUsedValue(int count);
+
+  /// No description provided for @scoreBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Score breakdown'**
+  String get scoreBreakdown;
+
+  /// No description provided for @scorePuzzlePoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Board points'**
+  String get scorePuzzlePoints;
+
+  /// No description provided for @scoreCompletionBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Completion bonus'**
+  String get scoreCompletionBonus;
+
+  /// No description provided for @scorePerfectBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'No-mistake bonus'**
+  String get scorePerfectBonus;
+
+  /// No description provided for @scoreDailyBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily bonus'**
+  String get scoreDailyBonus;
+
+  /// No description provided for @scoreBeforeDeductions.
+  ///
+  /// In en, this message translates to:
+  /// **'Score before deductions'**
+  String get scoreBeforeDeductions;
+
+  /// No description provided for @debugTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Debug tools'**
+  String get debugTools;
+
+  /// No description provided for @debugGameSimulator.
+  ///
+  /// In en, this message translates to:
+  /// **'Game simulator'**
+  String get debugGameSimulator;
+
+  /// No description provided for @debugGameSimulatorDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up the current puzzle for testing without solving every cell.'**
+  String get debugGameSimulatorDescription;
+
+  /// No description provided for @debugStartGameFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Start or resume a game to use the simulator.'**
+  String get debugStartGameFirst;
+
+  /// No description provided for @debugFilledCells.
+  ///
+  /// In en, this message translates to:
+  /// **'Filled cells'**
+  String get debugFilledCells;
+
+  /// No description provided for @debugMistakes.
+  ///
+  /// In en, this message translates to:
+  /// **'Mistakes'**
+  String get debugMistakes;
+
+  /// No description provided for @debugHints.
+  ///
+  /// In en, this message translates to:
+  /// **'Hints used'**
+  String get debugHints;
+
+  /// No description provided for @debugApplySimulation.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply simulation'**
+  String get debugApplySimulation;
+
+  /// No description provided for @debugValueRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a value from {minimum} to {maximum}.'**
+  String debugValueRange(int minimum, int maximum);
+
   /// No description provided for @backHome.
   ///
   /// In en, this message translates to:
@@ -427,6 +523,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Removes matching notes in its row, column and block.'**
   String get cleanNotesDescription;
+
+  /// No description provided for @autoFillEnding.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-fill ending'**
+  String get autoFillEnding;
+
+  /// No description provided for @autoFillEndingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Finishes the board near the end when every remaining step has only one possible number.'**
+  String get autoFillEndingDescription;
 
   /// No description provided for @haptics.
   ///

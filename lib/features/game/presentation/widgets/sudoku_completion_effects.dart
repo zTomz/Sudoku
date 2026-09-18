@@ -25,8 +25,8 @@ final class const AutoFillDigit({
   }
 }
 
-const _autoFillStaggerMilliseconds = 500;
-const autoFillMotionMilliseconds = 300;
+const _autoFillStaggerMilliseconds = 300;
+const autoFillMotionMilliseconds = 250;
 const _autoFillCompletionPauseMilliseconds = 250;
 
 Duration autoFillRevealDelay(int order) => Duration(
@@ -248,21 +248,17 @@ int completionFlashOrigin(
   List<int> previous,
   List<int> current, {
   required int preferredOrigin,
+  List<int> autoFillCells = const [],
 }) {
   assert(
     previous.length == sudokuCellCount && current.length == sudokuCellCount,
   );
+  if (autoFillCells.isNotEmpty) return autoFillCells.last;
   final enteredCells = [
     for (var cell = 0; cell < sudokuCellCount; cell++)
       if (previous[cell] != current[cell] && current[cell] != 0) cell,
   ];
   if (enteredCells.isEmpty) return -1;
-  if (!current.contains(0) && enteredCells.length > 1) {
-    return enteredCells.firstWhere(
-      (cell) => cell != preferredOrigin && previous[cell] == 0,
-      orElse: () => enteredCells.first,
-    );
-  }
   return enteredCells.contains(preferredOrigin)
       ? preferredOrigin
       : enteredCells.first;

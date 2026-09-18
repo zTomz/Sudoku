@@ -39,6 +39,7 @@ final class const GameResult(
   final int points,
   final int mistakes, {
   final int? effortScore,
+  final int hintsUsed = 0,
 }) {
   Map<String, Object?> toJson() => {
     'id': id,
@@ -47,17 +48,24 @@ final class const GameResult(
     'dailyDate': dailyDate,
     'points': points,
     'mistakes': mistakes,
+    'hintsUsed': hintsUsed,
     'effortScore': effortScore,
   };
   factory fromJson(Map<String, Object?> json) {
     final seconds = json['seconds'] as int;
-    final points = json['points'] as int, mistakes = json['mistakes'] as int;
+    final points = json['points'] as int,
+        mistakes = json['mistakes'] as int,
+        hintsUsed = switch (json['hintsUsed']) {
+          null => 0,
+          final int value => value,
+          _ => throw const FormatException('Invalid result'),
+        };
     final effortScore = switch (json['effortScore']) {
       null => null,
       final int value when value >= 0 => value,
       _ => throw const FormatException('Invalid result'),
     };
-    if (seconds < 0 || points < 0 || mistakes < 0) {
+    if (seconds < 0 || points < 0 || mistakes < 0 || hintsUsed < 0) {
       throw const FormatException('Invalid result');
     }
     return GameResult(
@@ -68,6 +76,7 @@ final class const GameResult(
       points,
       mistakes,
       effortScore: effortScore,
+      hintsUsed: hintsUsed,
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'sudoku_state.dart';
@@ -76,6 +77,13 @@ class SudokuController() extends _$SudokuController {
   GameSession? get free => _saved.free;
   Map<String, GameSession> get dailyGames => _saved.daily;
   Iterable<GameResult> get results => _saved.results.values;
+  GameSession? get gameForDebug {
+    if (!kDebugMode) return null;
+    if (_game case final game?) return game;
+    if (free case final game?) return game;
+    return dailyGames.values.firstOrNull;
+  }
+
   int get totalPoints =>
       results.fold(0, (total, result) => total + result.points);
   int get scoreAwardSequence => state.scoreAwardSequence;
@@ -194,6 +202,7 @@ class SudokuController() extends _$SudokuController {
       digit,
       pencil: pencil,
       cleanNotes: settings.cleanNotes,
+      autoFillEnding: settings.autoFillEnding,
     );
     if (identical(next, _game)) return;
     _game = next;
@@ -206,6 +215,66 @@ class SudokuController() extends _$SudokuController {
       );
     }
     _afterMove();
+  }
+
+  void useHint() {
+    if (!playing || paused || _game?.complete != false) return;
+    _game = _game!.useHint();
+    _remember();
+    unawaited(persist());
+  }
+
+  void simulateGameForDebug({
+    required int filledCells,
+    required int mistakes,
+    required int hintsUsed,
+  }) {
+    assert(kDebugMode, 'Debug simulation is unavailable in release builds.');
+    final current = gameForDebug;
+    if (!kDebugMode || current == null || mistakes < 0 || hintsUsed < 0) {
+      return;
+    }
+    if (!playing) _open(current);
+    final puzzle = current.puzzle;
+    final givenCount = puzzle.givens.where((value) => value != 0).length;
+    if (filledCells < givenCount || filledCells >= sudokuCellCount) return;
+
+    var simulated = GameSession.start(puzzle);
+    final editableCells = [
+      for (var cell = 0; cell < sudokuCellCount; cell++)
+        if (puzzle.givens[cell] == 0) cell,
+    ];
+    final mistakeCell = editableCells.first;
+    final wrongDigit = List.generate(sudokuSideLength, (index) => index + 1)
+        .where((digit) => digit != puzzle.solution[mistakeCell])
+        .firstWhere(simulated.isDigitAvailable, orElse: () => 0);
+    if (mistakes > 0 && wrongDigit == 0) return;
+    _stopClock();
+    for (var count = 0; count < mistakes; count++) {
+      simulated = simulated
+          .enter(mistakeCell, wrongDigit, autoFillEnding: false)
+          .enter(mistakeCell, 0, autoFillEnding: false);
+    }
+    final entries = filledCells - givenCount;
+    for (final cell in editableCells.take(entries)) {
+      simulated = simulated.enter(
+        cell,
+        puzzle.solution[cell],
+        autoFillEnding: false,
+      );
+    }
+    for (var count = 0; count < hintsUsed; count++) {
+      simulated = simulated.useHint();
+    }
+
+    _game = simulated.withElapsed(current.elapsedSeconds);
+    _pencil = false;
+    _selected = _game!.values.indexOf(0);
+    _selectedDigit = 0;
+    state = state.copyWith(scoreAwardPoints: 0, scoreAwardCell: -1);
+    _remember();
+    _startClock();
+    unawaited(persist());
   }
 
   void undo() {
@@ -247,6 +316,7 @@ class SudokuController() extends _$SudokuController {
             g.finalPoints,
             g.mistakes,
             effortScore: g.puzzle.rating.score,
+            hintsUsed: g.hintsUsed,
           ),
         },
       );

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sudoku/app/sudoku_controller.dart';
@@ -55,6 +56,29 @@ final class RecoverableMemoryStore() implements RecoverableSnapshotStore {
 }
 
 void main() {
+  test('version 2 saves without hint counters remain readable', () async {
+    final puzzle = await SudokuEngine().generate(
+      seed: 41,
+      difficulty: Difficulty.easy,
+    );
+    final saved = SavedGames(
+      free: GameSession.start(puzzle),
+      results: {
+        puzzle.id: GameResult(puzzle.id, puzzle.difficulty, 120, null, 500, 1),
+      },
+    );
+    final json = jsonDecode(saved.encode()) as Map<String, Object?>;
+    (json['free'] as Map<String, Object?>).remove('hintsUsed');
+    final results = json['results'] as Map<String, Object?>;
+    (results[puzzle.id] as Map<String, Object?>).remove('hintsUsed');
+
+    final restored = SavedGames.decode(jsonEncode(json));
+
+    expect(json['schemaVersion'], 2);
+    expect(restored.free!.hintsUsed, 0);
+    expect(restored.results[puzzle.id]!.hintsUsed, 0);
+  });
+
   test('disposing during generation leaves the saved game untouched', () async {
     final puzzle = await SudokuEngine().generate(
       seed: 42,
@@ -182,6 +206,32 @@ void main() {
     expect(controller.game, isNull);
     expect(controller.free, isNotNull);
     controllerHarness.dispose();
+  });
+  test('debug simulation creates a valid near-complete saved game', () async {
+    final puzzle = await SudokuEngine().generate(
+      seed: 73,
+      difficulty: Difficulty.easy,
+    );
+    final store = MemoryStore()
+      ..value = SavedGames(free: GameSession.start(puzzle)).encode();
+    final harness = ControllerHarness(GameRepository(store));
+    addTearDown(harness.dispose);
+    final controller = harness.controller;
+    await controller.initialize();
+    expect(controller.playing, isFalse);
+
+    controller.simulateGameForDebug(filledCells: 80, mistakes: 2, hintsUsed: 3);
+    await controller.persist();
+
+    expect(controller.playing, isTrue);
+    expect(controller.game!.filled, 80);
+    expect(controller.game!.complete, isFalse);
+    expect(controller.game!.mistakes, 2);
+    expect(controller.game!.hintsUsed, 3);
+    final restored = SavedGames.decode(store.value!).free!;
+    expect(restored.values, controller.game!.values);
+    expect(restored.mistakes, 2);
+    expect(restored.hintsUsed, 3);
   });
   test('completed results retain the puzzle effort score', () async {
     final solution = List.generate(

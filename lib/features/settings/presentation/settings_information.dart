@@ -63,22 +63,22 @@ final class _SettingsInformationState() extends State<SettingsInformation> {
           RudiSettingsTile(
             key: const ValueKey('setting-report-bug'),
             title: context.l10n.reportBug,
-            leading: const Icon(SolarIconsOutline.bugMinimalistic, size: 24),
-            trailing: const Icon(SolarIconsOutline.arrowRightUp, size: 24),
+            leading: const Icon(SolarIconsOutline.bugMinimalistic),
+            trailing: const Icon(SolarIconsOutline.arrowRightUp),
             onPressed: () => openSettingsLink(context, reportBugUrl),
           ),
           RudiSettingsTile(
             key: const ValueKey('setting-feature-request'),
             title: context.l10n.featureRequest,
-            leading: const Icon(SolarIconsOutline.lightbulb, size: 24),
-            trailing: const Icon(SolarIconsOutline.arrowRightUp, size: 24),
+            leading: const Icon(SolarIconsOutline.lightbulb),
+            trailing: const Icon(SolarIconsOutline.arrowRightUp),
             onPressed: () => openSettingsLink(context, featureRequestUrl),
           ),
           RudiSettingsTile(
             key: const ValueKey('setting-repository'),
             title: context.l10n.repository,
-            leading: const Icon(SolarIconsOutline.code, size: 24),
-            trailing: const Icon(SolarIconsOutline.arrowRightUp, size: 24),
+            leading: const Icon(SolarIconsOutline.code),
+            trailing: const Icon(SolarIconsOutline.arrowRightUp),
             onPressed: () => openSettingsLink(context, repositoryUrl),
           ),
         ],
@@ -90,16 +90,16 @@ final class _SettingsInformationState() extends State<SettingsInformation> {
           RudiSettingsTile(
             key: const ValueKey('setting-privacy-policy'),
             title: context.l10n.privacyPolicy,
-            leading: const Icon(SolarIconsOutline.shieldCheck, size: 24),
-            trailing: const Icon(SolarIconsOutline.altArrowRight, size: 24),
+            leading: const Icon(SolarIconsOutline.shieldCheck),
+            trailing: const Icon(SolarIconsOutline.altArrowRight),
             onPressed: () =>
                 context.go(PrivacyPolicyPage.path, extra: '/settings'),
           ),
           RudiSettingsTile(
             key: const ValueKey('setting-licenses'),
             title: context.l10n.licenses,
-            leading: const Icon(SolarIconsOutline.documentText, size: 24),
-            trailing: const Icon(SolarIconsOutline.altArrowRight, size: 24),
+            leading: const Icon(SolarIconsOutline.documentText),
+            trailing: const Icon(SolarIconsOutline.altArrowRight),
             onPressed: () => showAppSheet<void>(
               context: context,
               title: context.l10n.licenses,
@@ -173,7 +173,7 @@ final class _LicensesState() extends State<_Licenses> {
           for (final entry in snapshot.data!)
             RudiSettingsTile(
               title: entry.packages.join(', '),
-              trailing: const Icon(SolarIconsOutline.altArrowRight, size: 24),
+              trailing: const Icon(SolarIconsOutline.altArrowRight),
               onPressed: () => showAppSheet<void>(
                 context: context,
                 title: entry.packages.join(', '),

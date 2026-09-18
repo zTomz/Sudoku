@@ -64,6 +64,39 @@
       }
     }
   },
+  "hintsUsedValue": "{count, plural, =1 {1 hint} other {{count} hints}}",
+  "@hintsUsedValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "scoreBreakdown": "Score breakdown",
+  "scorePuzzlePoints": "Board points",
+  "scoreCompletionBonus": "Completion bonus",
+  "scorePerfectBonus": "No-mistake bonus",
+  "scoreDailyBonus": "Daily bonus",
+  "scoreBeforeDeductions": "Score before deductions",
+  "debugTools": "Debug tools",
+  "debugGameSimulator": "Game simulator",
+  "debugGameSimulatorDescription": "Set up the current puzzle for testing without solving every cell.",
+  "debugStartGameFirst": "Start or resume a game to use the simulator.",
+  "debugFilledCells": "Filled cells",
+  "debugMistakes": "Mistakes",
+  "debugHints": "Hints used",
+  "debugApplySimulation": "Apply simulation",
+  "debugValueRange": "Enter a value from {minimum} to {maximum}.",
+  "@debugValueRange": {
+    "placeholders": {
+      "minimum": {
+        "type": "int"
+      },
+      "maximum": {
+        "type": "int"
+      }
+    }
+  },
   "backHome": "Back to start",
   "timer": "Timer",
   "progress": "{filled} / 81 filled",
@@ -83,6 +116,8 @@
   "showTimerDescription": "Hide the clock and play at your own pace.",
   "cleanNotes": "Clean up notes",
   "cleanNotesDescription": "Removes matching notes in its row, column and block.",
+  "autoFillEnding": "Auto-fill ending",
+  "autoFillEndingDescription": "Finishes the board near the end when every remaining step has only one possible number.",
   "haptics": "Haptic feedback",
   "hapticsDescription": "A subtle tap on supported devices.",
   "numberFirst": "Number-first input",

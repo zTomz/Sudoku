@@ -151,6 +151,66 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String hintsUsedValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Hinweise',
+      one: '1 Hinweis',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get scoreBreakdown => 'Punkteübersicht';
+
+  @override
+  String get scorePuzzlePoints => 'Spielfeldpunkte';
+
+  @override
+  String get scoreCompletionBonus => 'Abschlussbonus';
+
+  @override
+  String get scorePerfectBonus => 'Fehlerfrei-Bonus';
+
+  @override
+  String get scoreDailyBonus => 'Tagesbonus';
+
+  @override
+  String get scoreBeforeDeductions => 'Punkte vor Abzügen';
+
+  @override
+  String get debugTools => 'Debug-Werkzeuge';
+
+  @override
+  String get debugGameSimulator => 'Spiel simulieren';
+
+  @override
+  String get debugGameSimulatorDescription =>
+      'Bereite das aktuelle Rätsel zum Testen vor, ohne jedes Feld lösen zu müssen.';
+
+  @override
+  String get debugStartGameFirst =>
+      'Starte ein Spiel oder setze es fort, um die Simulation zu verwenden.';
+
+  @override
+  String get debugFilledCells => 'Ausgefüllte Felder';
+
+  @override
+  String get debugMistakes => 'Fehler';
+
+  @override
+  String get debugHints => 'Genutzte Hinweise';
+
+  @override
+  String get debugApplySimulation => 'Simulation anwenden';
+
+  @override
+  String debugValueRange(int minimum, int maximum) {
+    return 'Gib einen Wert von $minimum bis $maximum ein.';
+  }
+
+  @override
   String get backHome => 'Zur Startseite';
 
   @override
@@ -189,6 +249,13 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get cleanNotesDescription =>
       'Entfernt passende Notizen in Zeile, Spalte und Block.';
+
+  @override
+  String get autoFillEnding => 'Ende automatisch ausfüllen';
+
+  @override
+  String get autoFillEndingDescription =>
+      'Vervollständigt das Feld gegen Ende, wenn bei jedem verbleibenden Schritt nur eine Zahl möglich ist.';
 
   @override
   String get haptics => 'Haptisches Feedback';

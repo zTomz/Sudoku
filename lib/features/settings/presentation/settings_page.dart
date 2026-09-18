@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' show Icons;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rudi_ui/rudi_ui.dart';
 import 'package:solar_icons/solar_icons.dart';
@@ -9,6 +10,7 @@ import 'package:solar_icons/solar_icons.dart';
 import '../../../app/sudoku_controller.dart';
 import '../../../common/presentation/app_sheet.dart';
 import '../../../common/presentation/ui.dart';
+import '../../game/presentation/debug_game_simulator.dart';
 import '../../game/presentation/board_palette.dart';
 import '../domain/app_settings.dart';
 import 'settings_information.dart';
@@ -65,7 +67,7 @@ Future<T?> _choose<T>(
               subtitle: subtitle?.call(option.$1),
               selected: option.$1 == selected,
               trailing: option.$1 == selected
-                  ? const Icon(SolarIconsBold.checkCircle, size: 24)
+                  ? const Icon(SolarIconsBold.checkCircle)
                   : const SizedBox(width: 24),
               onPressed: () => Navigator.of(sheetContext).pop(option.$1),
             ),
@@ -128,7 +130,7 @@ final class const SettingsContent({
       children: [
         RudiSwitchTile(
           title: l.showTimer,
-          leading: const Icon(SolarIconsOutline.stopwatch, size: 24),
+          leading: const Icon(SolarIconsOutline.stopwatch),
           value: settings.showTimer,
           onChanged: (value) => controller.changeSettings(
             controller.settings.copyWith(showTimer: value),
@@ -136,7 +138,7 @@ final class const SettingsContent({
         ),
         RudiSwitchTile(
           title: l.cleanNotes,
-          leading: const Icon(SolarIconsOutline.pen2, size: 24),
+          leading: const Icon(SolarIconsOutline.pen2),
           supporting: RudiInfoTooltip(
             key: const ValueKey('clean-notes-info'),
             semanticLabel: l.cleanNotesDescription,
@@ -148,8 +150,22 @@ final class const SettingsContent({
           ),
         ),
         RudiSwitchTile(
+          key: const ValueKey('setting-auto-fill-ending'),
+          title: l.autoFillEnding,
+          leading: const Icon(SolarIconsOutline.magicStick_3),
+          supporting: RudiInfoTooltip(
+            key: const ValueKey('auto-fill-ending-info'),
+            semanticLabel: l.autoFillEndingDescription,
+            message: l.autoFillEndingDescription,
+          ),
+          value: settings.autoFillEnding,
+          onChanged: (value) => controller.changeSettings(
+            controller.settings.copyWith(autoFillEnding: value),
+          ),
+        ),
+        RudiSwitchTile(
           title: l.numberFirst,
-          leading: const Icon(SolarIconsOutline.widget_5, size: 24),
+          leading: const Icon(SolarIconsOutline.widget_5),
           supporting: RudiInfoTooltip(
             key: const ValueKey('number-first-info'),
             semanticLabel: l.numberFirstDescription,
@@ -163,7 +179,7 @@ final class const SettingsContent({
         RudiSettingsTile(
           key: const ValueKey('setting-errors'),
           title: l.errorCheck,
-          leading: const Icon(SolarIconsOutline.checkCircle, size: 24),
+          leading: const Icon(SolarIconsOutline.checkCircle),
           trailing: _SettingValue(errorLabel(context, settings.errorCheck)),
           onPressed: () async {
             final value = await _choose(
@@ -192,7 +208,7 @@ final class const SettingsContent({
         RudiSettingsTile(
           key: const ValueKey('setting-language'),
           title: l.language,
-          leading: const Icon(Icons.language, size: 24),
+          leading: const Icon(Icons.language),
           trailing: _SettingValue(
             switch (settings.language) {
               AppLanguage.system => l.system,
@@ -212,7 +228,7 @@ final class const SettingsContent({
                 (
                   AppLanguage.system,
                   l.systemLanguage,
-                  const Icon(Icons.language, size: 24),
+                  const Icon(Icons.language),
                 ),
                 (
                   AppLanguage.en,
@@ -236,7 +252,7 @@ final class const SettingsContent({
         RudiSettingsTile(
           key: const ValueKey('setting-appearance'),
           title: l.appearance,
-          leading: const Icon(SolarIconsOutline.moon, size: 24),
+          leading: const Icon(SolarIconsOutline.moon),
           trailing: _SettingValue(
             appearanceLabel(context, settings.appearance),
           ),
@@ -259,7 +275,7 @@ final class const SettingsContent({
                       AppAppearance.system => SolarIconsOutline.smartphone,
                       AppAppearance.light => SolarIconsOutline.sun,
                       AppAppearance.dark => SolarIconsOutline.moon,
-                    }, size: 24),
+                    }),
                   ),
               ],
             );
@@ -273,7 +289,7 @@ final class const SettingsContent({
         RudiSettingsTile(
           key: const ValueKey('setting-board'),
           title: l.boardTheme,
-          leading: const Icon(SolarIconsOutline.paletteRound, size: 24),
+          leading: const Icon(SolarIconsOutline.paletteRound),
           trailing: _SettingValue(
             boardThemeLabel(context, settings.boardTheme),
           ),
@@ -282,7 +298,7 @@ final class const SettingsContent({
         RudiSwitchTile(
           key: const ValueKey('setting-haptics'),
           title: l.haptics,
-          leading: const Icon(SolarIconsOutline.smartphoneVibration, size: 24),
+          leading: const Icon(SolarIconsOutline.smartphoneVibration),
           value: settings.haptics,
           onChanged: (value) => controller.changeSettings(
             controller.settings.copyWith(haptics: value),
@@ -290,22 +306,58 @@ final class const SettingsContent({
         ),
       ],
     );
+    final debugTools = kDebugMode
+        ? RudiSettingsGroup(
+            key: const ValueKey('settings-debug-tools'),
+            title: l.debugTools,
+            children: [
+              RudiSettingsTile(
+                key: const ValueKey('setting-debug-game-simulator'),
+                title: l.debugGameSimulator,
+                subtitle: controller.gameForDebug == null
+                    ? l.debugStartGameFirst
+                    : l.debugGameSimulatorDescription,
+                leading: const Icon(SolarIconsOutline.bugMinimalistic),
+                trailing: const Icon(SolarIconsOutline.altArrowRight),
+                onPressed: controller.gameForDebug == null
+                    ? null
+                    : () => unawaited(
+                        showDebugGameSimulator(context, controller),
+                      ),
+              ),
+            ],
+          )
+        : null;
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth >= 720) {
-          return Row(
+          return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: gameSettings),
-              const SizedBox(width: 28),
-              Expanded(child: customization),
+              if (debugTools != null) ...[
+                SizedBox(width: 420, child: debugTools),
+                const SizedBox(height: 28),
+              ],
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: gameSettings),
+                  const SizedBox(width: 28),
+                  Expanded(child: customization),
+                ],
+              ),
             ],
           );
         }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
-          children: [gameSettings, const SizedBox(height: 28), customization],
+          children: [
+            if (debugTools != null) ...[debugTools, const SizedBox(height: 28)],
+            gameSettings,
+            const SizedBox(height: 28),
+            customization,
+          ],
         );
       },
     );

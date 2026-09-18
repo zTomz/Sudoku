@@ -86,6 +86,7 @@ final class _SudokuBoardState()
       oldWidget.game.values,
       widget.game.values,
       preferredOrigin: widget.controller.selected,
+      autoFillCells: _autoFillCells,
     );
     _hapticMoments = completionHapticMoments(_flashCells, _flashOrigin);
     _nextHapticMoment = 0;

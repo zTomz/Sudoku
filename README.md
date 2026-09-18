@@ -49,11 +49,11 @@ There is a fresh daily puzzle, locally generated free-play boards, and a small s
 
 - A daily puzzle with a calendar for going back to earlier days
 - Fresh easy, medium and hard boards generated on your device, with an in-game personal solve-time estimate refined by the current puzzle's logical effort score
-- Pencil notes, undo and redo, number-first input, and keyboard controls
+- Pencil notes, undo and redo, number-first input, keyboard controls, and optional endgame auto-fill
 - Step-by-step hints that explain the next logical move before offering the answer
 - Optional error checking, haptics and timer; Web haptics use a shorter pulse because browsers cannot control vibration intensity
 - Light and dark mode, four board themes, and English and German translations
-- Local progress, statistics, best times and scores
+- Local progress, statistics, best times and scores, with an animated score breakdown for mistakes and used hints
 - Responsive layouts for phones, tablets, Web and Windows
 
 The generator grades puzzles by the techniques needed to solve them, not just by clue count. Every generated board has a unique solution and a logical path that does not require guessing.

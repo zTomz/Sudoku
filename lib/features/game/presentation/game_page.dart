@@ -11,6 +11,7 @@ import '../../../common/presentation/app_sheet.dart';
 import '../../settings/presentation/settings_page.dart';
 import '../../statistics/application/solve_time_prediction.dart';
 import '../domain/logical_solver.dart';
+import '../domain/game_hint.dart';
 import '../domain/puzzle.dart';
 import 'hint_sheet.dart';
 import 'providers/game_hint_provider.dart';
@@ -51,6 +52,7 @@ final class _GamePageState() extends ConsumerState<GamePage> {
   void _showHint() {
     final hint = ref.read(gameHintProvider);
     if (hint == null) return;
+    if (hint.status == HintStatus.available) controller.useHint();
     setState(() {
       _coach = HintCoachState(hint);
       _coachValues = _valuesFingerprint;

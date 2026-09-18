@@ -30,6 +30,7 @@ final class const AppSettings({
   final BoardTheme boardTheme = BoardTheme.classic,
   final bool showTimer = true,
   final bool cleanNotes = true,
+  final bool autoFillEnding = true,
   final bool haptics = true,
   final bool numberFirst = false,
 }) {
@@ -40,6 +41,7 @@ final class const AppSettings({
     BoardTheme? boardTheme,
     bool? showTimer,
     bool? cleanNotes,
+    bool? autoFillEnding,
     bool? haptics,
     bool? numberFirst,
   }) => AppSettings(
@@ -49,6 +51,7 @@ final class const AppSettings({
     boardTheme: boardTheme ?? this.boardTheme,
     showTimer: showTimer ?? this.showTimer,
     cleanNotes: cleanNotes ?? this.cleanNotes,
+    autoFillEnding: autoFillEnding ?? this.autoFillEnding,
     haptics: haptics ?? this.haptics,
     numberFirst: numberFirst ?? this.numberFirst,
   );
@@ -59,6 +62,7 @@ final class const AppSettings({
     'boardTheme': boardTheme.name,
     'showTimer': showTimer,
     'cleanNotes': cleanNotes,
+    'autoFillEnding': autoFillEnding,
     'haptics': haptics,
     'numberFirst': numberFirst,
   };
@@ -71,6 +75,7 @@ final class const AppSettings({
     boardTheme: BoardTheme.values.byName(json['boardTheme'] as String),
     showTimer: json['showTimer'] as bool,
     cleanNotes: json['cleanNotes'] as bool,
+    autoFillEnding: json['autoFillEnding'] as bool? ?? true,
     haptics: json['haptics'] as bool,
     numberFirst: json['numberFirst'] as bool,
   );

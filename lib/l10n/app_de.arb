@@ -64,6 +64,39 @@
       }
     }
   },
+  "hintsUsedValue": "{count, plural, =1 {1 Hinweis} other {{count} Hinweise}}",
+  "@hintsUsedValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "scoreBreakdown": "Punkteübersicht",
+  "scorePuzzlePoints": "Spielfeldpunkte",
+  "scoreCompletionBonus": "Abschlussbonus",
+  "scorePerfectBonus": "Fehlerfrei-Bonus",
+  "scoreDailyBonus": "Tagesbonus",
+  "scoreBeforeDeductions": "Punkte vor Abzügen",
+  "debugTools": "Debug-Werkzeuge",
+  "debugGameSimulator": "Spiel simulieren",
+  "debugGameSimulatorDescription": "Bereite das aktuelle Rätsel zum Testen vor, ohne jedes Feld lösen zu müssen.",
+  "debugStartGameFirst": "Starte ein Spiel oder setze es fort, um die Simulation zu verwenden.",
+  "debugFilledCells": "Ausgefüllte Felder",
+  "debugMistakes": "Fehler",
+  "debugHints": "Genutzte Hinweise",
+  "debugApplySimulation": "Simulation anwenden",
+  "debugValueRange": "Gib einen Wert von {minimum} bis {maximum} ein.",
+  "@debugValueRange": {
+    "placeholders": {
+      "minimum": {
+        "type": "int"
+      },
+      "maximum": {
+        "type": "int"
+      }
+    }
+  },
   "backHome": "Zur Startseite",
   "timer": "Spielzeit",
   "progress": "{filled} / 81 ausgefüllt",
@@ -76,6 +109,8 @@
   "showTimerDescription": "Blende die Uhr aus und spiele in deinem Tempo.",
   "cleanNotes": "Notizen bereinigen",
   "cleanNotesDescription": "Entfernt passende Notizen in Zeile, Spalte und Block.",
+  "autoFillEnding": "Ende automatisch ausfüllen",
+  "autoFillEndingDescription": "Vervollständigt das Feld gegen Ende, wenn bei jedem verbleibenden Schritt nur eine Zahl möglich ist.",
   "haptics": "Haptisches Feedback",
   "hapticsDescription": "Ein dezentes Tippen auf unterstützten Geräten.",
   "numberFirst": "Zahl zuerst wählen",

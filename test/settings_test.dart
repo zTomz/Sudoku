@@ -39,6 +39,14 @@ void main() {
     );
   });
 
+  test('endgame auto-fill survives saves and defaults on for older saves', () {
+    final save = SavedGames(settings: const AppSettings(autoFillEnding: false));
+    expect(SavedGames.decode(save.encode()).settings.autoFillEnding, isFalse);
+
+    final json = const AppSettings().toJson()..remove('autoFillEnding');
+    expect(AppSettings.fromJson(json).autoFillEnding, isTrue);
+  });
+
   testWidgets('language changes immediately and is persisted', (tester) async {
     final store = MemoryStore();
     final harness = ControllerHarness(GameRepository(store));

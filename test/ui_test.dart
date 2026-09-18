@@ -12,6 +12,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:reel_text/reel_text.dart';
 import 'package:rudi_ui/rudi_ui.dart';
+import 'package:solar_icons/solar_icons.dart';
 import 'package:sudoku/app/app_theme.dart';
 import 'package:sudoku/app/sudoku_app.dart';
 import 'package:sudoku/app/sudoku_controller.dart';
@@ -146,16 +147,31 @@ void main() {
     expect(completionFlashCells(previous, current, testSolution), isEmpty);
   });
 
-  test('a filled board flashes from its automatically completed cell', () {
+  test('a filled board flashes from the last automatically filled cell', () {
     final current = [...testSolution];
     final previous = [...current]
       ..[10] = 0
       ..[70] = 0;
+    final autoFillCells = autoFillRevealCells(
+      previous,
+      current,
+      testSolution,
+      preferredOrigin: 10,
+    );
 
     expect(completionFlashCells(previous, current, testSolution), {
       for (var cell = 0; cell < 81; cell++) cell,
     });
-    expect(completionFlashOrigin(previous, current, preferredOrigin: 10), 70);
+    expect(autoFillCells, [70]);
+    expect(
+      completionFlashOrigin(
+        previous,
+        current,
+        preferredOrigin: 10,
+        autoFillCells: autoFillCells,
+      ),
+      70,
+    );
   });
 
   test('auto-filled digits reveal separately from the entered cell', () {
@@ -179,14 +195,23 @@ void main() {
     expect(reveals.toSet(), fours.toSet());
     expect(reveals, isNot(contains(trigger)));
     expect(
+      completionFlashOrigin(
+        previous,
+        testSolution,
+        preferredOrigin: trigger,
+        autoFillCells: reveals,
+      ),
+      reveals.last,
+    );
+    expect(
       [for (var order = 0; order < 3; order++) autoFillRevealDelay(order)],
       const [
         Duration.zero,
-        Duration(milliseconds: 500),
-        Duration(milliseconds: 1000),
+        Duration(milliseconds: 300),
+        Duration(milliseconds: 600),
       ],
     );
-    expect(autoFillSequenceDuration(3), const Duration(milliseconds: 1550));
+    expect(autoFillSequenceDuration(3), const Duration(milliseconds: 1100));
     final correctedPrevious = [...previous]..[trigger] = 4;
     expect(
       autoFillRevealCells(
@@ -373,6 +398,7 @@ void main() {
         );
         await tester.tap(find.text(l.hint));
         await tester.pumpAndSettle();
+        expect(controller.game!.hintsUsed, 1);
         expect(
           tester.getRect(find.byKey(const ValueKey('game-puzzle'))),
           initialBoardRect,
@@ -461,6 +487,7 @@ void main() {
         expect(find.byKey(const ValueKey('hint-coach')), findsNothing);
         await tester.tap(find.text(l.hint));
         await tester.pumpAndSettle();
+        expect(controller.game!.hintsUsed, 1);
         expect(find.text(l.hintIncorrect), findsOneWidget);
         expect(tester.takeException(), isNull);
         controller.suspend();
@@ -838,6 +865,144 @@ void main() {
     await tester.pump(const Duration(milliseconds: 16));
     expect(find.byKey(const ValueKey('score-popup')), findsNothing);
 
+    controller.suspend();
+  });
+  testWidgets('completion animates the score and itemizes deductions', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final scorePuzzle = Puzzle(
+      id: 'completion-score-test',
+      difficulty: Difficulty.easy,
+      givens: [...testSolution]..last = 0,
+      solution: testSolution,
+    );
+    final session = GameSession(
+      puzzle: scorePuzzle,
+      values: scorePuzzle.givens,
+      notes: List.filled(81, 0),
+      mistakes: 1,
+      hintsUsed: 3,
+    );
+    final harness = ControllerHarness(
+      GameRepository(MemoryStore()..value = SavedGames(free: session).encode()),
+    );
+    addTearDown(harness.dispose);
+    final controller = harness.controller;
+    await controller.initialize();
+    controller.resumeFree();
+    await tester.pumpWidget(
+      _GameHarness(container: harness.container, controller: controller),
+    );
+    await tester.pumpAndSettle();
+
+    controller.moveSelection(80);
+    controller.enter(testSolution[80]);
+    await tester.pump();
+    expect(controller.results.single.hintsUsed, 3);
+    final l = AppLocalizations.of(
+      tester.element(find.byKey(const ValueKey('score-breakdown'))),
+    );
+
+    expect(find.byKey(const ValueKey('final-points')), findsOneWidget);
+    expect(find.byIcon(SolarIconsOutline.cup1), findsOneWidget);
+    expect(
+      tester.widget<ReelText>(find.byKey(const ValueKey('final-points'))).text,
+      l.pointsValue(controller.game!.pointsBeforeDeductions),
+    );
+    expect(find.text(l.mistakesValue(1)), findsOneWidget);
+    expect(find.text(l.hintsUsedValue(3)), findsOneWidget);
+    expect(find.text('−40'), findsOneWidget);
+    expect(find.text('−75'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 700));
+    expect(
+      tester.widget<ReelText>(find.byKey(const ValueKey('final-points'))).text,
+      l.pointsValue(controller.game!.pointsBeforeDeductions),
+    );
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(
+      tester.widget<ReelText>(find.byKey(const ValueKey('final-points'))).text,
+      l.pointsValue(controller.game!.scoreBeforeHints),
+    );
+    await tester.pump(const Duration(milliseconds: 650));
+    expect(
+      tester.widget<ReelText>(find.byKey(const ValueKey('final-points'))).text,
+      l.pointsValue(controller.game!.scoreBeforeHints),
+    );
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(
+      tester.widget<ReelText>(find.byKey(const ValueKey('final-points'))).text,
+      l.pointsValue(controller.game!.finalPoints),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('debug game simulator opens from the settings screen', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final harness = ControllerHarness(
+      GameRepository(
+        MemoryStore()
+          ..value = SavedGames(free: GameSession.start(puzzle)).encode(),
+      ),
+    );
+    addTearDown(harness.dispose);
+    final controller = harness.controller;
+    await controller.initialize();
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: harness.container,
+        child: const SudokuApp(
+          locale: Locale('en'),
+          initialLocation: '/settings',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('settings-debug-tools'))).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(const ValueKey('settings-gameplay'))).dy,
+      ),
+    );
+    final autoFillIcon = tester.widget<Icon>(
+      find.descendant(
+        of: find.byKey(const ValueKey('setting-auto-fill-ending')),
+        matching: find.byIcon(SolarIconsOutline.magicStick_3),
+      ),
+    );
+    expect(autoFillIcon.icon, SolarIconsOutline.magicStick_3);
+    expect(autoFillIcon.fill, 0);
+    final simulatorTile = find.byKey(
+      const ValueKey('setting-debug-game-simulator'),
+    );
+    await tester.tap(simulatorTile);
+    await tester.pumpAndSettle();
+
+    Finder input(String key) => find.descendant(
+      of: find.byKey(ValueKey(key)),
+      matching: find.byType(EditableText),
+    );
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('debug-filled-cells')),
+    );
+    await tester.enterText(input('debug-filled-cells'), '80');
+    await tester.enterText(input('debug-mistakes'), '2');
+    await tester.enterText(input('debug-hints'), '3');
+    await tester.tap(find.byKey(const ValueKey('debug-apply-simulation')));
+    await tester.pumpAndSettle();
+
+    expect(controller.game!.filled, 80);
+    expect(controller.game!.complete, isFalse);
+    expect(controller.game!.mistakes, 2);
+    expect(controller.game!.hintsUsed, 3);
+    expect(tester.takeException(), isNull);
     controller.suspend();
   });
   for (final size in [
@@ -1373,9 +1538,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('settings explain note cleanup and number-first input inline', (
-    tester,
-  ) async {
+  testWidgets('settings explain gameplay helpers inline', (tester) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(390, 844);
     addTearDown(tester.view.reset);
@@ -1402,7 +1565,29 @@ void main() {
 
     await tester.tapAt(const Offset(1, 1));
     await tester.pump();
-    await tester.tap(find.byKey(const ValueKey('number-first-info')));
+    final autoFillInfo = find.byKey(const ValueKey('auto-fill-ending-info'));
+    await tester.ensureVisible(autoFillInfo);
+    await tester.tap(autoFillInfo);
+    await tester.pump();
+    expect(
+      find.text(
+        'Finishes the board near the end when every remaining step has only one possible number.',
+      ),
+      findsOneWidget,
+    );
+    expect(harness.controller.settings.autoFillEnding, true);
+
+    await tester.tapAt(const Offset(1, 1));
+    await tester.pump();
+    final autoFillTile = find.byKey(const ValueKey('setting-auto-fill-ending'));
+    await tester.ensureVisible(autoFillTile);
+    await tester.tap(autoFillTile);
+    await tester.pump();
+    expect(harness.controller.settings.autoFillEnding, false);
+
+    final numberFirstInfo = find.byKey(const ValueKey('number-first-info'));
+    await tester.ensureVisible(numberFirstInfo);
+    await tester.tap(numberFirstInfo);
     await tester.pump();
     expect(find.text('Choose a number, then tap the cells.'), findsOneWidget);
     expect(harness.controller.settings.numberFirst, false);

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'puzzle.dart';
 
 abstract final class GameScoring() {
@@ -6,6 +8,8 @@ abstract final class GameScoring() {
   static const completedColumn = 20;
   static const completedBox = 25;
   static const dailyBonus = 50;
+  static const perfectAccuracyBonus = 100;
+  static const hintUsePenalty = 25;
 
   static int completionBonus(Difficulty difficulty) => switch (difficulty) {
     Difficulty.easy => 100,
@@ -13,12 +17,15 @@ abstract final class GameScoring() {
     Difficulty.hard => 350,
   };
 
-  static int accuracyBonus(int mistakes) => switch (mistakes) {
-    0 => 100,
-    1 => 60,
-    2 => 30,
-    _ => 0,
+  static int mistakePenalty(int mistakes) => switch (mistakes) {
+    0 => 0,
+    1 => 40,
+    2 => 70,
+    _ => perfectAccuracyBonus,
   };
+
+  static int accuracyBonus(int mistakes) =>
+      perfectAccuracyBonus - mistakePenalty(mistakes);
 }
 
 final class const CellEdit(
@@ -65,7 +72,10 @@ final class GameSession({
   Set<int> awardedCells = const {},
   Set<int> awardedUnits = const {},
   final int mistakes = 0,
+  final int hintsUsed = 0,
 }) {
+  static const _maximumAutoFillCells = 10;
+
   this
     : values = List.unmodifiableOf(values),
       notes = List.unmodifiableOf(notes),
@@ -103,11 +113,16 @@ final class GameSession({
         return total + bonus;
       });
 
-  int get finalPoints =>
-      points +
-      GameScoring.completionBonus(puzzle.difficulty) +
-      GameScoring.accuracyBonus(mistakes) +
-      (puzzle.dailyDate == null ? 0 : GameScoring.dailyBonus);
+  int get finalPoints => scoreBeforeHints - hintDeduction;
+
+  int get completionBonus => GameScoring.completionBonus(puzzle.difficulty);
+  int get mistakeDeduction => GameScoring.mistakePenalty(mistakes);
+  int get dailyBonus => puzzle.dailyDate == null ? 0 : GameScoring.dailyBonus;
+  int get pointsBeforeDeductions =>
+      points + completionBonus + GameScoring.perfectAccuracyBonus + dailyBonus;
+  int get scoreBeforeHints => pointsBeforeDeductions - mistakeDeduction;
+  int get hintDeduction =>
+      math.min(hintsUsed * GameScoring.hintUsePenalty, scoreBeforeHints);
 
   bool isDigitAvailable(int digit) =>
       digit >= 1 &&
@@ -119,6 +134,7 @@ final class GameSession({
     int digit, {
     bool pencil = false,
     bool cleanNotes = true,
+    bool autoFillEnding = true,
   }) {
     if (cell < 0 ||
         cell >= sudokuCellCount ||
@@ -134,6 +150,7 @@ final class GameSession({
       digit,
       pencil: pencil,
       cleanNotes: cleanNotes,
+      autoFillEnding: autoFillEnding,
     );
     if (edited == null) return this;
     final (:nextValues, :nextNotes) = edited;
@@ -156,6 +173,7 @@ final class GameSession({
       awardedCells: score.cells,
       awardedUnits: score.units,
       mistakes: score.mistakes,
+      hintsUsed: hintsUsed,
     );
   }
 
@@ -164,6 +182,7 @@ final class GameSession({
     int digit, {
     required bool pencil,
     required bool cleanNotes,
+    required bool autoFillEnding,
   }) {
     final nextValues = [...values], nextNotes = [...notes];
     if (pencil && digit != 0) {
@@ -177,14 +196,16 @@ final class GameSession({
     if (cleanNotes && digit != 0) {
       _removePeerNotes(nextNotes, cell, digit);
     }
-    _completeFinalDigit(
-      previousValues: values,
-      values: nextValues,
-      notes: nextNotes,
-      enteredCell: cell,
-      enteredDigit: digit,
-      cleanNotes: cleanNotes,
-    );
+    if (autoFillEnding) {
+      _completeObviousEnding(
+        previousValues: values,
+        values: nextValues,
+        notes: nextNotes,
+        enteredCell: cell,
+        enteredDigit: digit,
+        cleanNotes: cleanNotes,
+      );
+    }
     return (nextValues: nextValues, nextNotes: nextNotes);
   }
 
@@ -194,7 +215,7 @@ final class GameSession({
     }
   }
 
-  void _completeFinalDigit({
+  void _completeObviousEnding({
     required List<int> previousValues,
     required List<int> values,
     required List<int> notes,
@@ -211,9 +232,7 @@ final class GameSession({
         if (values[index] == 0) index,
     ];
     if (emptyCells.isEmpty ||
-        emptyCells.any(
-          (cell) => puzzle.solution[cell] != puzzle.solution[emptyCells.first],
-        ) ||
+        emptyCells.length > _maximumAutoFillCells ||
         List.generate(
           sudokuCellCount,
           (index) =>
@@ -222,12 +241,40 @@ final class GameSession({
       return;
     }
 
-    final finalDigit = puzzle.solution[emptyCells.first];
-    for (final emptyCell in emptyCells) {
-      values[emptyCell] = finalDigit;
-      notes[emptyCell] = 0;
-      if (cleanNotes) _removePeerNotes(notes, emptyCell, finalDigit);
+    final obviousValues = [...values];
+    while (obviousValues.contains(0)) {
+      var obviousCell = -1, obviousDigit = 0;
+      for (var cell = 0; cell < sudokuCellCount; cell++) {
+        if (obviousValues[cell] != 0) continue;
+        final candidates = _candidateMask(obviousValues, cell);
+        if (candidates.oneBitCount != 1) continue;
+        obviousCell = cell;
+        obviousDigit = candidates.bitLength - 1;
+        break;
+      }
+      if (obviousCell < 0) return;
+      obviousValues[obviousCell] = obviousDigit;
     }
+    if (emptyCells.any(
+      (cell) => obviousValues[cell] != puzzle.solution[cell],
+    )) {
+      return;
+    }
+
+    for (final emptyCell in emptyCells) {
+      final digit = obviousValues[emptyCell];
+      values[emptyCell] = digit;
+      notes[emptyCell] = 0;
+      if (cleanNotes) _removePeerNotes(notes, emptyCell, digit);
+    }
+  }
+
+  int _candidateMask(List<int> values, int cell) {
+    var mask = sudokuCandidateMask;
+    for (final peer in peers(cell)) {
+      mask &= ~(1 << values[peer]);
+    }
+    return mask;
   }
 
   List<CellEdit> _changesTo(List<int> nextValues, List<int> nextNotes) => [
@@ -301,8 +348,22 @@ final class GameSession({
       awardedCells: awardedCells,
       awardedUnits: awardedUnits,
       mistakes: mistakes,
+      hintsUsed: hintsUsed,
     );
   }
+
+  GameSession useHint() => GameSession(
+    puzzle: puzzle,
+    values: values,
+    notes: notes,
+    history: history,
+    cursor: cursor,
+    elapsedSeconds: elapsedSeconds,
+    awardedCells: awardedCells,
+    awardedUnits: awardedUnits,
+    mistakes: mistakes,
+    hintsUsed: hintsUsed + 1,
+  );
 
   GameSession withElapsed(int seconds) => GameSession(
     puzzle: puzzle,
@@ -314,6 +375,7 @@ final class GameSession({
     awardedCells: awardedCells,
     awardedUnits: awardedUnits,
     mistakes: mistakes,
+    hintsUsed: hintsUsed,
   );
 
   bool hasConflict(int cell) =>
@@ -337,6 +399,7 @@ final class GameSession({
     'awardedCells': awardedCells.toList()..sort(),
     'awardedUnits': awardedUnits.toList()..sort(),
     'mistakes': mistakes,
+    'hintsUsed': hintsUsed,
   };
 
   factory fromJson(Map<String, Object?> json) {
@@ -348,7 +411,12 @@ final class GameSession({
         .toList();
     final cursor = json['cursor'] as int,
         seconds = json['elapsedSeconds'] as int,
-        mistakes = json['mistakes'] as int;
+        mistakes = json['mistakes'] as int,
+        hintsUsed = switch (json['hintsUsed']) {
+          null => 0,
+          final int value => value,
+          _ => throw const FormatException('Invalid session'),
+        };
     final awardedCells = _readUniqueIndexes(
       json['awardedCells'],
       sudokuCellCount,
@@ -361,6 +429,7 @@ final class GameSession({
         cursor > history.length ||
         seconds < 0 ||
         mistakes < 0 ||
+        hintsUsed < 0 ||
         awardedCells.any((cell) => puzzle.givens[cell] != 0)) {
       throw const FormatException('Invalid session');
     }
@@ -402,6 +471,7 @@ final class GameSession({
       awardedCells: awardedCells,
       awardedUnits: awardedUnits,
       mistakes: mistakes,
+      hintsUsed: hintsUsed,
     );
   }
 }

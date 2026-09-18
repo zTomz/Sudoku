@@ -156,6 +156,66 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String hintsUsedValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hints',
+      one: '1 hint',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get scoreBreakdown => 'Score breakdown';
+
+  @override
+  String get scorePuzzlePoints => 'Board points';
+
+  @override
+  String get scoreCompletionBonus => 'Completion bonus';
+
+  @override
+  String get scorePerfectBonus => 'No-mistake bonus';
+
+  @override
+  String get scoreDailyBonus => 'Daily bonus';
+
+  @override
+  String get scoreBeforeDeductions => 'Score before deductions';
+
+  @override
+  String get debugTools => 'Debug tools';
+
+  @override
+  String get debugGameSimulator => 'Game simulator';
+
+  @override
+  String get debugGameSimulatorDescription =>
+      'Set up the current puzzle for testing without solving every cell.';
+
+  @override
+  String get debugStartGameFirst =>
+      'Start or resume a game to use the simulator.';
+
+  @override
+  String get debugFilledCells => 'Filled cells';
+
+  @override
+  String get debugMistakes => 'Mistakes';
+
+  @override
+  String get debugHints => 'Hints used';
+
+  @override
+  String get debugApplySimulation => 'Apply simulation';
+
+  @override
+  String debugValueRange(int minimum, int maximum) {
+    return 'Enter a value from $minimum to $maximum.';
+  }
+
+  @override
   String get backHome => 'Back to start';
 
   @override
@@ -194,6 +254,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get cleanNotesDescription =>
       'Removes matching notes in its row, column and block.';
+
+  @override
+  String get autoFillEnding => 'Auto-fill ending';
+
+  @override
+  String get autoFillEndingDescription =>
+      'Finishes the board near the end when every remaining step has only one possible number.';
 
   @override
   String get haptics => 'Haptic feedback';

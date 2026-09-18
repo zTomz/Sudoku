@@ -160,11 +160,17 @@ void main() {
     expect(game.points, 195);
     expect(game.finalPoints, 545);
 
+    game = game.useHint().useHint().useHint();
+    expect(game.hintsUsed, 3);
+    expect(game.hintDeduction, 75);
+    expect(game.finalPoints, 470);
+
     final restored = GameSession.fromJson(
       jsonDecode(jsonEncode(game.toJson())) as Map<String, Object?>,
     );
     expect(restored.points, game.points);
     expect(restored.mistakes, game.mistakes);
+    expect(restored.hintsUsed, game.hintsUsed);
     expect(restored.awardedCells, game.awardedCells);
     expect(restored.awardedUnits, game.awardedUnits);
   });
@@ -299,15 +305,12 @@ void main() {
       expect(GameSession.fromJson(game.toJson()).complete, true);
     },
   );
-  test('the final repeated digit is filled after the board is solved', () {
+  test('an obvious endgame is filled, but ambiguous cells are not', () {
     final solution = List.generate(
       81,
       (i) => (i ~/ 9 * 3 + i ~/ 27 + i % 9) % 9 + 1,
     );
-    final autoFilledCells = [
-      for (var cell = 0; cell < 81; cell++)
-        if (solution[cell] == 4) cell,
-    ];
+    final autoFilledCells = [for (var cell = 71; cell < 81; cell++) cell];
     final givens = [...solution]..[0] = 0;
     for (final cell in autoFilledCells) {
       givens[cell] = 0;
@@ -323,7 +326,7 @@ void main() {
 
     expect(completed.complete, isTrue);
     for (final cell in autoFilledCells) {
-      expect(completed.values[cell], 4);
+      expect(completed.values[cell], solution[cell]);
     }
     expect(completed.cursor, 1);
     expect(
@@ -331,7 +334,7 @@ void main() {
       containsAll(<int>[0, ...autoFilledCells]),
     );
 
-    final incorrect = GameSession.start(puzzle).enter(0, 4);
+    final incorrect = GameSession.start(puzzle).enter(0, solution[0] % 9 + 1);
     expect(incorrect.complete, isFalse);
     for (final cell in autoFilledCells) {
       expect(incorrect.values[cell], 0);
@@ -339,6 +342,44 @@ void main() {
 
     final corrected = incorrect.enter(0, solution[0]);
     expect(corrected.complete, isTrue);
+
+    final disabled = GameSession.start(puzzle)
+        .enter(0, solution[0], autoFillEnding: false);
+    expect(disabled.complete, isFalse);
+    expect(disabled.values.where((value) => value == 0), hasLength(10));
+
+    final earlyCells = [for (var cell = 70; cell < 81; cell++) cell];
+    final earlyGivens = [...solution]..[0] = 0;
+    for (final cell in earlyCells) {
+      earlyGivens[cell] = 0;
+    }
+    final earlyPuzzle = Puzzle(
+      id: 'early-endgame',
+      difficulty: Difficulty.easy,
+      givens: earlyGivens,
+      solution: solution,
+    );
+    final tooEarly = GameSession.start(earlyPuzzle).enter(0, solution[0]);
+    expect(tooEarly.complete, isFalse);
+    expect(tooEarly.values.where((value) => value == 0), hasLength(11));
+
+    const ambiguousCells = [0, 3, 9, 15, 21, 24];
+    const triggerCell = 1;
+    final ambiguousGivens = [...solution]..[triggerCell] = 0;
+    for (final cell in ambiguousCells) {
+      ambiguousGivens[cell] = 0;
+    }
+    final ambiguousPuzzle = Puzzle(
+      id: 'ambiguous-endgame',
+      difficulty: Difficulty.easy,
+      givens: ambiguousGivens,
+      solution: solution,
+    );
+
+    final ambiguous = GameSession.start(ambiguousPuzzle)
+        .enter(triggerCell, solution[triggerCell]);
+    expect(ambiguous.complete, isFalse);
+    expect(ambiguous.values.where((value) => value == 0), hasLength(6));
   });
   test('corrupt move history is rejected instead of altering givens', () async {
     final puzzle = await engine.generate(seed: 19, difficulty: Difficulty.easy);
