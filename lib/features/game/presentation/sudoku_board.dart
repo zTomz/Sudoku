@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:rudi_ui/rudi_ui.dart';
 
 import '../../../app/sudoku_controller.dart';
+import '../../settings/domain/app_settings.dart';
 import '../domain/game_session.dart';
 import '../domain/sudoku_grid.dart';
 import 'board_palette.dart';
@@ -35,6 +36,145 @@ final class const SudokuBoard({
 }) extends StatefulWidget {
   @override
   State<SudokuBoard> createState() => _SudokuBoardState();
+}
+
+/// The shared visual Sudoku surface used by both games and learning examples.
+///
+/// Keeping this renderer independent from a game session lets teaching content
+/// use the exact same cells, palette, grid, selection and value transitions
+/// without creating a score-bearing game.
+final class const SudokuBoardView({
+  required final List<int> values,
+  required final List<int> notes,
+  required final List<int> givens,
+  required final BoardTheme boardTheme,
+  final Set<int> incorrectCells = const {},
+  final ValueChanged<int>? onSelectCell,
+  final int selected = -1,
+  final int activeDigit = 0,
+  final bool obscured = false,
+  final bool showSelection = true,
+  final SudokuHintVisual? hint,
+  final Object revision = 0,
+  final List<int> autoFillCells = const [],
+  final Animation<double>? completionAnimation,
+  final Set<int> completionCells = const {},
+  final int completionOrigin = -1,
+  super.key,
+}) extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final palette = BoardPalette.resolve(
+      boardTheme,
+      context.rudiTheme.brightness,
+      highContrast: MediaQuery.highContrastOf(context),
+      accentColor: context.rudiTheme.colors.accent,
+    );
+    final visibleHint = obscured ? null : hint;
+    final visibleSelected = !obscured && showSelection ? selected : -1;
+    return AspectRatio(
+      aspectRatio: 1,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final cellSize = constraints.maxWidth / sudokuSideLength;
+          return ClipRect(
+            child: Stack(
+              fit: .expand,
+              children: [
+                Cue.onChange(
+                  value: revision,
+                  motion: MediaQuery.disableAnimationsOf(context)
+                      ? CueMotion.none
+                      : .easeOut(
+                          const Duration(
+                            milliseconds: autoFillMotionMilliseconds,
+                          ),
+                        ),
+                  child: CustomPaint(
+                    child: ColoredBox(
+                      color: palette.background,
+                      child: Column(
+                        children: [
+                          for (var row = 0; row < sudokuSideLength; row++)
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  for (
+                                    var col = 0;
+                                    col < sudokuSideLength;
+                                    col++
+                                  )
+                                    Expanded(
+                                      child: SudokuCell(
+                                        values: values,
+                                        notes: notes,
+                                        givens: givens,
+                                        incorrectCells: incorrectCells,
+                                        onSelectCell: onSelectCell,
+                                        hint: visibleHint,
+                                        palette: palette,
+                                        row: row,
+                                        col: col,
+                                        selected: visibleSelected,
+                                        activeDigit: activeDigit,
+                                        autoFillOrder: autoFillCells.indexOf(
+                                          cellAt(row, col),
+                                        ),
+                                        cellSize: cellSize,
+                                        obscured: obscured,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                if (completionAnimation != null)
+                  SudokuCompletionFlash(
+                    animation: completionAnimation!,
+                    cells: completionCells,
+                    origin: completionOrigin,
+                    values: values,
+                    cellSize: cellSize,
+                    palette: palette,
+                  ),
+                IgnorePointer(
+                  child: Cue.onToggle(
+                    key: const ValueKey('selection-visibility'),
+                    toggled: !obscured && showSelection,
+                    motion: MediaQuery.disableAnimationsOf(context)
+                        ? CueMotion.none
+                        : .easeOut(const Duration(milliseconds: 240)),
+                    acts: const [.opacity(from: 0, to: 1)],
+                    child: CustomPaint(
+                      key: const ValueKey('board-selection'),
+                      foregroundPainter: SudokuSelectionPainter(
+                        palette: palette,
+                        selected: selected,
+                      ),
+                    ),
+                  ),
+                ),
+                IgnorePointer(
+                  child: CustomPaint(
+                    key: const ValueKey('board-grid'),
+                    foregroundPainter: SudokuGridPainter(
+                      palette: palette,
+                      pixelRatio: MediaQuery.devicePixelRatioOf(context),
+                      highContrast: MediaQuery.highContrastOf(context),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
 }
 
 final class _SudokuBoardState()
@@ -121,12 +261,6 @@ final class _SudokuBoardState()
         hint = obscured ? null : widget.hint,
         selectionVisible = !obscured && widget.showSelection,
         selected = selectionVisible ? controller.selected : -1;
-    final palette = BoardPalette.resolve(
-      controller.settings.boardTheme,
-      context.rudiTheme.brightness,
-      highContrast: MediaQuery.highContrastOf(context),
-      accentColor: context.rudiTheme.colors.accent,
-    );
     final activeDigit = obscured
         ? 0
         : controller.settings.numberFirst
@@ -134,106 +268,34 @@ final class _SudokuBoardState()
         : selected < 0
         ? 0
         : game.values[selected];
-    return AspectRatio(
-      aspectRatio: 1,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final cellSize = constraints.maxWidth / sudokuSideLength;
-          return ClipRect(
-            child: Stack(
-              fit: .expand,
-              children: [
-                Cue.onChange(
-                  value: game.cursor,
-                  motion: MediaQuery.disableAnimationsOf(context)
-                      ? CueMotion.none
-                      : .easeOut(
-                          const Duration(
-                            milliseconds: autoFillMotionMilliseconds,
-                          ),
-                        ),
-                  child: CustomPaint(
-                    child: ColoredBox(
-                      color: palette.background,
-                      child: Column(
-                        children: [
-                          for (var row = 0; row < sudokuSideLength; row++)
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  for (
-                                    var col = 0;
-                                    col < sudokuSideLength;
-                                    col++
-                                  )
-                                    Expanded(
-                                      child: SudokuCell(
-                                        controller: controller,
-                                        game: game,
-                                        onSelectCell:
-                                            widget.onSelectCell ??
-                                            controller.selectCell,
-                                        hint: hint,
-                                        palette: palette,
-                                        row: row,
-                                        col: col,
-                                        selected: selected,
-                                        activeDigit: activeDigit,
-                                        autoFillOrder: _autoFillCells.indexOf(
-                                          cellAt(row, col),
-                                        ),
-                                        cellSize: cellSize,
-                                        obscured: obscured,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                SudokuCompletionFlash(
-                  animation: _flashAnimation,
-                  cells: _flashCells,
-                  origin: _flashOrigin,
-                  values: game.values,
-                  cellSize: cellSize,
-                  palette: palette,
-                ),
-                IgnorePointer(
-                  child: Cue.onToggle(
-                    key: const ValueKey('selection-visibility'),
-                    toggled: selectionVisible,
-                    motion: MediaQuery.disableAnimationsOf(context)
-                        ? CueMotion.none
-                        : .easeOut(const Duration(milliseconds: 240)),
-                    acts: const [.opacity(from: 0, to: 1)],
-                    child: CustomPaint(
-                      key: const ValueKey('board-selection'),
-                      foregroundPainter: SudokuSelectionPainter(
-                        palette: palette,
-                        selected: controller.selected,
-                      ),
-                    ),
-                  ),
-                ),
-                IgnorePointer(
-                  child: CustomPaint(
-                    key: const ValueKey('board-grid'),
-                    foregroundPainter: SudokuGridPainter(
-                      palette: palette,
-                      pixelRatio: MediaQuery.devicePixelRatioOf(context),
-                      highContrast: MediaQuery.highContrastOf(context),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+    final incorrectCells = <int>{
+      for (var cell = 0; cell < sudokuCellCount; cell++)
+        if (!obscured &&
+            game.isIncorrect(cell) &&
+            switch (controller.settings.errorCheck) {
+              ErrorCheck.off => false,
+              ErrorCheck.conflicts => game.hasConflict(cell),
+              ErrorCheck.solution => true,
+            })
+          cell,
+    };
+    return SudokuBoardView(
+      values: game.values,
+      notes: game.notes,
+      givens: game.puzzle.givens,
+      boardTheme: controller.settings.boardTheme,
+      incorrectCells: incorrectCells,
+      onSelectCell: widget.onSelectCell ?? controller.selectCell,
+      selected: selected,
+      activeDigit: activeDigit,
+      obscured: obscured,
+      showSelection: widget.showSelection,
+      hint: hint,
+      revision: game.cursor,
+      autoFillCells: _autoFillCells,
+      completionAnimation: _flashAnimation,
+      completionCells: _flashCells,
+      completionOrigin: _flashOrigin,
     );
   }
 }

@@ -12,6 +12,10 @@ import '../common/presentation/ui.dart';
 import '../features/daily/presentation/daily_page.dart';
 import '../features/game/presentation/game_page.dart';
 import '../features/home/presentation/home_page.dart';
+import '../features/learn/domain/learning_progress.dart';
+import '../features/learn/presentation/learn_lesson_page.dart';
+import '../features/learn/presentation/learn_page.dart';
+import '../features/learn/presentation/learning_transition_page.dart';
 import '../features/privacy/presentation/privacy_policy_page.dart';
 import '../features/settings/presentation/settings_page.dart';
 import '../features/statistics/presentation/statistics_page.dart';
@@ -20,9 +24,14 @@ import 'sudoku_controller.dart';
 GoRouter createSudokuRouter({String? initialLocation}) => GoRouter(
   initialLocation: initialLocation,
   routes: [
-    StatefulShellRoute.indexedStack(
+    StatefulShellRoute(
       builder: (context, state, navigationShell) =>
           _AppShell(navigationShell: navigationShell),
+      navigatorContainerBuilder: (context, navigationShell, children) =>
+          DestinationTransitionStack(
+            currentIndex: navigationShell.currentIndex,
+            children: children,
+          ),
       branches: [
         StatefulShellBranch(
           routes: [
@@ -63,6 +72,48 @@ GoRouter createSudokuRouter({String? initialLocation}) => GoRouter(
               ),
             ),
           ],
+        ),
+      ],
+    ),
+    GoRoute(
+      path: LearnPage.path,
+      pageBuilder: (context, state) => LearningTransitionPage(
+        key: state.pageKey,
+        child: Consumer(
+          builder: (context, ref, _) {
+            ref.watch(sudokuControllerProvider);
+            return LearnPage(
+              controller: ref.read(sudokuControllerProvider.notifier),
+            );
+          },
+        ),
+      ),
+      routes: [
+        GoRoute(
+          path: ':skill',
+          redirect: (context, state) {
+            final name = state.pathParameters['skill'];
+            return LearningSkill.values.any((skill) => skill.name == name)
+                ? null
+                : LearnPage.path;
+          },
+          pageBuilder: (context, state) => LearningTransitionPage(
+            key: state.pageKey,
+            child: Consumer(
+              builder: (context, ref, _) {
+                final sudokuState = ref.watch(sudokuControllerProvider);
+                final controller = ref.read(sudokuControllerProvider.notifier);
+                final skill = LearningSkill.values.byName(
+                  state.pathParameters['skill']!,
+                );
+                if (!sudokuState.ready ||
+                    !sudokuState.saved.learningProgress.isUnlocked(skill)) {
+                  return LearnPage(controller: controller);
+                }
+                return LearnLessonPage(controller: controller, skill: skill);
+              },
+            ),
+          ),
         ),
       ],
     ),
@@ -152,10 +203,7 @@ final class const _AppShell({
                   selectedIndex: navigationShell.currentIndex,
                   onSelected: (index) => navigationShell.goBranch(index),
                 ),
-                child: DestinationTransition(
-                  value: navigationShell.currentIndex,
-                  child: navigationShell,
-                ),
+                child: navigationShell,
               ),
             ),
           ),

@@ -5,9 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rudi_ui/rudi_ui.dart';
 import 'package:solar_icons/solar_icons.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../common/presentation/app_sheet.dart';
+import '../../../common/presentation/external_link.dart';
 import '../../../common/presentation/ui.dart';
 import '../../privacy/presentation/privacy_policy_page.dart';
 
@@ -16,34 +16,6 @@ const reportBugUrl = '$repositoryUrl/issues/new';
 final featureRequestUrl = Uri.parse(reportBugUrl)
     .replace(queryParameters: {'title': '[Feature request] '})
     .toString();
-
-Future<void> openSettingsLink(BuildContext context, String url) async {
-  try {
-    if (await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication)) {
-      return;
-    }
-  } catch (_) {
-    // The address remains available when no browser can handle the link.
-  }
-  if (!context.mounted) return;
-  await showAppSheet<void>(
-    context: context,
-    title: context.l10n.linkOpenError,
-    builder: (_) => Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(url),
-        const SizedBox(height: 16),
-        RudiButton(
-          label: context.l10n.copyLink,
-          onPressed: () async {
-            await Clipboard.setData(ClipboardData(text: url));
-          },
-        ),
-      ],
-    ),
-  );
-}
 
 final class const SettingsInformation({super.key}) extends StatefulWidget {
   @override
@@ -65,21 +37,21 @@ final class _SettingsInformationState() extends State<SettingsInformation> {
             title: context.l10n.reportBug,
             leading: const Icon(SolarIconsOutline.bugMinimalistic),
             trailing: const Icon(SolarIconsOutline.arrowRightUp),
-            onPressed: () => openSettingsLink(context, reportBugUrl),
+            onPressed: () => openExternalLink(context, reportBugUrl),
           ),
           RudiSettingsTile(
             key: const ValueKey('setting-feature-request'),
             title: context.l10n.featureRequest,
             leading: const Icon(SolarIconsOutline.lightbulb),
             trailing: const Icon(SolarIconsOutline.arrowRightUp),
-            onPressed: () => openSettingsLink(context, featureRequestUrl),
+            onPressed: () => openExternalLink(context, featureRequestUrl),
           ),
           RudiSettingsTile(
             key: const ValueKey('setting-repository'),
             title: context.l10n.repository,
             leading: const Icon(SolarIconsOutline.code),
             trailing: const Icon(SolarIconsOutline.arrowRightUp),
-            onPressed: () => openSettingsLink(context, repositoryUrl),
+            onPressed: () => openExternalLink(context, repositoryUrl),
           ),
         ],
       ),

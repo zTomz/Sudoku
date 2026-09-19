@@ -63,3 +63,6 @@ Screenshot Studio/
 /test_driver/store_screenshot_driver.dart
 /test_driver/store_screenshot_runner.dart
 /test/store_screenshot_runner_test.dart
+
+# Graphify
+graphify-out/

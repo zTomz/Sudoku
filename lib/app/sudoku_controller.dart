@@ -12,6 +12,7 @@ import '../features/game/data/game_providers.dart';
 import '../features/game/data/puzzle_generator.dart';
 import '../features/game/domain/game_session.dart';
 import '../features/game/domain/puzzle.dart';
+import '../features/learn/domain/learning_progress.dart';
 import '../features/settings/domain/app_settings.dart';
 
 part 'sudoku_controller.g.dart';
@@ -77,6 +78,7 @@ class SudokuController() extends _$SudokuController {
   GameSession? get free => _saved.free;
   Map<String, GameSession> get dailyGames => _saved.daily;
   Iterable<GameResult> get results => _saved.results.values;
+  LearningProgress get learningProgress => _saved.learningProgress;
   GameSession? get gameForDebug {
     if (!kDebugMode) return null;
     if (_game case final game?) return game;
@@ -319,6 +321,7 @@ class SudokuController() extends _$SudokuController {
             hintsUsed: g.hintsUsed,
           ),
         },
+        learningProgress: learningProgress,
       );
     }
     _remember();
@@ -362,8 +365,22 @@ class SudokuController() extends _$SudokuController {
       free: free,
       daily: dailyGames,
       results: _saved.results,
+      learningProgress: learningProgress,
     );
     _selectedDigit = 0;
+    unawaited(persist());
+  }
+
+  void completeLearningSkill(LearningSkill skill) {
+    final next = learningProgress.completeSkill(skill);
+    if (identical(next, learningProgress)) return;
+    _saved = SavedGames(
+      settings: settings,
+      free: free,
+      daily: dailyGames,
+      results: _saved.results,
+      learningProgress: next,
+    );
     unawaited(persist());
   }
 
@@ -398,6 +415,7 @@ class SudokuController() extends _$SudokuController {
         free: day == null ? game : free,
         daily: day == null ? dailyGames : {...dailyGames, day: game},
         results: _saved.results,
+        learningProgress: learningProgress,
       );
     }
   }

@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
+import 'package:go_router/go_router.dart';
 import 'package:rudi_ui/rudi_ui.dart';
 import 'package:solar_icons/solar_icons.dart';
 
 import '../../../app/sudoku_controller.dart';
 import '../../../common/presentation/ui.dart';
 import '../../game/domain/puzzle.dart';
+import '../../learn/presentation/learn_page.dart';
 import 'widgets/difficulty_selector.dart';
 import 'widgets/home_daily_card.dart';
 import 'widgets/home_resume_card.dart';
@@ -108,6 +110,19 @@ final class const HomePage({
     final newGame = Column(
       crossAxisAlignment: .stretch,
       children: [
+        RudiSettingsGroup(
+          children: [
+            RudiSettingsTile(
+              key: const ValueKey('open-learning-path'),
+              title: l.learnSudoku,
+              subtitle: l.learnHomeDescription,
+              leading: const Icon(SolarIconsOutline.lightbulb),
+              trailing: const Icon(SolarIconsOutline.altArrowRight),
+              onPressed: () => context.push(LearnPage.path),
+            ),
+          ],
+        ),
+        const SizedBox(height: 28),
         if (saved != null && !saved.complete) ...[
           ResumeCard(controller: controller),
           const SizedBox(height: 28),

@@ -645,4 +645,421 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get darkThemeDescription => 'Always use the dark theme';
+
+  @override
+  String get learnSudoku => 'Learn Sudoku';
+
+  @override
+  String get learnHomeDescription =>
+      'Build your skills step by step, from the rules to advanced patterns.';
+
+  @override
+  String get learnPathTitle => 'Your skill path';
+
+  @override
+  String get learnPathDescription =>
+      'Eight short lessons. Each check unlocks the next skill.';
+
+  @override
+  String get learnNoPoints => 'Practice mode · no points, times, or statistics';
+
+  @override
+  String learnProgress(int completed, int total) {
+    return '$completed of $total lessons completed';
+  }
+
+  @override
+  String get learnLocked => 'Complete the previous lesson first.';
+
+  @override
+  String get learnCompleted => 'Completed';
+
+  @override
+  String get learnStart => 'Start lesson';
+
+  @override
+  String get learnRepeat => 'Repeat lesson';
+
+  @override
+  String get learnKnowledgeCheck => 'Knowledge check';
+
+  @override
+  String get learnCheckAnswer => 'Check answer';
+
+  @override
+  String get learnCorrect => 'Exactly right.';
+
+  @override
+  String get learnIncorrect =>
+      'Not quite. Revisit the explanation and try again.';
+
+  @override
+  String get learnChooseAnswer => 'Choose an answer first.';
+
+  @override
+  String get learnExternalTutorial => 'Watch an external tutorial';
+
+  @override
+  String get learnExternalNotice =>
+      'Opens YouTube in your browser. No connection is made until you tap the link; YouTube\'s privacy terms then apply.';
+
+  @override
+  String get learnStartPractice => 'Start practice';
+
+  @override
+  String get learnContinue => 'Continue';
+
+  @override
+  String get learnFinishLesson => 'Finish lesson';
+
+  @override
+  String get learnBackToPath => 'Back to skill path';
+
+  @override
+  String get learnLessonCompleteTitle => 'Lesson complete!';
+
+  @override
+  String get learnLessonCompleteBody =>
+      'You understood both patterns. The next stop on your path is ready.';
+
+  @override
+  String learnQuestionProgress(int current, int total) {
+    return 'Question $current of $total';
+  }
+
+  @override
+  String get learnTutorialsTitle => 'Go deeper';
+
+  @override
+  String learnTutorialBy(String creator) {
+    return '$creator · YouTube';
+  }
+
+  @override
+  String get learnLessonRulesTitle => 'The Sudoku rules';
+
+  @override
+  String get learnLessonRulesSummary =>
+      'Understand rows, columns, blocks, and the no-guessing mindset.';
+
+  @override
+  String get learnLessonRulesBody =>
+      'Fill every empty cell with a digit from 1 to 9. Every row, every column, and every 3×3 block must contain each digit exactly once. A well-formed puzzle can be solved with logic: place a digit only when the current grid proves it.';
+
+  @override
+  String get learnLessonRulesQuestion =>
+      'A 7 already appears in a cell\'s row. What follows?';
+
+  @override
+  String get learnLessonRulesA => 'The cell cannot contain 7';
+
+  @override
+  String get learnLessonRulesB => 'The cell must contain 7';
+
+  @override
+  String get learnLessonRulesC => 'The row no longer matters';
+
+  @override
+  String get learnLessonRulesQ2 =>
+      'The highlighted 3×3 block already contains 1 through 8. Which digit completes it?';
+
+  @override
+  String get learnLessonRulesQ2A => '9';
+
+  @override
+  String get learnLessonRulesQ2B => 'Any digit missing from the row';
+
+  @override
+  String get learnLessonRulesQ2C => 'You have to guess';
+
+  @override
+  String get learnLessonRulesQ2Why =>
+      'Every block contains 1 through 9 exactly once, so the only missing digit is 9.';
+
+  @override
+  String get learnLessonCandidatesTitle => 'Candidates and notes';
+
+  @override
+  String get learnLessonCandidatesSummary =>
+      'Turn exclusions into a small, useful candidate list.';
+
+  @override
+  String get learnLessonCandidatesBody =>
+      'A candidate is a digit that is not already excluded by the cell\'s row, column, or block. Notes are working information, not guesses. Update them when a placement removes a possibility nearby.';
+
+  @override
+  String get learnLessonCandidatesQuestion =>
+      'When should a digit be written as a candidate?';
+
+  @override
+  String get learnLessonCandidatesA => 'Whenever it looks likely';
+
+  @override
+  String get learnLessonCandidatesB =>
+      'Only when row, column, and block allow it';
+
+  @override
+  String get learnLessonCandidatesC => 'Only after making a guess';
+
+  @override
+  String get learnLessonCandidatesQ2 =>
+      'The highlighted cell sees 1 and 2 in its row, 3 and 4 in its column, and 5 and 6 in its block. Which candidates remain?';
+
+  @override
+  String get learnLessonCandidatesQ2A => '7, 8, and 9';
+
+  @override
+  String get learnLessonCandidatesQ2B => '1, 2, and 3';
+
+  @override
+  String get learnLessonCandidatesQ2C => '4, 5, and 6';
+
+  @override
+  String get learnLessonCandidatesQ2Why =>
+      'Only 7, 8, and 9 survive all three checks. Candidates are possibilities, not guesses.';
+
+  @override
+  String get learnLessonNakedSingleSummary =>
+      'Find a cell with exactly one candidate left.';
+
+  @override
+  String get learnLessonNakedSingleBody =>
+      'If eight digits are excluded from one cell, its remaining candidate is forced. This is a naked single: the answer is visible directly in that cell\'s candidate list.';
+
+  @override
+  String get learnLessonNakedSingleQuestion =>
+      'A cell has only candidate 4. What is the logical move?';
+
+  @override
+  String get learnLessonNakedSingleA => 'Enter 4';
+
+  @override
+  String get learnLessonNakedSingleB => 'Erase the note 4';
+
+  @override
+  String get learnLessonNakedSingleC => 'Wait for a second candidate';
+
+  @override
+  String get learnLessonNakedSingleQ2 =>
+      'The highlighted cell has candidates 3 and 8. Is this already a naked single?';
+
+  @override
+  String get learnLessonNakedSingleQ2A => 'No, two possibilities remain';
+
+  @override
+  String get learnLessonNakedSingleQ2B => 'Yes, enter 3';
+
+  @override
+  String get learnLessonNakedSingleQ2C => 'Yes, enter 8';
+
+  @override
+  String get learnLessonNakedSingleQ2Why =>
+      'A naked single requires exactly one remaining candidate. With two candidates, more information is needed.';
+
+  @override
+  String get learnLessonHiddenSingleSummary =>
+      'Find the only place for a digit inside one unit.';
+
+  @override
+  String get learnLessonHiddenSingleBody =>
+      'A cell may have several candidates, yet one of them can be unique within its row, column, or block. If 6 appears as a candidate in only one cell of that unit, 6 is forced there.';
+
+  @override
+  String get learnLessonHiddenSingleQuestion =>
+      'In a block, only one cell can contain 6. That cell also allows 2. What can you place?';
+
+  @override
+  String get learnLessonHiddenSingleA => 'Nothing, because it has two notes';
+
+  @override
+  String get learnLessonHiddenSingleB =>
+      '6, because it has the only place in the block';
+
+  @override
+  String get learnLessonHiddenSingleC => '2, because it is smaller';
+
+  @override
+  String get learnLessonHiddenSingleQ2 =>
+      'Why is 6 forced in the highlighted cell even though that cell also allows 2?';
+
+  @override
+  String get learnLessonHiddenSingleQ2A =>
+      'It is the only cell in the row that allows 6';
+
+  @override
+  String get learnLessonHiddenSingleQ2B => '6 is always stronger than 2';
+
+  @override
+  String get learnLessonHiddenSingleQ2C =>
+      'The highlighted cell must use its largest candidate';
+
+  @override
+  String get learnLessonHiddenSingleQ2Why =>
+      'Look digit-first: every other cell in the row excludes 6, so this is 6\'s only place.';
+
+  @override
+  String get learnLessonLockedSummary =>
+      'Use the overlap between a block and a row or column.';
+
+  @override
+  String get learnLessonLockedBody =>
+      'If every candidate for a digit in a block lies on the same row, that digit is locked into the block-row intersection. Remove it from the rest of that row. The same logic works with columns.';
+
+  @override
+  String get learnLessonLockedQuestion =>
+      'All possible 5s in a block lie in row 3. Where can 5 be removed?';
+
+  @override
+  String get learnLessonLockedA => 'From the rest of row 3 outside that block';
+
+  @override
+  String get learnLessonLockedB => 'From every cell in the block';
+
+  @override
+  String get learnLessonLockedC => 'From all other rows';
+
+  @override
+  String get learnLessonLockedQ2 =>
+      'In the highlighted row, every possible 4 lies inside the middle block. Where can 4 be removed?';
+
+  @override
+  String get learnLessonLockedQ2A => 'From the other cells of that block';
+
+  @override
+  String get learnLessonLockedQ2B => 'From the entire highlighted row';
+
+  @override
+  String get learnLessonLockedQ2C => 'Nowhere; a placement is required first';
+
+  @override
+  String get learnLessonLockedQ2Why =>
+      'This is claiming: the row claims its 4 inside one block, so the block cannot contain 4 outside that row.';
+
+  @override
+  String get learnLessonPairsTitle => 'Pairs';
+
+  @override
+  String get learnLessonPairsSummary => 'Reserve two digits for two cells.';
+
+  @override
+  String get learnLessonPairsBody =>
+      'A naked pair is two cells in one unit containing the same two candidates; those digits can be removed from other cells in the unit. A hidden pair is two digits that occur only in the same two cells; other notes can be removed from those cells.';
+
+  @override
+  String get learnLessonPairsQuestion =>
+      'Two cells in a row both contain only 2 and 8. What follows?';
+
+  @override
+  String get learnLessonPairsA =>
+      '2 and 8 can be removed from the other cells in that row';
+
+  @override
+  String get learnLessonPairsB => 'Both cells must be 2';
+
+  @override
+  String get learnLessonPairsC => 'The pair has no effect';
+
+  @override
+  String get learnLessonPairsQ2 =>
+      'Only the two highlighted cells in a column can contain 4 or 7. They also contain other notes. What is the hidden-pair move?';
+
+  @override
+  String get learnLessonPairsQ2A => 'Keep only 4 and 7 in those two cells';
+
+  @override
+  String get learnLessonPairsQ2B => 'Remove 4 and 7 from those two cells';
+
+  @override
+  String get learnLessonPairsQ2C => 'Place 4 in both cells';
+
+  @override
+  String get learnLessonPairsQ2Why =>
+      'The two cells are reserved for 4 and 7 in some order, so their other candidates can be removed.';
+
+  @override
+  String get learnLessonTriplesTitle => 'Triples';
+
+  @override
+  String get learnLessonTriplesSummary =>
+      'Extend subset logic from two cells to three.';
+
+  @override
+  String get learnLessonTriplesBody =>
+      'Three cells in one unit can reserve exactly three digits even when not every cell shows all three. For a naked triple, the union of their candidates has size three. Hidden triples use the inverse view: three digits occur nowhere else in the unit.';
+
+  @override
+  String get learnLessonTriplesQuestion =>
+      'Three cells in one row use only the combined candidates 1, 4, and 9. What may you do?';
+
+  @override
+  String get learnLessonTriplesA =>
+      'Remove 1, 4, and 9 from the row\'s other cells';
+
+  @override
+  String get learnLessonTriplesB => 'Put all three digits into each cell';
+
+  @override
+  String get learnLessonTriplesC => 'Remove every other candidate from the row';
+
+  @override
+  String get learnLessonTriplesQ2 =>
+      'In one block, the digits 2, 5, and 6 occur only in three highlighted cells. What does the hidden triple allow?';
+
+  @override
+  String get learnLessonTriplesQ2A =>
+      'Remove other candidates from those three cells';
+
+  @override
+  String get learnLessonTriplesQ2B =>
+      'Remove 2, 5, and 6 from those three cells';
+
+  @override
+  String get learnLessonTriplesQ2C => 'Place all three digits immediately';
+
+  @override
+  String get learnLessonTriplesQ2Why =>
+      'Those three cells must contain 2, 5, and 6 in some order. Notes outside that set can be cleared from the three cells.';
+
+  @override
+  String get learnLessonWingsTitle => 'Wings: X-Wing and XY-Wing';
+
+  @override
+  String get learnLessonWingsSummary =>
+      'Read linked candidate patterns across multiple units.';
+
+  @override
+  String get learnLessonWingsBody =>
+      'An X-Wing uses one digit in two rows and the same two columns, allowing eliminations in those columns. An XY-Wing uses three two-candidate cells: a pivot sees two wings, and either pivot value forces the shared wing candidate. These are elimination patterns, not guesses.';
+
+  @override
+  String get learnLessonWingsQuestion =>
+      'Candidate 5 forms the four corners of the highlighted rectangle across two rows and two columns. What is the X-Wing conclusion?';
+
+  @override
+  String get learnLessonWingsA =>
+      'Remove 5 from other cells in the two columns';
+
+  @override
+  String get learnLessonWingsB => 'Place 5 in all four corners';
+
+  @override
+  String get learnLessonWingsC =>
+      'Remove every other candidate from the corners';
+
+  @override
+  String get learnLessonWingsQ2 =>
+      'The pivot has 2/3; its wings have 2/7 and 3/7. What can a cell that sees both wings lose?';
+
+  @override
+  String get learnLessonWingsQ2A => '2';
+
+  @override
+  String get learnLessonWingsQ2B => '3';
+
+  @override
+  String get learnLessonWingsQ2C => '7';
+
+  @override
+  String get learnLessonWingsQ2Why =>
+      'Whichever value the pivot takes, one wing must become 7. A cell seeing both wings therefore cannot be 7.';
 }

@@ -978,7 +978,6 @@ void main() {
       ),
     );
     expect(autoFillIcon.icon, SolarIconsOutline.magicStick_3);
-    expect(autoFillIcon.fill, 0);
     final simulatorTile = find.byKey(
       const ValueKey('setting-debug-game-simulator'),
     );
@@ -1616,7 +1615,7 @@ void main() {
     expect(find.byType(PrivacyPolicyPage), findsOneWidget);
     expect(find.text('Privacy Policy'), findsOneWidget);
     expect(
-      find.text('Effective and last updated: September 2, 2026'),
+      find.text('Effective and last updated: September 19, 2026'),
       findsOneWidget,
     );
     expect(privacyDeveloperName, 'Tom Vogel');

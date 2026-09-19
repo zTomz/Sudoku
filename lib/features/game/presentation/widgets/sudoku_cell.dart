@@ -1,10 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:rudi_ui/rudi_ui.dart';
 
-import '../../../../app/sudoku_controller.dart';
 import '../../../../common/presentation/ui.dart';
-import '../../../settings/domain/app_settings.dart';
-import '../../domain/game_session.dart';
 import '../../domain/sudoku_grid.dart';
 import '../board_palette.dart';
 import 'board_digit.dart';
@@ -12,9 +9,11 @@ import 'sudoku_completion_effects.dart';
 import 'sudoku_hint_visual.dart';
 
 final class const SudokuCell({
-  required final SudokuController controller,
-  required final GameSession game,
-  required final ValueChanged<int> onSelectCell,
+  required final List<int> values,
+  required final List<int> notes,
+  required final List<int> givens,
+  required final Set<int> incorrectCells,
+  required final ValueChanged<int>? onSelectCell,
   required final SudokuHintVisual? hint,
   required final BoardPalette palette,
   required final int row,
@@ -30,9 +29,9 @@ final class const SudokuCell({
   Widget build(BuildContext context) {
     final visualHint = hint;
     final cell = cellAt(row, col),
-        value = game.values[cell],
-        notes = game.notes[cell];
-    final given = game.puzzle.givens[cell] != 0,
+        value = values[cell],
+        cellNotes = notes[cell];
+    final given = givens[cell] != 0,
         isSelected = selected == cell,
         hintFocused = visualHint?.focus == cell,
         hintHighlighted =
@@ -44,23 +43,16 @@ final class const SudokuCell({
         hintMask = hintCandidateMask | hintRemovalMask;
     final related = selected >= 0 && cellsShareUnit(selected, cell);
     final same = value != 0 && value == activeDigit;
-    final error =
-        !obscured &&
-        game.isIncorrect(cell) &&
-        switch (controller.settings.errorCheck) {
-          ErrorCheck.off => false,
-          ErrorCheck.conflicts => game.hasConflict(cell),
-          ErrorCheck.solution => true,
-        };
+    final error = !obscured && incorrectCells.contains(cell);
     final candidates = [
       for (var n = 1; n <= sudokuSideLength; n++)
-        if (notes & (1 << n) != 0) n,
+        if (cellNotes & (1 << n) != 0) n,
     ];
     final description = value != 0
         ? (given
               ? context.l10n.givenValue(value)
               : context.l10n.enteredValue(value))
-        : notes == 0
+        : cellNotes == 0
         ? context.l10n.emptyCell
         : context.l10n.candidates(candidates.join(', '));
     String digitsIn(int mask) => [
@@ -94,7 +86,9 @@ final class const SudokuCell({
       child: RudiPressable(
         key: ValueKey('cell-$cell'),
         semanticLabel: context.l10n.cellLabel(row + 1, col + 1),
-        onPressed: obscured ? null : () => onSelectCell(cell),
+        onPressed: obscured || onSelectCell == null
+            ? null
+            : () => onSelectCell!(cell),
         builder: (context, state) => AnimatedContainer(
           duration: MediaQuery.disableAnimationsOf(context)
               ? Duration.zero
@@ -175,7 +169,7 @@ final class const SudokuCell({
                               key: ValueKey(
                                 'candidates-$cell-$hintMask-$hintRemovalMask-${hintMask != 0}',
                               ),
-                              mask: hintMask != 0 ? hintMask : notes,
+                              mask: hintMask != 0 ? hintMask : cellNotes,
                               removalMask: hintRemovalMask,
                               isHint: hintMask != 0,
                               selected: isSelected,

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../settings/domain/app_settings.dart';
+import '../../learn/domain/learning_progress.dart';
 import '../domain/game_session.dart';
 import '../domain/puzzle.dart';
 
@@ -86,11 +87,15 @@ final class SavedGames({
   final GameSession? free,
   Map<String, GameSession> daily = const {},
   Map<String, GameResult> results = const {},
+  LearningProgress? learningProgress,
 }) {
   this
-    : daily = Map.unmodifiableOf(daily), results = Map.unmodifiableOf(results);
+    : daily = Map.unmodifiableOf(daily),
+      results = Map.unmodifiableOf(results),
+      learningProgress = learningProgress ?? LearningProgress.empty();
   final Map<String, GameSession> daily;
   final Map<String, GameResult> results;
+  final LearningProgress learningProgress;
 
   String encode() => jsonEncode({
     'schemaVersion': 2,
@@ -98,6 +103,7 @@ final class SavedGames({
     'free': free?.toJson(),
     'daily': daily.map((key, value) => MapEntry(key, value.toJson())),
     'results': results.map((key, value) => MapEntry(key, value.toJson())),
+    'learningProgress': learningProgress.toJson(),
   });
 
   factory decode(String value) {
@@ -124,6 +130,11 @@ final class SavedGames({
           : GameSession.fromJson(json['free'] as Map<String, Object?>),
       daily: daily,
       results: results,
+      learningProgress: switch (json['learningProgress']) {
+        null => LearningProgress.empty(),
+        final Map<String, Object?> value => LearningProgress.fromJson(value),
+        _ => throw const FormatException('Invalid learning progress'),
+      },
     );
   }
 }

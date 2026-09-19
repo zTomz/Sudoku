@@ -51,6 +51,7 @@ There is a fresh daily puzzle, locally generated free-play boards, and a small s
 - Fresh easy, medium and hard boards generated on your device, with an in-game personal solve-time estimate refined by the current puzzle's logical effort score
 - Pencil notes, undo and redo, number-first input, keyboard controls, and optional endgame auto-fill
 - Step-by-step hints that explain the next logical move before offering the answer
+- A separate Learn Sudoku skill path with eight guided lessons, visual 9×9 examples and short checks from the basic rules through X-Wing and XY-Wing; practice awards no points or statistics
 - Optional error checking, haptics and timer; Web haptics use a shorter pulse because browsers cannot control vibration intensity
 - Light and dark mode, four board themes, and English and German translations
 - Local progress, statistics, best times and scores, with an animated score breakdown for mistakes and used hints
@@ -60,7 +61,7 @@ The generator grades puzzles by the techniques needed to solve them, not just by
 
 ## Private by default
 
-Sudoku has no account, ads, analytics or cloud game service. Puzzles are generated locally, and your games, statistics and settings stay on your device.
+Sudoku has no account, ads, analytics or cloud game service. Puzzles are generated locally, and your games, learning progress, statistics and settings stay on your device. Optional tutorial links open YouTube only after you select them; no player or remote thumbnail is embedded in the app.
 
 The Web version needs one successful online visit before it can work offline. New releases activate automatically and may reload the page once after their offline files are ready. Saves are kept locally with a previous validated recovery snapshot, but clearing app data or browser storage removes both; cloud sync and backup/export are not available. See the [Privacy Policy](https://ztomz.github.io/Sudoku/#/privacy-policy) or the [technical data inventory](docs/DATA.md) for the details.
 

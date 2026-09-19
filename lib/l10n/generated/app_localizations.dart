@@ -1177,6 +1177,720 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Always use the dark theme'**
   String get darkThemeDescription;
+
+  /// No description provided for @learnSudoku.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn Sudoku'**
+  String get learnSudoku;
+
+  /// No description provided for @learnHomeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Build your skills step by step, from the rules to advanced patterns.'**
+  String get learnHomeDescription;
+
+  /// No description provided for @learnPathTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your skill path'**
+  String get learnPathTitle;
+
+  /// No description provided for @learnPathDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Eight short lessons. Each check unlocks the next skill.'**
+  String get learnPathDescription;
+
+  /// No description provided for @learnNoPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice mode · no points, times, or statistics'**
+  String get learnNoPoints;
+
+  /// No description provided for @learnProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{completed} of {total} lessons completed'**
+  String learnProgress(int completed, int total);
+
+  /// No description provided for @learnLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete the previous lesson first.'**
+  String get learnLocked;
+
+  /// No description provided for @learnCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get learnCompleted;
+
+  /// No description provided for @learnStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start lesson'**
+  String get learnStart;
+
+  /// No description provided for @learnRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat lesson'**
+  String get learnRepeat;
+
+  /// No description provided for @learnKnowledgeCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Knowledge check'**
+  String get learnKnowledgeCheck;
+
+  /// No description provided for @learnCheckAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Check answer'**
+  String get learnCheckAnswer;
+
+  /// No description provided for @learnCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Exactly right.'**
+  String get learnCorrect;
+
+  /// No description provided for @learnIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Not quite. Revisit the explanation and try again.'**
+  String get learnIncorrect;
+
+  /// No description provided for @learnChooseAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an answer first.'**
+  String get learnChooseAnswer;
+
+  /// No description provided for @learnExternalTutorial.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch an external tutorial'**
+  String get learnExternalTutorial;
+
+  /// No description provided for @learnExternalNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens YouTube in your browser. No connection is made until you tap the link; YouTube\'s privacy terms then apply.'**
+  String get learnExternalNotice;
+
+  /// No description provided for @learnStartPractice.
+  ///
+  /// In en, this message translates to:
+  /// **'Start practice'**
+  String get learnStartPractice;
+
+  /// No description provided for @learnContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get learnContinue;
+
+  /// No description provided for @learnFinishLesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish lesson'**
+  String get learnFinishLesson;
+
+  /// No description provided for @learnBackToPath.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to skill path'**
+  String get learnBackToPath;
+
+  /// No description provided for @learnLessonCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson complete!'**
+  String get learnLessonCompleteTitle;
+
+  /// No description provided for @learnLessonCompleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You understood both patterns. The next stop on your path is ready.'**
+  String get learnLessonCompleteBody;
+
+  /// No description provided for @learnQuestionProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {current} of {total}'**
+  String learnQuestionProgress(int current, int total);
+
+  /// No description provided for @learnTutorialsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Go deeper'**
+  String get learnTutorialsTitle;
+
+  /// No description provided for @learnTutorialBy.
+  ///
+  /// In en, this message translates to:
+  /// **'{creator} · YouTube'**
+  String learnTutorialBy(String creator);
+
+  /// No description provided for @learnLessonRulesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Sudoku rules'**
+  String get learnLessonRulesTitle;
+
+  /// No description provided for @learnLessonRulesSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Understand rows, columns, blocks, and the no-guessing mindset.'**
+  String get learnLessonRulesSummary;
+
+  /// No description provided for @learnLessonRulesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill every empty cell with a digit from 1 to 9. Every row, every column, and every 3×3 block must contain each digit exactly once. A well-formed puzzle can be solved with logic: place a digit only when the current grid proves it.'**
+  String get learnLessonRulesBody;
+
+  /// No description provided for @learnLessonRulesQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'A 7 already appears in a cell\'s row. What follows?'**
+  String get learnLessonRulesQuestion;
+
+  /// No description provided for @learnLessonRulesA.
+  ///
+  /// In en, this message translates to:
+  /// **'The cell cannot contain 7'**
+  String get learnLessonRulesA;
+
+  /// No description provided for @learnLessonRulesB.
+  ///
+  /// In en, this message translates to:
+  /// **'The cell must contain 7'**
+  String get learnLessonRulesB;
+
+  /// No description provided for @learnLessonRulesC.
+  ///
+  /// In en, this message translates to:
+  /// **'The row no longer matters'**
+  String get learnLessonRulesC;
+
+  /// No description provided for @learnLessonRulesQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'The highlighted 3×3 block already contains 1 through 8. Which digit completes it?'**
+  String get learnLessonRulesQ2;
+
+  /// No description provided for @learnLessonRulesQ2A.
+  ///
+  /// In en, this message translates to:
+  /// **'9'**
+  String get learnLessonRulesQ2A;
+
+  /// No description provided for @learnLessonRulesQ2B.
+  ///
+  /// In en, this message translates to:
+  /// **'Any digit missing from the row'**
+  String get learnLessonRulesQ2B;
+
+  /// No description provided for @learnLessonRulesQ2C.
+  ///
+  /// In en, this message translates to:
+  /// **'You have to guess'**
+  String get learnLessonRulesQ2C;
+
+  /// No description provided for @learnLessonRulesQ2Why.
+  ///
+  /// In en, this message translates to:
+  /// **'Every block contains 1 through 9 exactly once, so the only missing digit is 9.'**
+  String get learnLessonRulesQ2Why;
+
+  /// No description provided for @learnLessonCandidatesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Candidates and notes'**
+  String get learnLessonCandidatesTitle;
+
+  /// No description provided for @learnLessonCandidatesSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn exclusions into a small, useful candidate list.'**
+  String get learnLessonCandidatesSummary;
+
+  /// No description provided for @learnLessonCandidatesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A candidate is a digit that is not already excluded by the cell\'s row, column, or block. Notes are working information, not guesses. Update them when a placement removes a possibility nearby.'**
+  String get learnLessonCandidatesBody;
+
+  /// No description provided for @learnLessonCandidatesQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'When should a digit be written as a candidate?'**
+  String get learnLessonCandidatesQuestion;
+
+  /// No description provided for @learnLessonCandidatesA.
+  ///
+  /// In en, this message translates to:
+  /// **'Whenever it looks likely'**
+  String get learnLessonCandidatesA;
+
+  /// No description provided for @learnLessonCandidatesB.
+  ///
+  /// In en, this message translates to:
+  /// **'Only when row, column, and block allow it'**
+  String get learnLessonCandidatesB;
+
+  /// No description provided for @learnLessonCandidatesC.
+  ///
+  /// In en, this message translates to:
+  /// **'Only after making a guess'**
+  String get learnLessonCandidatesC;
+
+  /// No description provided for @learnLessonCandidatesQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'The highlighted cell sees 1 and 2 in its row, 3 and 4 in its column, and 5 and 6 in its block. Which candidates remain?'**
+  String get learnLessonCandidatesQ2;
+
+  /// No description provided for @learnLessonCandidatesQ2A.
+  ///
+  /// In en, this message translates to:
+  /// **'7, 8, and 9'**
+  String get learnLessonCandidatesQ2A;
+
+  /// No description provided for @learnLessonCandidatesQ2B.
+  ///
+  /// In en, this message translates to:
+  /// **'1, 2, and 3'**
+  String get learnLessonCandidatesQ2B;
+
+  /// No description provided for @learnLessonCandidatesQ2C.
+  ///
+  /// In en, this message translates to:
+  /// **'4, 5, and 6'**
+  String get learnLessonCandidatesQ2C;
+
+  /// No description provided for @learnLessonCandidatesQ2Why.
+  ///
+  /// In en, this message translates to:
+  /// **'Only 7, 8, and 9 survive all three checks. Candidates are possibilities, not guesses.'**
+  String get learnLessonCandidatesQ2Why;
+
+  /// No description provided for @learnLessonNakedSingleSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a cell with exactly one candidate left.'**
+  String get learnLessonNakedSingleSummary;
+
+  /// No description provided for @learnLessonNakedSingleBody.
+  ///
+  /// In en, this message translates to:
+  /// **'If eight digits are excluded from one cell, its remaining candidate is forced. This is a naked single: the answer is visible directly in that cell\'s candidate list.'**
+  String get learnLessonNakedSingleBody;
+
+  /// No description provided for @learnLessonNakedSingleQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'A cell has only candidate 4. What is the logical move?'**
+  String get learnLessonNakedSingleQuestion;
+
+  /// No description provided for @learnLessonNakedSingleA.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 4'**
+  String get learnLessonNakedSingleA;
+
+  /// No description provided for @learnLessonNakedSingleB.
+  ///
+  /// In en, this message translates to:
+  /// **'Erase the note 4'**
+  String get learnLessonNakedSingleB;
+
+  /// No description provided for @learnLessonNakedSingleC.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait for a second candidate'**
+  String get learnLessonNakedSingleC;
+
+  /// No description provided for @learnLessonNakedSingleQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'The highlighted cell has candidates 3 and 8. Is this already a naked single?'**
+  String get learnLessonNakedSingleQ2;
+
+  /// No description provided for @learnLessonNakedSingleQ2A.
+  ///
+  /// In en, this message translates to:
+  /// **'No, two possibilities remain'**
+  String get learnLessonNakedSingleQ2A;
+
+  /// No description provided for @learnLessonNakedSingleQ2B.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, enter 3'**
+  String get learnLessonNakedSingleQ2B;
+
+  /// No description provided for @learnLessonNakedSingleQ2C.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, enter 8'**
+  String get learnLessonNakedSingleQ2C;
+
+  /// No description provided for @learnLessonNakedSingleQ2Why.
+  ///
+  /// In en, this message translates to:
+  /// **'A naked single requires exactly one remaining candidate. With two candidates, more information is needed.'**
+  String get learnLessonNakedSingleQ2Why;
+
+  /// No description provided for @learnLessonHiddenSingleSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Find the only place for a digit inside one unit.'**
+  String get learnLessonHiddenSingleSummary;
+
+  /// No description provided for @learnLessonHiddenSingleBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A cell may have several candidates, yet one of them can be unique within its row, column, or block. If 6 appears as a candidate in only one cell of that unit, 6 is forced there.'**
+  String get learnLessonHiddenSingleBody;
+
+  /// No description provided for @learnLessonHiddenSingleQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'In a block, only one cell can contain 6. That cell also allows 2. What can you place?'**
+  String get learnLessonHiddenSingleQuestion;
+
+  /// No description provided for @learnLessonHiddenSingleA.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing, because it has two notes'**
+  String get learnLessonHiddenSingleA;
+
+  /// No description provided for @learnLessonHiddenSingleB.
+  ///
+  /// In en, this message translates to:
+  /// **'6, because it has the only place in the block'**
+  String get learnLessonHiddenSingleB;
+
+  /// No description provided for @learnLessonHiddenSingleC.
+  ///
+  /// In en, this message translates to:
+  /// **'2, because it is smaller'**
+  String get learnLessonHiddenSingleC;
+
+  /// No description provided for @learnLessonHiddenSingleQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'Why is 6 forced in the highlighted cell even though that cell also allows 2?'**
+  String get learnLessonHiddenSingleQ2;
+
+  /// No description provided for @learnLessonHiddenSingleQ2A.
+  ///
+  /// In en, this message translates to:
+  /// **'It is the only cell in the row that allows 6'**
+  String get learnLessonHiddenSingleQ2A;
+
+  /// No description provided for @learnLessonHiddenSingleQ2B.
+  ///
+  /// In en, this message translates to:
+  /// **'6 is always stronger than 2'**
+  String get learnLessonHiddenSingleQ2B;
+
+  /// No description provided for @learnLessonHiddenSingleQ2C.
+  ///
+  /// In en, this message translates to:
+  /// **'The highlighted cell must use its largest candidate'**
+  String get learnLessonHiddenSingleQ2C;
+
+  /// No description provided for @learnLessonHiddenSingleQ2Why.
+  ///
+  /// In en, this message translates to:
+  /// **'Look digit-first: every other cell in the row excludes 6, so this is 6\'s only place.'**
+  String get learnLessonHiddenSingleQ2Why;
+
+  /// No description provided for @learnLessonLockedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the overlap between a block and a row or column.'**
+  String get learnLessonLockedSummary;
+
+  /// No description provided for @learnLessonLockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'If every candidate for a digit in a block lies on the same row, that digit is locked into the block-row intersection. Remove it from the rest of that row. The same logic works with columns.'**
+  String get learnLessonLockedBody;
+
+  /// No description provided for @learnLessonLockedQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'All possible 5s in a block lie in row 3. Where can 5 be removed?'**
+  String get learnLessonLockedQuestion;
+
+  /// No description provided for @learnLessonLockedA.
+  ///
+  /// In en, this message translates to:
+  /// **'From the rest of row 3 outside that block'**
+  String get learnLessonLockedA;
+
+  /// No description provided for @learnLessonLockedB.
+  ///
+  /// In en, this message translates to:
+  /// **'From every cell in the block'**
+  String get learnLessonLockedB;
+
+  /// No description provided for @learnLessonLockedC.
+  ///
+  /// In en, this message translates to:
+  /// **'From all other rows'**
+  String get learnLessonLockedC;
+
+  /// No description provided for @learnLessonLockedQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'In the highlighted row, every possible 4 lies inside the middle block. Where can 4 be removed?'**
+  String get learnLessonLockedQ2;
+
+  /// No description provided for @learnLessonLockedQ2A.
+  ///
+  /// In en, this message translates to:
+  /// **'From the other cells of that block'**
+  String get learnLessonLockedQ2A;
+
+  /// No description provided for @learnLessonLockedQ2B.
+  ///
+  /// In en, this message translates to:
+  /// **'From the entire highlighted row'**
+  String get learnLessonLockedQ2B;
+
+  /// No description provided for @learnLessonLockedQ2C.
+  ///
+  /// In en, this message translates to:
+  /// **'Nowhere; a placement is required first'**
+  String get learnLessonLockedQ2C;
+
+  /// No description provided for @learnLessonLockedQ2Why.
+  ///
+  /// In en, this message translates to:
+  /// **'This is claiming: the row claims its 4 inside one block, so the block cannot contain 4 outside that row.'**
+  String get learnLessonLockedQ2Why;
+
+  /// No description provided for @learnLessonPairsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairs'**
+  String get learnLessonPairsTitle;
+
+  /// No description provided for @learnLessonPairsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve two digits for two cells.'**
+  String get learnLessonPairsSummary;
+
+  /// No description provided for @learnLessonPairsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A naked pair is two cells in one unit containing the same two candidates; those digits can be removed from other cells in the unit. A hidden pair is two digits that occur only in the same two cells; other notes can be removed from those cells.'**
+  String get learnLessonPairsBody;
+
+  /// No description provided for @learnLessonPairsQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Two cells in a row both contain only 2 and 8. What follows?'**
+  String get learnLessonPairsQuestion;
+
+  /// No description provided for @learnLessonPairsA.
+  ///
+  /// In en, this message translates to:
+  /// **'2 and 8 can be removed from the other cells in that row'**
+  String get learnLessonPairsA;
+
+  /// No description provided for @learnLessonPairsB.
+  ///
+  /// In en, this message translates to:
+  /// **'Both cells must be 2'**
+  String get learnLessonPairsB;
+
+  /// No description provided for @learnLessonPairsC.
+  ///
+  /// In en, this message translates to:
+  /// **'The pair has no effect'**
+  String get learnLessonPairsC;
+
+  /// No description provided for @learnLessonPairsQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the two highlighted cells in a column can contain 4 or 7. They also contain other notes. What is the hidden-pair move?'**
+  String get learnLessonPairsQ2;
+
+  /// No description provided for @learnLessonPairsQ2A.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep only 4 and 7 in those two cells'**
+  String get learnLessonPairsQ2A;
+
+  /// No description provided for @learnLessonPairsQ2B.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove 4 and 7 from those two cells'**
+  String get learnLessonPairsQ2B;
+
+  /// No description provided for @learnLessonPairsQ2C.
+  ///
+  /// In en, this message translates to:
+  /// **'Place 4 in both cells'**
+  String get learnLessonPairsQ2C;
+
+  /// No description provided for @learnLessonPairsQ2Why.
+  ///
+  /// In en, this message translates to:
+  /// **'The two cells are reserved for 4 and 7 in some order, so their other candidates can be removed.'**
+  String get learnLessonPairsQ2Why;
+
+  /// No description provided for @learnLessonTriplesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Triples'**
+  String get learnLessonTriplesTitle;
+
+  /// No description provided for @learnLessonTriplesSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Extend subset logic from two cells to three.'**
+  String get learnLessonTriplesSummary;
+
+  /// No description provided for @learnLessonTriplesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Three cells in one unit can reserve exactly three digits even when not every cell shows all three. For a naked triple, the union of their candidates has size three. Hidden triples use the inverse view: three digits occur nowhere else in the unit.'**
+  String get learnLessonTriplesBody;
+
+  /// No description provided for @learnLessonTriplesQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Three cells in one row use only the combined candidates 1, 4, and 9. What may you do?'**
+  String get learnLessonTriplesQuestion;
+
+  /// No description provided for @learnLessonTriplesA.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove 1, 4, and 9 from the row\'s other cells'**
+  String get learnLessonTriplesA;
+
+  /// No description provided for @learnLessonTriplesB.
+  ///
+  /// In en, this message translates to:
+  /// **'Put all three digits into each cell'**
+  String get learnLessonTriplesB;
+
+  /// No description provided for @learnLessonTriplesC.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove every other candidate from the row'**
+  String get learnLessonTriplesC;
+
+  /// No description provided for @learnLessonTriplesQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'In one block, the digits 2, 5, and 6 occur only in three highlighted cells. What does the hidden triple allow?'**
+  String get learnLessonTriplesQ2;
+
+  /// No description provided for @learnLessonTriplesQ2A.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove other candidates from those three cells'**
+  String get learnLessonTriplesQ2A;
+
+  /// No description provided for @learnLessonTriplesQ2B.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove 2, 5, and 6 from those three cells'**
+  String get learnLessonTriplesQ2B;
+
+  /// No description provided for @learnLessonTriplesQ2C.
+  ///
+  /// In en, this message translates to:
+  /// **'Place all three digits immediately'**
+  String get learnLessonTriplesQ2C;
+
+  /// No description provided for @learnLessonTriplesQ2Why.
+  ///
+  /// In en, this message translates to:
+  /// **'Those three cells must contain 2, 5, and 6 in some order. Notes outside that set can be cleared from the three cells.'**
+  String get learnLessonTriplesQ2Why;
+
+  /// No description provided for @learnLessonWingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wings: X-Wing and XY-Wing'**
+  String get learnLessonWingsTitle;
+
+  /// No description provided for @learnLessonWingsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Read linked candidate patterns across multiple units.'**
+  String get learnLessonWingsSummary;
+
+  /// No description provided for @learnLessonWingsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'An X-Wing uses one digit in two rows and the same two columns, allowing eliminations in those columns. An XY-Wing uses three two-candidate cells: a pivot sees two wings, and either pivot value forces the shared wing candidate. These are elimination patterns, not guesses.'**
+  String get learnLessonWingsBody;
+
+  /// No description provided for @learnLessonWingsQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Candidate 5 forms the four corners of the highlighted rectangle across two rows and two columns. What is the X-Wing conclusion?'**
+  String get learnLessonWingsQuestion;
+
+  /// No description provided for @learnLessonWingsA.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove 5 from other cells in the two columns'**
+  String get learnLessonWingsA;
+
+  /// No description provided for @learnLessonWingsB.
+  ///
+  /// In en, this message translates to:
+  /// **'Place 5 in all four corners'**
+  String get learnLessonWingsB;
+
+  /// No description provided for @learnLessonWingsC.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove every other candidate from the corners'**
+  String get learnLessonWingsC;
+
+  /// No description provided for @learnLessonWingsQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'The pivot has 2/3; its wings have 2/7 and 3/7. What can a cell that sees both wings lose?'**
+  String get learnLessonWingsQ2;
+
+  /// No description provided for @learnLessonWingsQ2A.
+  ///
+  /// In en, this message translates to:
+  /// **'2'**
+  String get learnLessonWingsQ2A;
+
+  /// No description provided for @learnLessonWingsQ2B.
+  ///
+  /// In en, this message translates to:
+  /// **'3'**
+  String get learnLessonWingsQ2B;
+
+  /// No description provided for @learnLessonWingsQ2C.
+  ///
+  /// In en, this message translates to:
+  /// **'7'**
+  String get learnLessonWingsQ2C;
+
+  /// No description provided for @learnLessonWingsQ2Why.
+  ///
+  /// In en, this message translates to:
+  /// **'Whichever value the pivot takes, one wing must become 7. A cell seeing both wings therefore cannot be 7.'**
+  String get learnLessonWingsQ2Why;
 }
 
 class _AppLocalizationsDelegate
